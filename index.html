@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FlightPlus - Discover landmarks from above, log your flight journeys, and share your aerial adventures with friends.">
+    <title>FlightPlus - Your Aerial Journey Companion</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.47059;
+            color: #1d1d1f;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Hero section with cloud-like background */
+        .hero {
+            /* Background image - replace 'hero-background.jpg' with your image filename */
+            background-image: url('hero-background.jpg');
+            /* Fallback gradient in case image doesn't load - using background-color instead */
+            background-color: #4DB3D9;
+            /* Ensure background covers entire section */
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed; /* Creates parallax effect on scroll */
+            min-height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            padding: 4rem 2rem 3rem;
+            width: 100%;
+            max-width: none;
+            margin: 0;
+        }
+
+        /* Overlay to ensure text readability over background image */
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            /* Dark overlay to ensure text is readable */
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 600;
+            letter-spacing: -0.04em;
+            line-height: 1.05;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.375rem);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 0.25rem;
+            opacity: 0.95;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+
+        /* App Store badge */
+        .app-store-badge {
+            display: inline-block;
+            margin-top: 0.75rem;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .app-store-badge img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .app-store-badge:hover img {
+            transform: scale(1.05);
+        }
+
+        /* Section styling */
+        section {
+            padding: 5rem 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+
+        .section-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            text-align: center;
+            margin-bottom: 2rem;
+            color: #1d1d1f;
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+        }
+
+        .section-intro {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 4rem;
+            font-size: clamp(1.125rem, 2vw, 1.375rem);
+            line-height: 1.5;
+            color: #1d1d1f;
+            font-weight: 400;
+        }
+
+        /* Feature showcase sections - Apple style */
+        .feature-showcase {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .feature-showcase-section {
+            width: 100%;
+            min-height: 60vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 5rem 2rem;
+            position: relative;
+        }
+
+        .feature-showcase-section:nth-child(even) {
+            background: #f5f5f7;
+        }
+
+        .feature-showcase-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .feature-showcase-section:nth-child(even) .feature-showcase-content {
+            direction: rtl;
+        }
+
+        .feature-showcase-section:nth-child(even) .feature-showcase-text,
+        .feature-showcase-section:nth-child(even) .feature-showcase-image {
+            direction: ltr;
+        }
+
+        .feature-showcase-text {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .feature-showcase-text h3 {
+            font-size: clamp(2rem, 4vw, 3rem);
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: #1d1d1f;
+            margin-bottom: 1rem;
+        }
+
+        .feature-showcase-text p {
+            font-size: clamp(1rem, 1.75vw, 1.25rem);
+            line-height: 1.47059;
+            color: #1d1d1f;
+            font-weight: 400;
+            letter-spacing: -0.011em;
+            max-width: 500px;
+        }
+
+        .feature-showcase-image {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .feature-showcase-image img {
+            width: 100%;
+            max-width: 384px;
+            height: auto;
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        .feature-showcase-section .feature-showcase-image img.landscape {
+            max-width: 800px;
+        }
+
+        /* Auto-scrolling container for long screenshots */
+        .scrolling-screenshot-container {
+            width: 100%;
+            max-width: 384px;
+            height: 832px; /* Matches typical iPhone screenshot height at 384px width */
+            overflow: hidden;
+            border-radius: 18px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .scrolling-screenshot-container img {
+            width: 100%;
+            height: auto;
+            max-width: 384px;
+            border-radius: 18px;
+            animation: scrollScreenshot 15s ease-in-out infinite;
+            display: block;
+        }
+
+        @keyframes scrollScreenshot {
+            0%, 10% {
+                transform: translateY(0);
+            }
+            45%, 55% {
+                transform: translateY(var(--scroll-distance, -500px));
+            }
+            90%, 100% {
+                transform: translateY(0);
+            }
+        }
+
+        /* Pause animation on hover */
+        .scrolling-screenshot-container:hover img {
+            animation-play-state: paused;
+        }
+
+        /* Pricing section */
+        .pricing {
+            background: linear-gradient(to bottom, #f7fafc 0%, #edf2f7 100%);
+            padding: 5rem 2rem;
+        }
+
+        .pricing-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .pricing-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .pricing-card {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .pricing-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+        }
+
+        .pricing-card.featured {
+            border-color: #4DB3D9;
+            transform: scale(1.05);
+        }
+
+        .pricing-card.featured::before {
+            content: 'POPULAR';
+            position: absolute;
+            top: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #4DB3D9;
+            color: white;
+            padding: 0.5rem 1.5rem;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 600;
+        }
+
+        .plan-name {
+            font-size: 2rem;
+            font-weight: 600;
+            letter-spacing: -0.022em;
+            margin-bottom: 0.5rem;
+            color: #1d1d1f;
+            line-height: 1.1;
+        }
+
+        .plan-price {
+            font-size: 3rem;
+            font-weight: 600;
+            letter-spacing: -0.022em;
+            color: #4DB3D9;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+
+        .plan-price.free {
+            font-size: 2.5rem;
+            color: #48bb78;
+            letter-spacing: -0.022em;
+        }
+
+        .plan-period {
+            color: #86868b;
+            font-size: 1rem;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+            letter-spacing: -0.011em;
+            line-height: 1.47059;
+        }
+
+        .plan-price-alt {
+            color: #86868b;
+            font-size: 1.0625rem;
+            margin-bottom: 1.5rem;
+            font-weight: 400;
+            letter-spacing: -0.011em;
+            line-height: 1.47059;
+        }
+
+        .price-highlight {
+            display: inline-block;
+            background: linear-gradient(135deg, #4DB3D9 0%, #3A9BC4 100%);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-top: 0.5rem;
+        }
+
+        .plan-description {
+            color: #1d1d1f;
+            margin-bottom: 2rem;
+            line-height: 1.47059;
+            font-weight: 400;
+            letter-spacing: -0.011em;
+            font-size: 1.0625rem;
+        }
+
+        .plan-features {
+            list-style: none;
+            margin-bottom: 2rem;
+        }
+
+        .plan-features li {
+            padding: 0.75rem 0;
+            color: #1d1d1f;
+            position: relative;
+            padding-left: 2rem;
+            font-weight: 400;
+            letter-spacing: -0.011em;
+            line-height: 1.47059;
+            font-size: 1.0625rem;
+        }
+
+        .plan-features li::before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #48bb78;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+
+        .plan-features li.unavailable {
+            color: #86868b;
+        }
+
+        .plan-features li.unavailable::before {
+            content: '—';
+            color: #d2d2d7;
+        }
+
+        .plan-features li.limited {
+            color: #ed8936;
+        }
+
+        .plan-features li.limited::before {
+            content: '⚠';
+            color: #ed8936;
+        }
+
+        .price-comparison-badge {
+            display: inline-block;
+            background: #48bb78;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+
+        .cta-button {
+            display: block;
+            width: 100%;
+            padding: 1rem 2rem;
+            background: #4DB3D9;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 400;
+            font-size: 1.0625rem;
+            letter-spacing: -0.011em;
+            line-height: 1.47059;
+            transition: background 0.3s ease, transform 0.2s ease;
+            margin-top: 1rem;
+        }
+
+        .cta-button:hover {
+            background: #3A9BC4;
+            transform: scale(1.02);
+        }
+
+        .cta-button.secondary {
+            background: #e2e8f0;
+            color: #2d3748;
+        }
+
+        .cta-button.secondary:hover {
+            background: #cbd5e0;
+        }
+
+        /* Footer */
+        footer {
+            background: #1d1d1f;
+            color: #f5f5f7;
+            text-align: center;
+            padding: 4rem 2rem 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content h3 {
+            font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #f5f5f7;
+            margin-bottom: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-content h3 .footer-app-icon {
+            width: 1.2em;
+            height: 1.2em;
+            display: inline-block;
+            vertical-align: middle;
+            object-fit: contain;
+        }
+
+        .footer-content > p {
+            font-size: clamp(0.9375rem, 1.5vw, 1rem);
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            line-height: 1.5;
+            color: #86868b;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #86868b;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #f5f5f7;
+        }
+
+        .footer-copyright {
+            font-size: 0.75rem;
+            color: #86868b;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            margin-top: 2rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .app-icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1.125rem;
+            }
+
+            .hero-subtitle {
+                font-size: 0.875rem;
+            }
+
+            .section-title {
+                font-size: 2.5rem;
+            }
+
+            .section-intro {
+                font-size: 1.125rem;
+                margin-bottom: 4rem;
+            }
+
+            .feature-showcase-section {
+                min-height: auto;
+                padding: 3rem 2rem;
+            }
+
+            .feature-showcase-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+
+            .feature-showcase-section:nth-child(even) .feature-showcase-content {
+                direction: ltr;
+            }
+
+            .feature-showcase-text {
+                text-align: center;
+            }
+
+            .feature-showcase-text h3 {
+                font-size: 1.75rem;
+            }
+
+            .feature-showcase-text p {
+                max-width: 100%;
+            }
+
+            .pricing-card.featured {
+                transform: scale(1);
+            }
+
+            .pricing-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .scrolling-screenshot-container {
+                max-width: 100%;
+                height: 600px; /* Adjusted for mobile while maintaining aspect ratio */
+            }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-content">
+            <img src="app-icon.png" alt="FlightPlus App Icon" class="app-icon">
+            <h1>FlightPlus</h1>
+            <p>Every flight, perfectly documented.</p>
+            <p class="hero-subtitle">
+                Log journeys, map your aerial photos, and share standout albums in minutes.
+            </p>
+            <div class="app-store-badge">
+                <a href="https://apps.apple.com/app/flightplus" target="_blank" rel="noopener noreferrer">
+                    <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&releaseDate=1276560000" 
+                         alt="Download on the App Store" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjgzIiB2aWV3Qm94PSIwIDAgMjUwIDgzIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIyNTAiIGhlaWdodD0iODMiIHJ4PSIxMiIgZmlsbD0iIzAwMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Eb3dubG9hZCBvbiB0aGUgQXBwIFN0b3JlPC90ZXh0Pjwvc3ZnPg=='">
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="feature-showcase">
+        <div style="padding: 4rem 2rem 2rem; max-width: 1200px; margin: 0 auto;">
+            <h2 class="section-title">Built for Aerial Storytellers</h2>
+            <p class="section-intro">
+                Every feature designed to help you capture, organize, and share your aerial adventures with precision and elegance.
+            </p>
+        </div>
+
+        <div class="feature-showcase-section">
+            <div class="feature-showcase-content">
+                <div class="feature-showcase-text">
+                    <h3>Map-Based Photo Explorer</h3>
+                    <p>
+                        See every aerial photo on to the map and explore the lankmarks on the ground easily. Enrich your journey from a bird's-eye view.
+                    </p>
+                </div>
+                <div class="feature-showcase-image">
+                    <img src="screenshot-map-explorer.jpg" alt="Map-Based Photo Explorer">
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-showcase-section">
+            <div class="feature-showcase-content">
+                <div class="feature-showcase-text">
+                    <h3>Personal Photo Vault</h3>
+                    <p>
+                        Organise unique aerial shots by flight and keep your collection ready for future additions. Your aviation memories, beautifully preserved.
+                    </p>
+                </div>
+                <div class="feature-showcase-image">
+                    <img src="screenshot-flight-library.jpg" alt="Personal Photo Vault">
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-showcase-section">
+            <div class="feature-showcase-content">
+                <div class="feature-showcase-text">
+                    <h3>Shareable Albums</h3>
+                    <p>
+                        Send polished albums with maps, flight stats, and stories friends can explore instantly. One link, complete experience.
+                    </p>
+                </div>
+                <div class="feature-showcase-image">
+                    <img src="screenshot-sharable-album.jpg" alt="Shareable Albums">
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-showcase-section">
+            <div class="feature-showcase-content">
+                <div class="feature-showcase-text">
+                    <h3>Flight Journals</h3>
+                    <p>
+                        Your aerial photos pinned along the flight track. Every image mapped to its exact moment and location, creating a complete visual story of your journey.
+                    </p>
+                </div>
+                <div class="feature-showcase-image">
+                    <img src="screenshot-flight-journal.jpg" alt="Flight Journals">
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-showcase-section">
+            <div class="feature-showcase-content">
+                <div class="feature-showcase-text">
+                    <h3>In-Flight Context</h3>
+                    <p>
+                        View altitude, heading, location, and context to identify what was outside the window. Never wonder "what was that?" again.
+                    </p>
+                </div>
+                <div class="feature-showcase-image">
+                    <div class="scrolling-screenshot-container">
+                        <img src="screenshot-publish-flow.jpg" alt="In-Flight Context">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="feature-showcase-section">
+            <div class="feature-showcase-content">
+                <div class="feature-showcase-text">
+                    <h3>Signature Flight Frames</h3>
+                    <p>
+                        Design custom frames that combine your photo, route map, and flight data for print or sharing. Turn moments into keepsakes.
+                    </p>
+                </div>
+                <div class="feature-showcase-image">
+                    <img src="screenshot-photo-frame.jpg" alt="Signature Flight Frames" class="landscape">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="pricing" id="pricing">
+        <div class="pricing-container">
+            <h2 class="section-title">Choose Your Flight Plan</h2>
+            <p style="text-align: center; color: #86868b; font-size: 1.0625rem; margin-bottom: 2rem; font-weight: 400; letter-spacing: -0.011em; line-height: 1.47059;">
+                Start exploring for free, or unlock unlimited features with Insighter
+            </p>
+            
+            <div class="pricing-cards">
+                <!-- Explorer Plan (Free) -->
+                <div class="pricing-card">
+                    <h3 class="plan-name">Explorer</h3>
+                    <div class="plan-price free">Free</div>
+                    <div class="plan-price-alt">Always free, no credit card required</div>
+                    <p class="plan-description">
+                        Start logging every journey with mapped photos and context-ready details.
+                    </p>
+                    <ul class="plan-features">
+                        <li>Log flights with route and aircraft details</li>
+                        <li>Pin aerial photos on the map</li>
+                        <li>See altitude, heading, and location context</li>
+                        <li>Share curated flight albums</li>
+                        <li class="limited">Save up to 5 flight albums</li>
+                        <li class="unavailable">Photo privacy controls</li>
+                        <li class="unavailable">Import personal trip photos</li>
+                        <li class="unavailable">Signature map frames</li>
+                    </ul>
+                    <a href="https://apps.apple.com/app/flightplus" class="cta-button secondary">
+                        Get Started Free
+                    </a>
+                </div>
+
+                <!-- Insighter Plan (Paid) -->
+                <div class="pricing-card featured">
+                    <h3 class="plan-name">Insighter</h3>
+                    <div class="plan-price">$4.99</div>
+                    <div class="plan-period">per month</div>
+                    <div class="plan-price-alt">or <strong>$49.99/year</strong></div>
+                    <p class="plan-description">
+                        Unlock unlimited albums, privacy controls, and custom frames for every flight.
+                    </p>
+                    <ul class="plan-features">
+                        <li>Log flights with route and aircraft details</li>
+                        <li>Pin aerial photos on the map</li>
+                        <li>See altitude, heading, and location context</li>
+                        <li>Share curated flight albums</li>
+                        <li>Save unlimited flight albums<span class="price-comparison-badge">UNLIMITED</span></li>
+                        <li>Photo privacy controls<span class="price-comparison-badge">PREMIUM</span></li>
+                        <li>Import personal trip photos<span class="price-comparison-badge">PREMIUM</span></li>
+                        <li>Signature map frames<span class="price-comparison-badge">PREMIUM</span></li>
+                    </ul>
+                    <a href="https://apps.apple.com/app/flightplus" class="cta-button">
+                        Start 7-day Free Trial
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h3>FlightPlus<img src="app-icon-black.jpg" alt="FlightPlus App Icon" class="footer-app-icon"></h3>
+            <p>
+                Your personal aviation companion for discovering the world from above.
+            </p>
+            <div class="footer-links">
+                <a href="#features">Features</a>
+                <a href="#pricing">Pricing</a>
+                <a href="https://apps.apple.com/app/flightplus">Download</a>
+                <a href="mailto:victor.liang@flightplus.ai">Support</a>
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+            </div>
+            <p class="footer-copyright">
+                © 2025 FlightPlus. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Calculate scroll distance for auto-scrolling screenshot
+        document.addEventListener('DOMContentLoaded', function() {
+            const scrollingContainer = document.querySelector('.scrolling-screenshot-container');
+            if (scrollingContainer) {
+                const img = scrollingContainer.querySelector('img');
+                if (img) {
+                    // Wait for image to load to get actual height
+                    if (img.complete) {
+                        setScrollDistance(scrollingContainer, img);
+                    } else {
+                        img.addEventListener('load', function() {
+                            setScrollDistance(scrollingContainer, img);
+                        });
+                    }
+                }
+            }
+        });
+
+        function setScrollDistance(container, img) {
+            const containerHeight = container.offsetHeight;
+            const imageHeight = img.offsetHeight;
+            const scrollDistance = imageHeight > containerHeight 
+                ? -(imageHeight - containerHeight) 
+                : 0;
+            container.style.setProperty('--scroll-distance', scrollDistance + 'px');
+        }
+    </script>
+
+</body>
+</html>
+
