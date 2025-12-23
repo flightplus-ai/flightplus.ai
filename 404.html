@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlightPlus - Shared Flight Card</title>
+    
+    <!-- Universal Links / Deep Linking Support -->
+    <!-- Smart App Banner - Uncomment when app is published in App Store -->
+    <!-- <meta name="apple-itunes-app" content="app-id=6749645650"> -->
+    
+    <!-- Prevent automatic redirects that might interfere with Universal Links -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    
+    <!-- Open Graph / Social Media Meta Tags -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="FlightPlus - Shared Flight Card">
+    <meta property="og:description" content="View this shared flight card in the FlightPlus app">
+    <meta property="og:url" content="" id="og-url">
+    <meta property="og:site_name" content="FlightPlus">
+    
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="FlightPlus - Shared Flight Card">
+    <meta name="twitter:description" content="View this shared flight card in the FlightPlus app">
+    
+    <!-- Canonical URL - Helps iOS recognize the link -->
+    <link rel="canonical" href="" id="canonical-url">
+    
+    <!-- Prevent indexing - This is a deep link page, not content -->
+    <meta name="robots" content="noindex, nofollow">
+    
+    <!-- Preconnect to domain for faster Universal Link recognition -->
+    <link rel="preconnect" href="https://flightplus.ai">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 20px;
+        }
+        .container {
+            max-width: 400px;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        p {
+            font-size: 16px;
+            opacity: 0.9;
+            margin-bottom: 30px;
+        }
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .download-button, .open-app-button {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 12px 24px;
+            background-color: rgba(255, 255, 255, 0.2);
+            border: 2px solid white;
+            border-radius: 8px;
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background-color 0.3s;
+            margin-left: 10px;
+            margin-right: 10px;
+        }
+        .download-button:hover, .open-app-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+        .open-app-button {
+            background-color: rgba(255, 255, 255, 0.3);
+            border-width: 2px;
+        }
+        .button-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: center;
+        }
+        /* Custom App Banner - Visible banner that mimics iOS Smart App Banner */
+        .app-banner {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            color: white;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            z-index: 10000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .app-banner-content {
+            display: flex;
+            align-items: center;
+            flex: 1;
+            gap: 12px;
+        }
+        .app-banner-icon {
+            width: 44px;
+            height: 44px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            flex-shrink: 0;
+        }
+        .app-banner-text {
+            flex: 1;
+            text-align: left;
+        }
+        .app-banner-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.2;
+        }
+        .app-banner-subtitle {
+            font-size: 13px;
+            opacity: 0.8;
+            margin: 2px 0 0 0;
+            line-height: 1.2;
+        }
+        .app-banner-button {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+        .app-banner-button:hover {
+            background: #0051D5;
+        }
+        .app-banner-close {
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 20px;
+            cursor: pointer;
+            padding: 0 8px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+        .app-banner-close:hover {
+            color: white;
+        }
+        /* Add padding to body when banner is visible */
+        body.has-banner {
+            padding-top: 68px;
+        }
+        
+        /* Ensure Universal Link buttons are properly styled */
+        [data-universal-link="true"] {
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.3);
+        }
+        
+        /* Prevent text selection on banner for better UX */
+        .app-banner {
+            -webkit-user-select: none;
+            user-select: none;
+        }
+        
+        /* Ensure links are tappable on mobile */
+        .app-banner-button, .open-app-button, .download-button {
+            -webkit-tap-highlight-color: rgba(255, 255, 255, 0.3);
+            touch-action: manipulation;
+        }
+    </style>
+    <script>
+        // Extract shareId from URL path
+        const path = window.location.pathname;
+        const shareIdMatch = path.match(/\/share\/([^\/]+)/);
+        const shareId = shareIdMatch ? shareIdMatch[1] : null;
+        
+        // App Store URL - Update this with your actual App Store ID when available
+        // Format: https://apps.apple.com/app/id{APP_STORE_ID}
+        // To find your App Store ID: https://appstoreconnect.apple.com → My Apps → Your App → App Information → Apple ID
+        // Uses production App Store listing; update only if Apple ID changes.
+        const APP_STORE_URL = 'https://apps.apple.com/app/id6749645650';
+        
+        // Detect iOS device
+        const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+        
+        if (shareId) {
+            // For Universal Links: iOS will intercept this URL if app is installed
+            // The URL is already correct (https://flightplus.ai/share/...)
+            // iOS checks the AASA file and opens the app if configured correctly
+            
+            // Set canonical URL and Open Graph URL for better Universal Link recognition
+            const currentUrl = window.location.href;
+            const canonicalLink = document.getElementById('canonical-url');
+            const ogUrlMeta = document.getElementById('og-url');
+            if (canonicalLink) canonicalLink.setAttribute('href', currentUrl);
+            if (ogUrlMeta) ogUrlMeta.setAttribute('content', currentUrl);
+            
+            // On iOS Safari, handle different scenarios
+            if (isIOS) {
+                const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                
+                if (isSafari) {
+                    // Check if this page was opened from share sheet (no referrer)
+                    // or from typing/copying (has referrer or direct navigation)
+                    const isFromShare = !document.referrer || document.referrer === '';
+                    
+                    if (isFromShare) {
+                        // Opened from share sheet - Universal Link prompt might not appear
+                        // Try custom URL scheme first to open app immediately
+                        const customSchemeUrl = 'flightplus://share/' + shareId;
+                        
+                        // Attempt to open via custom scheme
+                        window.location.href = customSchemeUrl;
+                        
+                        // If still on page after 800ms, show instructions
+                        setTimeout(function() {
+                            if (!document.hidden && document.hasFocus()) {
+                                const message = document.querySelector('p');
+                                if (message) {
+                                    message.textContent = 'Tap the button below to open FlightPlus.';
+                                }
+                            }
+                        }, 800);
+                    } else {
+                        // Opened by typing or other method - Universal Link prompt should appear
+                        setTimeout(function() {
+                            const message = document.querySelector('p');
+                            if (message) {
+                                message.textContent = 'Tap "Open" in the prompt at the bottom to open in FlightPlus app.';
+                            }
+                        }, 1000);
+                    }
+                }
+            }
+            
+            // Create custom app banner immediately (works before app is published)
+            // But on iOS Safari, don't show banner if system prompt is visible
+            // The system prompt at bottom is better - let iOS handle it
+            const isSafari = isIOS && /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+            
+            // Only show custom banner if not in Safari (or if system prompt doesn't appear)
+            // In Safari, iOS shows its own prompt which is better
+            const bannerHTML = 
+                '<div class="app-banner" id="appBanner">' +
+                '<div class="app-banner-content">' +
+                '<div class="app-banner-icon">✈️</div>' +
+                '<div class="app-banner-text">' +
+                '<div class="app-banner-title">FlightPlus</div>' +
+                '<div class="app-banner-subtitle">Open in App</div>' +
+                '</div>' +
+                '</div>' +
+                '<a href="flightplus://share/' + shareId + '" class="app-banner-button" id="openAppButton" data-universal-link="true">Open</a>' +
+                '<button class="app-banner-close" id="closeBanner" aria-label="Close">×</button>' +
+                '</div>';
+            
+            // In Safari, hide custom banner after a delay to let system prompt show
+            // The system prompt at bottom is what user should tap
+            if (isSafari) {
+                // Wait a bit, then hide custom banner if system prompt is likely visible
+                setTimeout(function() {
+                    const banner = document.getElementById('appBanner');
+                    if (banner) {
+                        // Hide custom banner - system prompt is better
+                        banner.style.display = 'none';
+                        document.body.classList.remove('has-banner');
+                        // Update message to guide user to system prompt
+                        const message = document.querySelector('p');
+                        if (message) {
+                            message.textContent = 'Look for the prompt at the bottom of the screen and tap "Open" to launch FlightPlus.';
+                        }
+                    }
+                }, 2000);
+            }
+            
+            document.body.insertAdjacentHTML('afterbegin', bannerHTML);
+            document.body.classList.add('has-banner');
+            
+            // Handle banner close button
+            const closeBanner = document.getElementById('closeBanner');
+            if (closeBanner) {
+                closeBanner.addEventListener('click', function() {
+                    const banner = document.getElementById('appBanner');
+                    if (banner) {
+                        banner.style.display = 'none';
+                        document.body.classList.remove('has-banner');
+                    }
+                });
+            }
+            
+            // Enhance Universal Link recognition for banner button
+            const openAppButton = document.getElementById('openAppButton');
+            if (openAppButton) {
+                // Prevent default navigation - let iOS handle Universal Link
+                openAppButton.addEventListener('click', function(e) {
+                    // On iOS, tapping a Universal Link should open app directly
+                    // Don't prevent default - let iOS handle it
+                    // If app opens, visibilitychange event will fire
+                    
+                    // If still on page after 500ms, app didn't open
+                    setTimeout(function() {
+                        if (document.hasFocus() && !document.hidden) {
+                            // App didn't open, maybe not installed
+                            // Banner button will navigate to same URL
+                            // This gives iOS another chance to recognize Universal Link
+                        }
+                    }, 500);
+                });
+            }
+            
+            // Track if user is still on page (app didn't open)
+            let stillOnPage = true;
+            
+            // Check if page becomes hidden (app opened)
+            document.addEventListener('visibilitychange', function() {
+                if (document.hidden) {
+                    stillOnPage = false;
+                    // Hide banner if app opened
+                    const banner = document.getElementById('appBanner');
+                    if (banner) banner.style.display = 'none';
+                }
+            });
+            
+            // Also check if page loses focus (app opened)
+            window.addEventListener('blur', function() {
+                // On iOS, when app opens, window loses focus
+                setTimeout(function() {
+                    if (document.hidden) {
+                        stillOnPage = false;
+                        const banner = document.getElementById('appBanner');
+                        if (banner) banner.style.display = 'none';
+                    }
+                }, 100);
+            });
+            
+            // Detect if Universal Link was intercepted (iOS 14+)
+            // When Universal Link opens app, page visibility changes
+            // But we also check for pagehide event
+            window.addEventListener('pagehide', function() {
+                stillOnPage = false;
+                const banner = document.getElementById('appBanner');
+                if (banner) banner.style.display = 'none';
+            });
+            
+            // After delay, show content and buttons
+            const redirectDelay = isIOS ? 3000 : 2000; // iOS: 3 seconds, others: 2 seconds
+            
+            setTimeout(function() {
+                // Only proceed if still on page (app didn't open)
+                if (!stillOnPage) return;
+                
+                const spinner = document.querySelector('.spinner');
+                const message = document.querySelector('p');
+                const container = document.querySelector('.container');
+                
+                if (spinner) spinner.style.display = 'none';
+                
+                if (isIOS) {
+                    // On iOS Safari, system prompt appears at bottom
+                    // Guide user to tap that prompt
+                    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                    if (message) {
+                        if (isSafari) {
+                            message.textContent = 'Tap "Open" in the prompt at the bottom of your screen to open FlightPlus.';
+                        } else {
+                            message.textContent = 'Tap "Open" in the banner above, or use the buttons below.';
+                        }
+                    }
+                    
+                    // Show both "Open in App" (Universal Link) and "Download" buttons
+                    if (container && !container.querySelector('.button-container')) {
+                        const customSchemeUrl = 'flightplus://share/' + shareId;
+                        const buttonHTML = 
+                            '<div class="button-container">' +
+                            '<a href="' + customSchemeUrl + '" class="open-app-button" data-universal-link="true">Open in FlightPlus</a>' +
+                            '<a href="' + APP_STORE_URL + '" class="download-button">Download FlightPlus</a>' +
+                            '</div>';
+                        container.innerHTML += buttonHTML;
+                        
+                        // Enhance all Universal Link buttons
+                        const universalLinkButtons = container.querySelectorAll('[data-universal-link="true"]');
+                        universalLinkButtons.forEach(function(button) {
+                            button.addEventListener('click', function(e) {
+                                // Let iOS handle Universal Link naturally
+                                // Don't prevent default - iOS will intercept if app is installed
+                            });
+                        });
+                    }
+                } else {
+                    // Non-iOS device
+                    if (message) message.textContent = 'Please open this link in the FlightPlus app.';
+                    if (container && !container.querySelector('.download-button')) {
+                        container.innerHTML += 
+                            '<a href="' + APP_STORE_URL + '" class="download-button">Download FlightPlus</a>';
+                    }
+                }
+            }, redirectDelay);
+        } else {
+            // Not a share link, show 404
+            document.querySelector('h1').textContent = '404 - Page Not Found';
+            document.querySelector('p').textContent = 'The page you are looking for does not exist.';
+            document.querySelector('.spinner').style.display = 'none';
+        }
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>✈️ FlightPlus</h1>
+        <p>Opening shared flight card...</p>
+        <div class="spinner"></div>
+    </div>
+</body>
+</html>
+
