@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Learn how to upload aerial photos and view them on the map with FlightPlus.">
+    <title>How to Use FlightPlus - Upload & View Aerial Photos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            line-height: 1.47059;
+            color: #1d1d1f;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* Top navigation */
+        .top-nav {
+            position: absolute;
+            top: 1.5rem;
+            left: 2rem;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(8px);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+        }
+
+        .top-nav a {
+            color: white;
+            text-decoration: none;
+            font-size: clamp(0.875rem, 1.75vw, 1.125rem);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            line-height: 1.05;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            display: inline-block;
+            transition: opacity 0.3s ease;
+            text-align: left;
+        }
+
+        .top-nav a:hover {
+            opacity: 0.8;
+        }
+
+        .top-nav a.current {
+            color: #86868b;
+        }
+
+        /* Hero section */
+        .hero {
+            background-image: url('hero-background.jpg');
+            background-color: #4DB3D9;
+            background-size: cover;
+            background-position: center center;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            min-height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            color: white;
+            position: relative;
+            padding: 4rem 2rem 3rem;
+            width: 100%;
+            max-width: none;
+            margin: 0;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 0;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 1;
+            max-width: 800px;
+        }
+
+        .app-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1rem;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 5vw, 3.5rem);
+            font-weight: 600;
+            letter-spacing: -0.04em;
+            line-height: 1.05;
+            margin-bottom: 1.5rem;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            animation: fadeInUp 1s ease-out 0.2s both;
+        }
+
+        .hero p {
+            font-size: clamp(1rem, 2vw, 1.375rem);
+            font-weight: 400;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            margin-bottom: 0.25rem;
+            opacity: 0.95;
+            animation: fadeInUp 1s ease-out 0.3s both;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(0.875rem, 1.5vw, 1.125rem);
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+            opacity: 0.9;
+            animation: fadeInUp 1s ease-out 0.5s both;
+        }
+
+        /* App Store badge */
+        .app-store-badge {
+            display: inline-block;
+            margin-top: 0.75rem;
+            animation: fadeInUp 1s ease-out 0.6s both;
+        }
+
+        .app-store-badge img {
+            height: 50px;
+            width: auto;
+            transition: transform 0.3s ease;
+        }
+
+        .app-store-badge:hover img {
+            transform: scale(1.05);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Main content section */
+        .guide-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 5rem 2rem;
+        }
+
+        .guide-intro {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .guide-intro h2 {
+            font-size: clamp(1.75rem, 3.5vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -0.03em;
+            line-height: 1.1;
+            color: #1d1d1f;
+            margin-bottom: 1.5rem;
+        }
+
+        .guide-intro p {
+            font-size: clamp(1.125rem, 2vw, 1.375rem);
+            line-height: 1.5;
+            color: #1d1d1f;
+            font-weight: 400;
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        /* Carousel container */
+        .carousel-section {
+            margin: 4rem 0;
+        }
+
+        .carousel-container {
+            position: relative;
+            max-width: 900px;
+            margin: 0 auto;
+            overflow: hidden;
+            background: transparent;
+        }
+
+        .carousel-track {
+            display: flex;
+            transition: transform 0.5s ease-in-out;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 3rem 2rem;
+        }
+
+        .carousel-slide-image {
+            width: 100%;
+            max-width: 384px;
+            height: auto;
+            border-radius: 18px;
+            margin-bottom: 2rem;
+        }
+
+        .carousel-slide-content {
+            text-align: center;
+            max-width: 600px;
+        }
+
+        .carousel-slide-number {
+            display: inline-block;
+            background: #4DB3D9;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            line-height: 36px;
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-bottom: 1rem;
+        }
+
+        .carousel-slide-title {
+            font-size: clamp(1.5rem, 3vw, 2rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+            color: #1d1d1f;
+            margin-bottom: 1rem;
+        }
+
+        .carousel-slide-description {
+            font-size: clamp(1rem, 1.5vw, 1.125rem);
+            line-height: 1.6;
+            color: #1d1d1f;
+            font-weight: 400;
+            letter-spacing: -0.011em;
+        }
+
+        .carousel-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #1d1d1f;
+            transition: all 0.3s ease;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .carousel-nav:hover {
+            background: rgba(255, 255, 255, 1);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .carousel-nav.prev {
+            left: 1rem;
+        }
+
+        .carousel-nav.next {
+            right: 1rem;
+        }
+
+        .carousel-nav:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .carousel-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #d2d2d7;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+
+        .carousel-dot.active {
+            background: #4DB3D9;
+            width: 30px;
+            border-radius: 5px;
+        }
+
+        .carousel-dot:hover {
+            background: #86868b;
+        }
+
+        /* Footer */
+        footer {
+            background: #1d1d1f;
+            color: #f5f5f7;
+            text-align: center;
+            padding: 4rem 2rem 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-content h3 {
+            font-size: clamp(1.25rem, 2.5vw, 1.75rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            color: #f5f5f7;
+            margin-bottom: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .footer-content h3 .footer-app-icon {
+            width: 1.2em;
+            height: 1.2em;
+            display: inline-block;
+            vertical-align: middle;
+            object-fit: contain;
+        }
+
+        .footer-content > p {
+            font-size: clamp(0.9375rem, 1.5vw, 1rem);
+            font-weight: 400;
+            letter-spacing: -0.01em;
+            line-height: 1.5;
+            color: #86868b;
+            margin-bottom: 2rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #86868b;
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #f5f5f7;
+        }
+
+        .footer-copyright {
+            font-size: 0.75rem;
+            color: #86868b;
+            font-weight: 400;
+            letter-spacing: 0.01em;
+            margin-top: 2rem;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .top-nav {
+                top: 1rem;
+                left: 1rem;
+                padding: 0.625rem 0.875rem;
+            }
+
+            .top-nav a {
+                font-size: 0.8125rem;
+            }
+
+            .app-icon {
+                width: 80px;
+                height: 80px;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero p {
+                font-size: 1.125rem;
+            }
+
+            .guide-content {
+                padding: 3rem 1.5rem;
+            }
+
+            .guide-intro h2 {
+                font-size: 2.5rem;
+            }
+
+            .carousel-slide {
+                padding: 2rem 1.5rem;
+            }
+
+            .carousel-nav {
+                width: 40px;
+                height: 40px;
+                font-size: 1.25rem;
+            }
+
+            .carousel-nav.prev {
+                left: 0.5rem;
+            }
+
+            .carousel-nav.next {
+                right: 0.5rem;
+            }
+        }
+
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <section class="hero">
+        <!-- Top Navigation -->
+        <nav class="top-nav">
+            <a href="index.html">Home</a>
+            <a href="how-to-use.html" class="current">How to Use</a>
+            <a href="my-story.html">My Story</a>
+        </nav>
+        <div class="hero-content">
+            <img src="app-icon.png" alt="FlightPlus App Icon" class="app-icon">
+            <h1>FlightPlus</h1>
+            <p>Every flight, perfectly documented.</p>
+            <p class="hero-subtitle">
+                Log journeys, map your aerial photos, and share standout albums in minutes.
+            </p>
+            <div class="app-store-badge">
+                <a href="https://apps.apple.com/app/id6749645650" target="_blank" rel="noopener noreferrer">
+                    <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&releaseDate=1276560000" 
+                         alt="Download on the App Store" 
+                         onerror="this.src='data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjUwIiBoZWlnaHQ9IjgzIiB2aWV3Qm94PSIwIDAgMjUwIDgzIiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxyZWN0IHdpZHRoPSIyNTAiIGhlaWdodD0iODMiIHJ4PSIxMiIgZmlsbD0iIzAwMCIvPjx0ZXh0IHg9IjUwJSIgeT0iNTAlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTQiIGZpbGw9IiNGRkYiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGR5PSIuM2VtIj5Eb3dubG9hZCBvbiB0aGUgQXBwIFN0b3JlPC90ZXh0Pjwvc3ZnPg=='">
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Main Content -->
+    <section class="guide-content">
+        <div class="guide-intro">
+            <h2>How to Use - Upload & View Your Aerial Photos</h2>
+            <p>
+                Follow these simple steps to upload your aerial photos, discover their content, and view them on the map. FlightPlus automatically analyzes your photos and attaches detailed flight information.
+            </p>
+        </div>
+
+        <!-- Carousel Section -->
+        <div class="carousel-section">
+            <div class="carousel-container">
+                <div class="carousel-track" id="carouselTrack">
+                    <!-- Slide 1: Enter Flight Number -->
+                    <div class="carousel-slide">
+                        <img src="plus_page_keyin_flight_number.jpg" alt="Enter Flight Number" class="carousel-slide-image">
+                        <div class="carousel-slide-content">
+                            <span class="carousel-slide-number">1</span>
+                            <h3 class="carousel-slide-title">Enter Flight Number</h3>
+                            <p class="carousel-slide-description">
+                                At the plus page, enter your flight number (tail number) and tap "Set" button in the input field. Then click "View Phone Gallery" to select an aerial photo from your phone album.
+                            </p>
+                            <p class="carousel-slide-description" style="margin-top: 1rem; color: #86868b; font-size: 0.9375rem;">
+                                Note: Flight numbers can be searched up to 2 years ago.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: Photo Analysis -->
+                    <div class="carousel-slide">
+                        <img src="analyzing_photo.jpg" alt="Analyzing Photo" class="carousel-slide-image">
+                        <div class="carousel-slide-content">
+                            <span class="carousel-slide-number">2</span>
+                            <h3 class="carousel-slide-title">Analyzing Aerial Photo</h3>
+                            <p class="carousel-slide-description">
+                                If the flight number is correct and the photo timestamp matches when it was captured, the app will automatically analyze the photo content and attach detailed flight information.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Slide 3: View Flight Information -->
+                    <div class="carousel-slide">
+                        <img src="select_camera_view_read_fly_info.jpg" alt="View Flight Information" class="carousel-slide-image">
+                        <div class="carousel-slide-content">
+                            <span class="carousel-slide-number">3</span>
+                            <h3 class="carousel-slide-title">Discover Flight Details</h3>
+                            <p class="carousel-slide-description">
+                                Specify the camera view angle for your photo. Discover all detailed flight information including date, time, altitude, speed, track, and more. Check the embedded map view to see exactly where the photo was taken.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Slide 4: Create Map Frame -->
+                    <div class="carousel-slide">
+                        <img src="photo_template.jpg" alt="Create Map Frame" class="carousel-slide-image">
+                        <div class="carousel-slide-content">
+                            <span class="carousel-slide-number">4</span>
+                            <h3 class="carousel-slide-title">Create Map-Based Frame</h3>
+                            <p class="carousel-slide-description">
+                                You can create a map-based frame for your photo by selecting a template style (Landscape or Portrait). The frame combines your photo with the flight route map and flight data, perfect for sharing with friends.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Slide 5: Publish or Keep Private -->
+                    <div class="carousel-slide">
+                        <img src="set_private_photo.jpg" alt="Set Privacy" class="carousel-slide-image">
+                        <div class="carousel-slide-content">
+                            <span class="carousel-slide-number">5</span>
+                            <h3 class="carousel-slide-title">Publish or Keep Private</h3>
+                            <p class="carousel-slide-description">
+                                Click "Publish" to allow other users to view your aerial photos on the map. Alternatively, click the yellow lock icon on the photo preview to set it as private. The "Publish" button will change to "Keep" so only you can see the photo.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Slide 6: View on Map -->
+                    <div class="carousel-slide">
+                        <img src="check_on_map.jpg" alt="View on Map" class="carousel-slide-image">
+                        <div class="carousel-slide-content">
+                            <span class="carousel-slide-number">6</span>
+                            <h3 class="carousel-slide-title">Explore Photo on Map</h3>
+                            <p class="carousel-slide-description">
+                                After clicking "Publish" or "Keep", your aerial photo will appear on the map page. Click the arrow to center the photo on the map and explore the surrounding area. You can also use the filter buttons "ALL", "MY PHOTOS" or adjust the flight altitude indicator to view more photos.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Slide 7: View in Album -->
+                    <div class="carousel-slide">
+                        <img src="check_in_album.jpg" alt="View in Album" class="carousel-slide-image">
+                        <div class="carousel-slide-content">
+                            <span class="carousel-slide-number">7</span>
+                            <h3 class="carousel-slide-title">View Photos in Flight Album</h3>
+                            <p class="carousel-slide-description">
+                                At your profile page, you can view the flight album for a specific flight. Tap any photo in the album to see the detailed flight information including altitude, track, speed, and location description.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Slide 8: View Flight Route -->
+                    <div class="carousel-slide">
+                        <img src="check_on_fly_route.jpg" alt="View Flight Route" class="carousel-slide-image">
+                        <div class="carousel-slide-content">
+                            <span class="carousel-slide-number">8</span>
+                            <h3 class="carousel-slide-title">Track Photos Along Flight Route</h3>
+                            <p class="carousel-slide-description">
+                                View all your photos pinned along the flight route on the Flight Track screen. See where each photo was taken during your journey and explore the complete visual story of your flight.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Slide 9: Photo Gallery -->
+                    <div class="carousel-slide">
+                        <img src="photo_gallery.jpg" alt="Photo Gallery" class="carousel-slide-image">
+                        <div class="carousel-slide-content">
+                            <span class="carousel-slide-number">9</span>
+                            <h3 class="carousel-slide-title">Enjoy Your Flight Photo Collection</h3>
+                            <p class="carousel-slide-description">
+                                All your public and private photos are shown in the photo gallery on your profile page. Photos marked with a yellow lock icon are private and visible only to you, while others are public and visible to everyone.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <button class="carousel-nav prev" id="prevBtn" aria-label="Previous step">‹</button>
+                <button class="carousel-nav next" id="nextBtn" aria-label="Next step">›</button>
+            </div>
+            <div class="carousel-dots" id="carouselDots"></div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-content">
+            <h3>FlightPlus<img src="app-icon-black.jpg" alt="FlightPlus App Icon" class="footer-app-icon"></h3>
+            <p>
+                Your personal aviation companion for discovering the world from above.
+            </p>
+            <div class="footer-links">
+                <a href="index.html">Home</a>
+                <a href="how-to-use.html">How to Use</a>
+                <a href="my-story.html">My Story</a>
+                <a href="index.html#features">Features</a>
+                <a href="index.html#pricing">Pricing</a>
+                <a href="https://apps.apple.com/app/id6749645650">Download</a>
+                <a href="mailto:info@flightplus.ai">Support</a>
+                <a href="privacy-policy.html">Privacy Policy</a>
+                <a href="terms-of-service.html">Terms of Service</a>
+            </div>
+            <p class="footer-copyright">
+                © 2025 FlightPlus. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+    <script>
+        // Carousel functionality
+        (function() {
+            const track = document.getElementById('carouselTrack');
+            const slides = track.querySelectorAll('.carousel-slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const dotsContainer = document.getElementById('carouselDots');
+            
+            let currentIndex = 0;
+            const totalSlides = slides.length;
+
+            // Create dots
+            for (let i = 0; i < totalSlides; i++) {
+                const dot = document.createElement('button');
+                dot.className = 'carousel-dot' + (i === 0 ? ' active' : '');
+                dot.setAttribute('aria-label', 'Go to step ' + (i + 1));
+                dot.addEventListener('click', () => goToSlide(i));
+                dotsContainer.appendChild(dot);
+            }
+
+            const dots = dotsContainer.querySelectorAll('.carousel-dot');
+
+            function updateCarousel() {
+                track.style.transform = `translateX(-${currentIndex * 100}%)`;
+                
+                // Update dots
+                dots.forEach((dot, index) => {
+                    dot.classList.toggle('active', index === currentIndex);
+                });
+
+                // Update button states
+                prevBtn.disabled = currentIndex === 0;
+                nextBtn.disabled = currentIndex === totalSlides - 1;
+            }
+
+            function goToSlide(index) {
+                currentIndex = index;
+                updateCarousel();
+            }
+
+            function nextSlide() {
+                if (currentIndex < totalSlides - 1) {
+                    currentIndex++;
+                    updateCarousel();
+                }
+            }
+
+            function prevSlide() {
+                if (currentIndex > 0) {
+                    currentIndex--;
+                    updateCarousel();
+                }
+            }
+
+            // Event listeners
+            nextBtn.addEventListener('click', nextSlide);
+            prevBtn.addEventListener('click', prevSlide);
+
+            // Keyboard navigation
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowLeft') {
+                    prevSlide();
+                } else if (e.key === 'ArrowRight') {
+                    nextSlide();
+                }
+            });
+
+            // Initialize
+            updateCarousel();
+        })();
+    </script>
+</body>
+</html>
