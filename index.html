@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="FlightPlus - Discover landmarks from above, log your flight journeys, and share your aerial adventures with friends.">
-    <title>FlightPlus - Your Aerial Journey Companion</title>
+    <meta name="description" content="FlightPlus turns hours of unsorted window-seat photos and videos into a professional, data-rich flight album in minutes. Built for pilots and frequent flyers.">
+    <title>FlightPlus - Turn Hours of Flight Photos into a Pro Album in Minutes</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -284,45 +284,34 @@
             max-width: 800px;
         }
 
-        /* Auto-scrolling container for long screenshots */
-        .scrolling-screenshot-container {
+        /* Auto-shifting crossfade slideshow (batch flow) */
+        .batch-slideshow {
+            position: relative;
             width: 100%;
             max-width: 384px;
-            height: 832px; /* Matches typical iPhone screenshot height at 384px width */
+            aspect-ratio: 1260 / 2736;
+            margin: 0 auto;
+            border-radius: 18px;
             overflow: hidden;
-            border-radius: 18px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-            position: relative;
-            isolation: isolate; /* Create new stacking context for better clipping */
+            background: #f5f5f7;
         }
 
-        .scrolling-screenshot-container img {
+        .batch-slideshow img {
+            position: absolute;
+            inset: 0;
             width: 100%;
-            height: auto;
-            max-width: 384px;
+            height: 100%;
+            object-fit: cover;
+            opacity: 0;
+            z-index: 1;
             border-radius: 18px;
-            animation: scrollScreenshot 15s ease-in-out infinite;
-            display: block;
-            position: relative;
-            max-height: none;
-            will-change: transform; /* Optimize animation performance */
+            transition: opacity 1s ease-in-out;
         }
 
-        @keyframes scrollScreenshot {
-            0%, 10% {
-                transform: translateY(0);
-            }
-            45%, 55% {
-                transform: translateY(var(--scroll-distance, 0px));
-            }
-            90%, 100% {
-                transform: translateY(0);
-            }
-        }
-
-        /* Pause animation on hover */
-        .scrolling-screenshot-container:hover img {
-            animation-play-state: paused;
+        .batch-slideshow img.active {
+            opacity: 1;
+            z-index: 2;
         }
 
         /* Pricing section */
@@ -384,6 +373,15 @@
             margin-bottom: 0.5rem;
             color: #1d1d1f;
             line-height: 1.1;
+        }
+
+        .plan-tagline {
+            font-size: 0.9375rem;
+            color: #4DB3D9;
+            font-weight: 500;
+            letter-spacing: -0.011em;
+            margin-bottom: 1.25rem;
+            line-height: 1.4;
         }
 
         .plan-price {
@@ -669,11 +667,6 @@
             .pricing-cards {
                 grid-template-columns: 1fr;
             }
-
-            .scrolling-screenshot-container {
-                max-width: 100%;
-                height: 600px; /* Adjusted for mobile while maintaining aspect ratio */
-            }
         }
 
         /* Smooth scroll */
@@ -694,10 +687,6 @@
         <div class="hero-content">
             <img src="app-icon.png" alt="FlightPlus App Icon" class="app-icon">
             <h1>FlightPlus</h1>
-            <p>Every flight, perfectly documented.</p>
-            <p class="hero-subtitle">
-                Log journeys, map your aerial photos, and share standout albums in minutes.
-            </p>
             <div class="app-store-badge">
                 <a href="https://apps.apple.com/app/id6749645650" target="_blank" rel="noopener noreferrer">
                     <img src="https://tools.applemediaservices.com/api/badges/download-on-the-app-store/black/en-us?size=250x83&releaseDate=1276560000" 
@@ -713,8 +702,27 @@
         <div style="padding: 4rem 2rem 2rem; max-width: 1200px; margin: 0 auto;">
             <h2 class="section-title">Flight Albums for Aviators</h2>
             <p class="section-intro">
-                Every feature designed to help you capture, organize, and share your aerial adventures with precision and elegance.
+                Turn hours of flight photos into a pro album in minutes.
             </p>
+        </div>
+
+        <div class="feature-showcase-section">
+            <div class="feature-showcase-content">
+                <div class="feature-showcase-text">
+                    <h3>Create Flight Album in Minutes</h3>
+                    <p>
+                        Pick your shots from phone album and FlightPlus does the rest, pairing each photo with real flight data and insights. Never wonder "what was that?" again. Select, enrich, publish.
+                    </p>
+                </div>
+                <div class="feature-showcase-image">
+                    <div class="batch-slideshow">
+                        <img src="screenshot-batch_1.jpg" alt="Select photos from your phone album" class="active">
+                        <img src="screenshot-batch_2.jpg" alt="Match photos to your flight">
+                        <img src="screenshot-batch_3.jpg" alt="Enrich with flight data and insights">
+                        <img src="screenshot-batch_4.jpg" alt="Publish your flight album">
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="feature-showcase-section">
@@ -776,22 +784,6 @@
         <div class="feature-showcase-section">
             <div class="feature-showcase-content">
                 <div class="feature-showcase-text">
-                    <h3>In-Flight Context</h3>
-                    <p>
-                        View altitude, heading, location, and context to identify what was outside the window. Never wonder "what was that?" again.
-                    </p>
-                </div>
-                <div class="feature-showcase-image">
-                    <div class="scrolling-screenshot-container">
-                        <img src="screenshot-publish-flow.jpg" alt="In-Flight Context">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="feature-showcase-section">
-            <div class="feature-showcase-content">
-                <div class="feature-showcase-text">
                     <h3>Signature Flight Frames</h3>
                     <p>
                         Design custom frames that combine your photo, route map, and flight data for print or sharing. Turn moments into keepsakes.
@@ -808,10 +800,10 @@
     <section class="pricing" id="pricing">
         <div class="pricing-container">
             <h2 class="section-title">Choose Your Flight Plan</h2>
-            <p style="text-align: center; color: #86868b; font-size: 1.0625rem; margin-bottom: 2rem; font-weight: 400; letter-spacing: -0.011em; line-height: 1.47059;">
-                Start exploring for free, or unlock unlimited features with Insighter
+            <p style="text-align: center; color: #86868b; font-size: 1.0625rem; margin-bottom: 2.5rem; font-weight: 400; letter-spacing: -0.011em; line-height: 1.47059; max-width: 640px; margin-left: auto; margin-right: auto;">
+                Every FlightPlus feature is free. Insighter simply lifts the cap so your full flight archive, every route you've ever flown, stays one tap away.
             </p>
-            
+
             <div class="pricing-cards">
                 <!-- Explorer Plan (Free) -->
                 <div class="pricing-card">
@@ -819,17 +811,17 @@
                     <div class="plan-price free">Free</div>
                     <div class="plan-price-alt">Always free, no credit card required</div>
                     <p class="plan-description">
-                        Start logging every journey with mapped photos and context-ready details.
+                        Everything you need to log, map, and share your flights, the whole core experience, no paywall.
                     </p>
                     <ul class="plan-features">
                         <li>Log flights with route and aircraft details</li>
                         <li>Pin aerial photos on the map</li>
                         <li>See altitude, heading, and location context</li>
+                        <li>Photo privacy controls</li>
+                        <li>Import personal photos &amp; videos</li>
+                        <li>Signature map frames</li>
                         <li>Share curated flight albums</li>
-                        <li class="limited">Save up to 5 flight albums</li>
-                        <li class="unavailable">Photo privacy controls</li>
-                        <li class="unavailable">Import personal trip photos</li>
-                        <li class="unavailable">Signature map frames</li>
+                        <li class="limited">Most recent 5 flight cards in view</li>
                     </ul>
                     <a href="https://apps.apple.com/app/id6749645650" class="cta-button secondary">
                         Get Started Free
@@ -839,27 +831,29 @@
                 <!-- Insighter Plan (Paid) -->
                 <div class="pricing-card featured">
                     <h3 class="plan-name">Insighter</h3>
+                    <div class="plan-tagline">For pilots, crew, and frequent flyers building a real flight library.</div>
                     <div class="plan-price">$4.99</div>
                     <div class="plan-period">per month</div>
-                    <div class="plan-price-alt">or <strong>$49.99/year</strong></div>
+                    <div class="plan-price-alt">or <strong>$49.99/year</strong><span class="price-comparison-badge">SAVE 17%</span></div>
                     <p class="plan-description">
-                        Unlock unlimited albums, privacy controls, and custom frames for every flight.
+                        Every card you've ever logged stays one tap away, forever. No cap, no decisions about which flights to keep.
                     </p>
                     <ul class="plan-features">
-                        <li>Log flights with route and aircraft details</li>
-                        <li>Pin aerial photos on the map</li>
-                        <li>See altitude, heading, and location context</li>
-                        <li>Share curated flight albums</li>
-                        <li>Save unlimited flight albums<span class="price-comparison-badge">UNLIMITED</span></li>
-                        <li>Photo privacy controls<span class="price-comparison-badge">PREMIUM</span></li>
-                        <li>Import personal trip photos<span class="price-comparison-badge">PREMIUM</span></li>
-                        <li>Signature map frames<span class="price-comparison-badge">PREMIUM</span></li>
+                        <li><strong>Unlimited flight cards</strong>, view your full archive forever<span class="price-comparison-badge">UNLIMITED</span></li>
+                        <li>Cards you've already saved unlock the moment you upgrade</li>
+                        <li>Browse every route, aircraft, and album you've collected</li>
+                        <li>Everything in Explorer, included</li>
+                        <li>7-day free trial · cancel anytime</li>
                     </ul>
                     <a href="https://apps.apple.com/app/id6749645650" class="cta-button">
                         Start 7-day Free Trial
                     </a>
                 </div>
             </div>
+
+            <p style="text-align: center; color: #86868b; font-size: 0.9375rem; margin-top: 2.5rem; max-width: 720px; margin-left: auto; margin-right: auto; line-height: 1.5;">
+                Insighter is the only paywall in FlightPlus. Privacy controls, personal photo import, signature map frames, and sharing all stay free for everyone, forever.
+            </p>
         </div>
     </section>
 
@@ -887,101 +881,42 @@
     </footer>
 
     <script>
-        // Calculate scroll distance for auto-scrolling screenshot
-        function setScrollDistance(container, img) {
-            // Use requestAnimationFrame to ensure layout is complete
-            requestAnimationFrame(function() {
-                // Wait one more frame to ensure dimensions are stable
-                requestAnimationFrame(function() {
-                    const containerHeight = container.offsetHeight || container.clientHeight;
-                    const containerWidth = container.offsetWidth || container.clientWidth;
-                    
-                    // Get actual rendered image dimensions
-                    let imageHeight = img.offsetHeight || img.clientHeight;
-                    const imageWidth = img.offsetWidth || img.clientWidth;
-                    
-                    // If we have natural dimensions, calculate the rendered height more accurately
-                    if (img.naturalHeight > 0 && img.naturalWidth > 0 && imageWidth > 0) {
-                        const aspectRatio = img.naturalHeight / img.naturalWidth;
-                        imageHeight = imageWidth * aspectRatio;
-                    }
-                    
-                    // Calculate scroll distance with a safety margin (2px) to prevent overflow
-                    // The scroll distance should be negative to scroll down
-                    const scrollDistance = imageHeight > containerHeight 
-                        ? -(imageHeight - containerHeight - 2) // Subtract 2px margin to prevent overflow
-                        : 0;
-                    
-                    // Ensure scroll distance is not positive (only scroll down)
-                    // Also ensure it's not going beyond the image bounds
-                    const finalScrollDistance = scrollDistance < 0 ? scrollDistance : 0;
-                    
-                    container.style.setProperty('--scroll-distance', finalScrollDistance + 'px');
-                    
-                    // Debug log (remove in production if needed)
-                    console.log('Scrolling screenshot:', {
-                        containerHeight,
-                        imageHeight,
-                        scrollDistance: finalScrollDistance
-                    });
-                });
-            });
+        // Auto-shifting crossfade slideshow for the batch flow
+        function initBatchSlideshow() {
+            const slideshow = document.querySelector('.batch-slideshow');
+            if (!slideshow) return;
+
+            const slides = slideshow.querySelectorAll('img');
+            if (slides.length < 2) return;
+
+            let index = 0;
+            let topZ = 2;               // ever-increasing so the incoming slide is always on top
+            const TRANSITION_MS = 1000; // matches CSS opacity transition
+            const INTERVAL_MS = 5000;   // switch every 5 seconds
+
+            setInterval(function() {
+                const current = slides[index];
+                index = (index + 1) % slides.length;
+                const next = slides[index];
+
+                // Put the incoming image above all others, then fade it in on top
+                // of the current one (prevents any background flash, even on wrap).
+                topZ += 1;
+                next.style.zIndex = topZ;
+                next.classList.add('active');
+
+                // Once the fade completes, hide the previous image behind it
+                setTimeout(function() {
+                    current.classList.remove('active');
+                }, TRANSITION_MS);
+            }, INTERVAL_MS);
         }
 
-        function initScrollingScreenshot() {
-            const scrollingContainer = document.querySelector('.scrolling-screenshot-container');
-            if (!scrollingContainer) return;
-            
-            const img = scrollingContainer.querySelector('img');
-            if (!img) return;
-
-            // Function to calculate with retry
-            function calculateWithRetry(retries = 3) {
-                if (retries <= 0) return;
-                
-                // Wait for image to fully load and render
-                if (img.complete && img.naturalHeight > 0 && img.offsetHeight > 0) {
-                    // Image already loaded and rendered
-                    setScrollDistance(scrollingContainer, img);
-                } else if (!img.complete) {
-                    // Wait for image to load
-                    img.addEventListener('load', function() {
-                        // Add delay to ensure rendering is complete
-                        setTimeout(function() {
-                            if (img.offsetHeight > 0) {
-                                setScrollDistance(scrollingContainer, img);
-                            } else if (retries > 0) {
-                                setTimeout(() => calculateWithRetry(retries - 1), 200);
-                            }
-                        }, 200);
-                    }, { once: true });
-                } else {
-                    // Image complete but might not be rendered yet
-                    setTimeout(function() {
-                        if (img.offsetHeight > 0) {
-                            setScrollDistance(scrollingContainer, img);
-                        } else if (retries > 0) {
-                            calculateWithRetry(retries - 1);
-                        }
-                    }, 300);
-                }
-            }
-            
-            calculateWithRetry();
-        }
-
-        // Initialize when DOM is ready
         if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initScrollingScreenshot);
+            document.addEventListener('DOMContentLoaded', initBatchSlideshow);
         } else {
-            // DOM already loaded
-            initScrollingScreenshot();
+            initBatchSlideshow();
         }
-
-        // Also try on window load as a fallback
-        window.addEventListener('load', function() {
-            setTimeout(initScrollingScreenshot, 100);
-        });
     </script>
 
 </body>
