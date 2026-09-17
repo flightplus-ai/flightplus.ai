@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- v33.webSharedAlbum · /share/{id} now renders the web album viewer.
+         Runs before anything else paints; every other unknown path keeps the
+         existing 404 behaviour. When the app is installed, iOS opens it via
+         universal link before this page is ever loaded — unchanged. -->
+    <script>
+        (function() {
+            var m = window.location.pathname.match(/^\/share\/([A-Za-z0-9_-]+)/);
+            if (m) window.location.replace("/shared-album.html?id=" + m[1]);
+        })();
+    </script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FlightPlus - Shared Flight Album</title>

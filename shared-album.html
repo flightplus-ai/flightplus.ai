@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>FlightPlus — Shared Flight Album</title>
+    <meta name="description" content="A flight album shared from FlightPlus — photos, flight track and flight details.">
+    <!-- Smart App Banner: Safari shows the app banner; tapping the shared URL
+         with the app installed opens the app via universal link (unchanged). -->
+    <meta name="apple-itunes-app" content="app-id=6749645650">
+    <link rel="icon" href="app-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <style>
+        :root {
+            --bg: #0c0d12;
+            --card: #16181f;
+            --card2: #1c1f28;
+            --text: #f2f3f6;
+            --muted: #8b90a0;
+            --accent: #4db3d9;          /* the app's theme color 0.3/0.7/0.85 */
+            --border: rgba(255,255,255,0.08);
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: "Plus Jakarta Sans", -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+        .wrap { max-width: 640px; margin: 0 auto; padding-bottom: 96px; }
+
+        /* ── top bar ─────────────────────────────────────────────── */
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 14px 16px;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .brand img { width: 34px; height: 34px; border-radius: 8px; }
+        .brand span { font-weight: 800; font-size: 17px; color: var(--text); letter-spacing: 0.2px; }
+        .appstore-badge svg { height: 40px; display: block; }
+
+        /* ── map hero ────────────────────────────────────────────── */
+        #map {
+            height: 300px; width: 100%;
+            background: #101319;
+        }
+        .leaflet-container { background: #101319; }
+        .photo-dot {
+            width: 26px; height: 26px; border-radius: 50%;
+            border: 2px solid #fff; overflow: hidden;
+            background: #2a2e3a; box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
+        .photo-dot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .end-dot {
+            width: 12px; height: 12px; border-radius: 50%;
+            background: var(--accent); border: 2px solid #fff;
+            box-shadow: 0 0 0 4px rgba(77,179,217,0.25);
+        }
+
+        /* ── boarding-pass card ──────────────────────────────────── */
+        .pass {
+            margin: -34px 16px 0; position: relative; z-index: 500;
+            background: rgba(22,24,31,0.97);
+            border: 1px solid var(--border);
+            border-radius: 18px; padding: 20px 18px 14px;
+            backdrop-filter: blur(8px);
+        }
+        .route { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+        .iata { font-size: 40px; font-weight: 800; line-height: 1; }
+        .ap-name { font-size: 10.5px; letter-spacing: 1.2px; color: var(--muted);
+                   text-transform: uppercase; margin-top: 6px; max-width: 150px; }
+        .route .dest { text-align: right; }
+        .route .dest .ap-name { margin-left: auto; }
+        .plane-line { flex: 1; align-self: center; display: flex; align-items: center; gap: 6px;
+                      color: var(--muted); padding: 0 4px; }
+        .plane-line .dash { flex: 1; border-top: 1.5px dashed rgba(255,255,255,0.25); }
+        .facts {
+            display: flex; margin-top: 18px; padding-top: 14px;
+            border-top: 1px solid var(--border);
+        }
+        .fact { flex: 1; text-align: center; }
+        .fact + .fact { border-left: 1px solid var(--border); }
+        .fact .k { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
+        .fact .v { font-size: 15px; font-weight: 700; }
+        .fact .v.accent { color: var(--accent); }
+        .sender { text-align: center; font-size: 12px; color: var(--muted); margin-top: 12px; }
+        .sender b { color: var(--text); font-weight: 600; }
+
+        /* ── memo / hashtags ─────────────────────────────────────── */
+        .memo {
+            margin: 14px 16px 0; background: var(--card);
+            border: 1px solid var(--border); border-radius: 14px; padding: 14px 16px;
+        }
+        .memo h3 { font-size: 12px; letter-spacing: 1px; color: var(--muted);
+                   text-transform: uppercase; margin-bottom: 8px; }
+        .memo p { font-size: 14px; line-height: 1.55; white-space: pre-wrap; }
+        .tags { margin: 12px 16px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+        .tag { font-size: 12px; font-weight: 600; color: var(--accent);
+               background: rgba(77,179,217,0.12); border-radius: 999px; padding: 5px 12px; }
+
+        /* ── phase sections + grid ───────────────────────────────── */
+        .phase { margin: 22px 16px 0; }
+        .phase-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+        .phase-bar { width: 5px; height: 18px; border-radius: 3px; }
+        .phase-head h2 { font-size: 17px; font-weight: 700; }
+        .phase-count { font-size: 12px; font-weight: 700; color: var(--muted);
+                       background: var(--card2); border-radius: 999px; padding: 2px 9px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; }
+        .cell { position: relative; aspect-ratio: 1; border-radius: 10px; overflow: hidden;
+                background: var(--card2); cursor: pointer; border: 0; padding: 0; }
+        .cell img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .cell .play {
+            position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+            background: rgba(0,0,0,0.25); color: #fff; font-size: 30px; pointer-events: none;
+        }
+
+        /* ── lightbox ────────────────────────────────────────────── */
+        .lightbox {
+            position: fixed; inset: 0; z-index: 2000; background: rgba(5,6,9,0.96);
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+        }
+        .lightbox.open { display: flex; }
+        .lightbox img, .lightbox video { max-width: 96vw; max-height: 78vh; border-radius: 10px; }
+        .lb-meta { color: var(--muted); font-size: 13px; margin-top: 12px; text-align: center;
+                   padding: 0 20px; }
+        .lb-meta b { color: var(--text); }
+        .lb-close {
+            position: absolute; top: max(14px, env(safe-area-inset-top)); right: 16px;
+            width: 38px; height: 38px; border-radius: 50%;
+            background: rgba(255,255,255,0.12); color: #fff; border: 0; font-size: 17px; cursor: pointer;
+        }
+        .lb-nav {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            width: 42px; height: 42px; border-radius: 50%; border: 0; cursor: pointer;
+            background: rgba(255,255,255,0.10); color: #fff; font-size: 18px;
+        }
+        .lb-prev { left: 10px; } .lb-next { right: 10px; }
+
+        /* ── save CTA (fixed) ────────────────────────────────────── */
+        .cta {
+            position: fixed; left: 0; right: 0; bottom: 0; z-index: 1500;
+            padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+            background: linear-gradient(transparent, rgba(8,9,13,0.92) 32%);
+            display: flex; justify-content: center;
+        }
+        .cta a {
+            display: flex; align-items: center; gap: 10px; text-decoration: none;
+            background: var(--accent); color: #fff; font-weight: 800; font-size: 15px;
+            border-radius: 999px; padding: 13px 22px; max-width: 640px;
+            box-shadow: 0 6px 24px rgba(77,179,217,0.35);
+        }
+        .cta a img { width: 22px; height: 22px; border-radius: 5px; }
+
+        /* ── states ──────────────────────────────────────────────── */
+        .state { text-align: center; padding: 90px 24px 40px; }
+        .state .big { font-size: 42px; margin-bottom: 14px; }
+        .state h1 { font-size: 20px; margin-bottom: 8px; }
+        .state p { color: var(--muted); font-size: 14px; line-height: 1.6; }
+        .spinner { width: 30px; height: 30px; border: 3px solid var(--card2);
+                   border-top-color: var(--accent); border-radius: 50%;
+                   animation: spin 0.9s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="topbar">
+        <a class="brand" href="/"><img src="app-icon.png" alt=""><span>FlightPlus</span></a>
+        <a class="appstore-badge" href="https://apps.apple.com/app/id6749645650" target="_blank" rel="noopener" aria-label="Download on the App Store">
+            <!-- Official-style App Store badge, inlined so it renders everywhere
+                 (incl. regions where Apple's CDN is unreachable). -->
+            <svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" role="img">
+                <rect width="120" height="40" rx="7" fill="#000" stroke="#a6a6a6" stroke-width="1"/>
+                <path fill="#fff" d="M24.77 20.3a4.95 4.95 0 0 1 2.36-4.15 5.07 5.07 0 0 0-3.99-2.16c-1.68-.18-3.31 1-4.17 1-.87 0-2.19-.98-3.61-.95a5.32 5.32 0 0 0-4.47 2.73c-1.93 3.35-.49 8.27 1.36 10.98.93 1.33 2.01 2.81 3.43 2.76 1.39-.06 1.91-.89 3.58-.89 1.66 0 2.14.89 3.59.85 1.49-.02 2.43-1.34 3.32-2.68a10.96 10.96 0 0 0 1.52-3.09 4.78 4.78 0 0 1-2.92-4.4zM22.04 12.21a4.87 4.87 0 0 0 1.11-3.49 4.96 4.96 0 0 0-3.21 1.66 4.64 4.64 0 0 0-1.14 3.36 4.1 4.1 0 0 0 3.24-1.53z"/>
+                <text x="38" y="17" font-family="-apple-system, Helvetica, Arial" font-size="8" fill="#fff">Download on the</text>
+                <text x="38" y="30" font-family="-apple-system, Helvetica, Arial" font-size="13" font-weight="600" fill="#fff">App Store</text>
+            </svg>
+        </a>
+    </div>
+
+    <div id="loading" class="state"><div class="spinner"></div><p>Loading shared album…</p></div>
+
+    <div id="error" class="state hidden">
+        <div class="big">✈️</div>
+        <h1 id="error-title">Album not available</h1>
+        <p id="error-text">This shared album may have been removed or the link has expired.</p>
+    </div>
+
+    <div id="album" class="hidden">
+        <div id="map"></div>
+        <div class="pass">
+            <div class="route">
+                <div>
+                    <div class="iata" id="o-iata">—</div>
+                    <div class="ap-name" id="o-name"></div>
+                </div>
+                <div class="plane-line"><div class="dash"></div><span>✈</span><div class="dash"></div></div>
+                <div class="dest">
+                    <div class="iata" id="d-iata">—</div>
+                    <div class="ap-name" id="d-name"></div>
+                </div>
+            </div>
+            <div class="facts">
+                <div class="fact"><div class="k">Flight</div><div class="v accent" id="f-flight">—</div></div>
+                <div class="fact"><div class="k">Date</div><div class="v" id="f-date">—</div></div>
+                <div class="fact"><div class="k">Aircraft</div><div class="v" id="f-aircraft">—</div></div>
+                <div class="fact"><div class="k">Media</div><div class="v" id="f-media">—</div></div>
+            </div>
+            <div class="sender" id="sender"></div>
+        </div>
+        <div class="memo hidden" id="memo"><h3>Memo</h3><p id="memo-text"></p></div>
+        <div class="tags" id="tags"></div>
+        <div id="phases"></div>
+    </div>
+</div>
+
+<div class="lightbox" id="lightbox">
+    <button class="lb-close" id="lb-close" aria-label="Close">✕</button>
+    <button class="lb-nav lb-prev" id="lb-prev" aria-label="Previous">‹</button>
+    <div id="lb-content"></div>
+    <button class="lb-nav lb-next" id="lb-next" aria-label="Next">›</button>
+    <div class="lb-meta" id="lb-meta"></div>
+</div>
+
+<div class="cta">
+    <a id="cta-link" href="https://apps.apple.com/app/id6749645650">
+        <img src="app-icon.png" alt="">
+        <span>Save this album in FlightPlus</span>
+    </a>
+</div>
+
+<script>
+(function() {
+    "use strict";
+
+    // ── config ────────────────────────────────────────────────────
+    var API_DIRECT = "https://asia-southeast1-flightps.cloudfunctions.net/getSharedAlbum";
+    var API_GATEWAY = "https://cn-gw.flightplus.ai/fn/getSharedAlbum";
+    var APP_STORE = "https://apps.apple.com/app/id6749645650";
+
+    // Phase order + palette, byte-matched to the app's PhaseBucket.
+    var PHASES = [
+        ["taxi",     "Taxi",     "rgb(200,195,175)"],
+        ["takeOff",  "Take Off", "rgb(180,220,110)"],
+        ["climb",    "Climb",    "rgb(120,200,180)"],
+        ["cruise",   "Cruise",   "rgb(77,179,217)"],
+        ["turning",  "Turning",  "rgb(175,135,220)"],
+        ["descent",  "Descent",  "rgb(140,200,230)"],
+        ["land",     "Land",     "rgb(160,180,220)"],
+        ["personal", "Personal", "rgb(220,145,175)"]
+    ];
+
+    var qs = new URLSearchParams(location.search);
+    var pathMatch = location.pathname.match(/\/share\/([A-Za-z0-9_-]+)/);
+    var shareId = qs.get("id") || (pathMatch ? pathMatch[1] : null);
+
+    function show(id) {
+        ["loading", "error", "album"].forEach(function(x) {
+            document.getElementById(x).classList.toggle("hidden", x !== id);
+        });
+    }
+    function esc(s) {
+        var d = document.createElement("div"); d.textContent = s == null ? "" : String(s);
+        return d.innerHTML;
+    }
+
+    if (!shareId) {
+        document.getElementById("error-text").textContent = "This link is missing its album id.";
+        show("error");
+        return;
+    }
+
+    // Keep the universal link intact for the CTA: the same /share/ URL opens
+    // the app when installed; App Store otherwise (Safari falls through).
+    document.getElementById("cta-link").href =
+        "https://flightplus.ai/share/" + encodeURIComponent(shareId);
+
+    // ── fetch, with China fallback ───────────────────────────────
+    // Direct first; if Google Cloud is unreachable (mainland networks), retry
+    // through the Alibaba gateway with cn=1 so every media URL is rewritten
+    // onto the gateway too.
+    function fetchAlbum() {
+        var direct = API_DIRECT + "?id=" + encodeURIComponent(shareId) + "&count=1";
+        var viaGw  = API_GATEWAY + "?id=" + encodeURIComponent(shareId) + "&cn=1&count=1";
+        return fetchJson(direct, 8000).catch(function() { return fetchJson(viaGw, 15000); });
+    }
+    function fetchJson(url, timeoutMs) {
+        return new Promise(function(resolve, reject) {
+            var ctrl = new AbortController();
+            var t = setTimeout(function() { ctrl.abort(); }, timeoutMs);
+            fetch(url, {signal: ctrl.signal}).then(function(r) {
+                clearTimeout(t);
+                if (r.status === 404) { reject({kind: "gone"}); return; }
+                if (r.status === 410) { reject({kind: "inactive"}); return; }
+                if (!r.ok) { reject({kind: "http", status: r.status}); return; }
+                r.json().then(resolve, reject);
+            }, function(e) { clearTimeout(t); reject(e); });
+        });
+    }
+
+    // ── render ───────────────────────────────────────────────────
+    var mediaItems = [];   // flat list for the lightbox, in display order
+
+    function render(a) {
+        document.getElementById("o-iata").textContent = a.originAirportIATA || "—";
+        document.getElementById("d-iata").textContent = a.destinationAirportIATA || "—";
+        document.getElementById("o-name").textContent = a.originAirportName || "";
+        document.getElementById("d-name").textContent = a.destinationAirportName || "";
+        document.getElementById("f-flight").textContent = a.flightNumber || "—";
+        document.getElementById("f-aircraft").textContent = a.aircraftModel || "—";
+        document.getElementById("f-date").textContent = fmtDate(a.dateKey);
+        var mediaCount = a.aerialPhotos.length + a.tripPhotos.length;
+        document.getElementById("f-media").textContent = String(mediaCount);
+        if (a.senderDisplayName) {
+            document.getElementById("sender").innerHTML =
+                "Shared by <b>" + esc(a.senderDisplayName) + "</b> via FlightPlus";
+        }
+        if (a.memo) {
+            document.getElementById("memo").classList.remove("hidden");
+            document.getElementById("memo-text").textContent = a.memo;
+        }
+        var tags = document.getElementById("tags");
+        (a.hashtags || []).forEach(function(h) {
+            var el = document.createElement("span");
+            el.className = "tag";
+            el.textContent = h.charAt(0) === "#" ? h : "#" + h;
+            tags.appendChild(el);
+        });
+
+        renderPhases(a);
+        show("album");
+        renderMap(a);
+        document.title = "FlightPlus — " + (a.flightNumber || "Flight") + " " +
+            (a.originAirportIATA || "") + "→" + (a.destinationAirportIATA || "");
+    }
+
+    function fmtDate(dateKey) {
+        if (!dateKey) return "—";
+        var p = dateKey.split("-");
+        if (p.length !== 3) return dateKey;
+        var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        return months[parseInt(p[1], 10) - 1] + " " + parseInt(p[2], 10) + ", " + p[0].slice(2);
+    }
+
+    function renderPhases(a) {
+        var host = document.getElementById("phases");
+        var buckets = {};
+        var unclassified = [];
+        a.aerialPhotos.forEach(function(p) {
+            if (p.phaseBucket && PHASES.some(function(x) { return x[0] === p.phaseBucket; })) {
+                (buckets[p.phaseBucket] = buckets[p.phaseBucket] || []).push(p);
+            } else {
+                unclassified.push(p);
+            }
+        });
+
+        // Unclassified aerials first (same rule as the app: legacy photos
+        // render above the phase sections), then buckets in flight order,
+        // then Personal for trip photos.
+        if (unclassified.length) {
+            host.appendChild(sectionEl(null, "Photos", "rgb(77,179,217)", unclassified, false));
+        }
+        PHASES.forEach(function(ph) {
+            if (ph[0] === "personal") return;
+            var items = buckets[ph[0]];
+            if (items && items.length) host.appendChild(sectionEl(ph[0], ph[1], ph[2], items, false));
+        });
+        var personal = (buckets["personal"] || []).concat(a.tripPhotos);
+        if (personal.length) {
+            host.appendChild(sectionEl("personal", "Personal", "rgb(220,145,175)", personal, true));
+        }
+    }
+
+    function sectionEl(key, title, color, items, isPersonal) {
+        var sec = document.createElement("div");
+        sec.className = "phase";
+        sec.innerHTML =
+            '<div class="phase-head"><div class="phase-bar" style="background:' + color + '"></div>' +
+            "<h2>" + esc(title) + '</h2><span class="phase-count">' + items.length + "</span></div>";
+        var grid = document.createElement("div");
+        grid.className = "grid";
+        items.forEach(function(p) {
+            var idx = mediaItems.length;
+            mediaItems.push({item: p, personal: isPersonal});
+            var cell = document.createElement("button");
+            cell.className = "cell";
+            var img = document.createElement("img");
+            img.loading = "lazy";
+            img.src = p.thumbnailUrl || p.imageUrl || p.videoThumbnailUrl || "";
+            img.alt = "";
+            cell.appendChild(img);
+            if (p.isVideo) {
+                var play = document.createElement("div");
+                play.className = "play"; play.textContent = "▶";
+                cell.appendChild(play);
+            }
+            cell.addEventListener("click", function() { openLightbox(idx); });
+            grid.appendChild(cell);
+        });
+        sec.appendChild(grid);
+        return sec;
+    }
+
+    // ── map ──────────────────────────────────────────────────────
+    function renderMap(a) {
+        var map = L.map("map", {zoomControl: false, attributionControl: true});
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+            attribution: "&copy; OpenStreetMap &copy; CARTO", maxZoom: 18
+        }).addTo(map);
+
+        var bounds = [];
+        if (a.flightTrack && a.flightTrack.length >= 2) {
+            L.polyline(a.flightTrack, {color: "#4db3d9", weight: 3.5, opacity: 0.95}).addTo(map);
+            bounds = a.flightTrack.slice();
+            endDot(map, a.flightTrack[0]);
+            endDot(map, a.flightTrack[a.flightTrack.length - 1]);
+        }
+        a.aerialPhotos.forEach(function(p, i) {
+            if (typeof p.latitude !== "number" || typeof p.longitude !== "number") return;
+            if (p.latitude === 0 && p.longitude === 0) return;
+            bounds.push([p.latitude, p.longitude]);
+            var icon = L.divIcon({
+                className: "",
+                html: '<div class="photo-dot"><img src="' + esc(p.thumbnailUrl || "") + '"></div>',
+                iconSize: [26, 26], iconAnchor: [13, 13]
+            });
+            L.marker([p.latitude, p.longitude], {icon: icon})
+                .addTo(map)
+                .on("click", function() { openLightbox(indexOfPhoto(p.id)); });
+        });
+        if (bounds.length >= 2) {
+            map.fitBounds(bounds, {padding: [30, 30]});
+        } else if (bounds.length === 1) {
+            map.setView(bounds[0], 9);
+        } else {
+            map.setView([20, 0], 2);
+        }
+    }
+    function endDot(map, latlng) {
+        L.marker(latlng, {icon: L.divIcon({className: "", html: '<div class="end-dot"></div>',
+            iconSize: [12, 12], iconAnchor: [6, 6]}), interactive: false}).addTo(map);
+    }
+    function indexOfPhoto(id) {
+        for (var i = 0; i < mediaItems.length; i++) {
+            if (mediaItems[i].item.id === id) return i;
+        }
+        return 0;
+    }
+
+    // ── lightbox ─────────────────────────────────────────────────
+    var lbIndex = 0;
+    function openLightbox(i) {
+        lbIndex = i;
+        renderLightbox();
+        document.getElementById("lightbox").classList.add("open");
+        document.body.style.overflow = "hidden";
+    }
+    function closeLightbox() {
+        document.getElementById("lightbox").classList.remove("open");
+        document.getElementById("lb-content").innerHTML = "";
+        document.body.style.overflow = "";
+    }
+    function renderLightbox() {
+        var m = mediaItems[lbIndex];
+        if (!m) return;
+        var p = m.item;
+        var host = document.getElementById("lb-content");
+        host.innerHTML = "";
+        if (p.isVideo && p.videoUrl) {
+            var v = document.createElement("video");
+            v.src = p.videoUrl; v.controls = true; v.autoplay = true; v.playsInline = true;
+            if (p.videoThumbnailUrl) v.poster = p.videoThumbnailUrl;
+            host.appendChild(v);
+        } else {
+            var img = document.createElement("img");
+            img.src = p.originalImageUrl || p.imageUrl || p.thumbnailUrl;
+            host.appendChild(img);
+        }
+        var bits = [];
+        if (!m.personal) {
+            if (typeof p.altitude === "number") bits.push("<b>" + Math.round(p.altitude) + " ft</b>");
+            if (typeof p.groundSpeed === "number") bits.push(Math.round(p.groundSpeed) + " kts");
+            if (typeof p.track === "number") bits.push(Math.round(p.track) + "°");
+        }
+        if (p.timestamp) {
+            bits.push(new Date(p.timestamp).toLocaleString(undefined,
+                {month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"}));
+        }
+        if (p.hashtags) bits.push(esc(p.hashtags));
+        document.getElementById("lb-meta").innerHTML =
+            (lbIndex + 1) + " / " + mediaItems.length + (bits.length ? " · " + bits.join(" · ") : "");
+    }
+    function step(d) {
+        lbIndex = (lbIndex + d + mediaItems.length) % mediaItems.length;
+        renderLightbox();
+    }
+    document.getElementById("lb-close").addEventListener("click", closeLightbox);
+    document.getElementById("lb-prev").addEventListener("click", function() { step(-1); });
+    document.getElementById("lb-next").addEventListener("click", function() { step(1); });
+    document.getElementById("lightbox").addEventListener("click", function(e) {
+        if (e.target === this) closeLightbox();
+    });
+    document.addEventListener("keydown", function(e) {
+        if (!document.getElementById("lightbox").classList.contains("open")) return;
+        if (e.key === "Escape") closeLightbox();
+        if (e.key === "ArrowLeft") step(-1);
+        if (e.key === "ArrowRight") step(1);
+    });
+    // Swipe navigation on touch.
+    var touchX = null;
+    document.getElementById("lightbox").addEventListener("touchstart", function(e) {
+        touchX = e.touches[0].clientX;
+    }, {passive: true});
+    document.getElementById("lightbox").addEventListener("touchend", function(e) {
+        if (touchX === null) return;
+        var dx = e.changedTouches[0].clientX - touchX;
+        if (Math.abs(dx) > 48) step(dx > 0 ? -1 : 1);
+        touchX = null;
+    }, {passive: true});
+
+    // ── go ───────────────────────────────────────────────────────
+    fetchAlbum().then(render, function(err) {
+        var t = document.getElementById("error-title");
+        var x = document.getElementById("error-text");
+        if (err && err.kind === "inactive") {
+            t.textContent = "This share was turned off";
+            x.textContent = "The sender has stopped sharing this album, or the link expired.";
+        } else if (err && err.kind === "gone") {
+            t.textContent = "Album not found";
+            x.textContent = "This shared album may have been removed, or the link is incomplete.";
+        } else {
+            t.textContent = "Couldn't load the album";
+            x.textContent = "Please check your connection and try again.";
+        }
+        show("error");
+    });
+})();
+</script>
+</body>
+</html>
