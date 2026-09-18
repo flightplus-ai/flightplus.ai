@@ -675,14 +675,13 @@
 
     // ── altitude profile toggle (the app's v21.albumAltitudeToggle) ──
     var profileShown = false;
-    var profileDrawn = false;
     var PHASE_COLORS = {};
     PHASES.forEach(function(ph) { PHASE_COLORS[ph[0]] = ph[2]; });
 
     function toggleProfile() {
         profileShown = !profileShown;
         document.getElementById("profile-panel").classList.toggle("show", profileShown);
-        if (profileShown && !profileDrawn) { drawProfile(); profileDrawn = true; }
+        if (profileShown) drawProfile();
     }
 
     function drawProfile() {
