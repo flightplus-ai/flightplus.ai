@@ -43,9 +43,9 @@
         .brand img { width: 34px; height: 34px; border-radius: 8px; }
         .brand span { font-weight: 800; font-size: 17px; color: var(--text); letter-spacing: 0.2px; }
         .appstore-badge svg { height: 40px; display: block; }
-        .store-cta { display: flex; align-items: center; gap: 10px; }
-        .store-hint { font-size: 11px; line-height: 1.35; color: var(--muted);
-                      text-align: right; max-width: 130px; }
+        .store-cta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+        .store-hint { font-size: 11px; line-height: 1.35; color: #fff;
+                      text-align: right; max-width: 170px; }
 
         /* ── map hero ────────────────────────────────────────────── */
         .map-wrap { position: relative; }
@@ -281,7 +281,6 @@
     <div class="topbar">
         <a class="brand" href="/"><img src="app-icon.png" alt=""><span>FlightPlus</span></a>
         <div class="store-cta">
-        <div class="store-hint">Get the app to see more flight photos on the map</div>
         <a class="appstore-badge" href="https://apps.apple.com/app/id6749645650" target="_blank" rel="noopener" aria-label="Download on the App Store">
             <!-- Official-style App Store badge, inlined so it renders everywhere
                  (incl. regions where Apple's CDN is unreachable). -->
@@ -292,6 +291,7 @@
                 <text x="38" y="30" font-family="-apple-system, Helvetica, Arial" font-size="13" font-weight="600" fill="#fff">App Store</text>
             </svg>
         </a>
+        <div class="store-hint">See more flight photos on the map</div>
         </div>
     </div>
 
