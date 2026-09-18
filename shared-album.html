@@ -525,6 +525,15 @@
         return months[parseInt(p[1], 10) - 1] + " " + parseInt(p[2], 10) + ", " + p[0].slice(2);
     }
 
+    // App parity: every grid section sorts newest-first (timestamp desc) —
+    // the same rule FlightSpecificGalleryView and SharedFlightCardView use
+    // for unclassified, phase buckets, Frames, and Personal alike.
+    function newestFirst(items) {
+        return items.slice().sort(function(x, y) {
+            return (y.timestamp || 0) - (x.timestamp || 0);
+        });
+    }
+
     function renderPhases(a) {
         var host = document.getElementById("phases");
         var buckets = {};
@@ -541,23 +550,23 @@
         // render above the phase sections), then buckets in flight order,
         // then Personal for trip photos.
         if (unclassified.length) {
-            host.appendChild(sectionEl(null, "Photos", "rgb(77,179,217)", unclassified, false));
+            host.appendChild(sectionEl(null, "Photos", "rgb(77,179,217)", newestFirst(unclassified), false));
         }
         PHASES.forEach(function(ph) {
             if (ph[0] === "personal") return;
             var items = buckets[ph[0]];
-            if (items && items.length) host.appendChild(sectionEl(ph[0], ph[1], ph[2], items, false));
+            if (items && items.length) host.appendChild(sectionEl(ph[0], ph[1], ph[2], newestFirst(items), false));
         });
         // Frames (Map Frame / Watermark composites) get their own section
         // below the phase timeline, exactly like the app — they are excluded
         // from phase buckets and never appear on the map.
         var frames = a.framePhotos || [];
         if (frames.length) {
-            host.appendChild(sectionEl("frames", "Frames", "rgb(77,179,217)", frames, true));
+            host.appendChild(sectionEl("frames", "Frames", "rgb(77,179,217)", newestFirst(frames), true));
         }
         var personal = (buckets["personal"] || []).concat(a.tripPhotos);
         if (personal.length) {
-            host.appendChild(sectionEl("personal", "Personal", "rgb(220,145,175)", personal, true));
+            host.appendChild(sectionEl("personal", "Personal", "rgb(220,145,175)", newestFirst(personal), true));
         }
     }
 
