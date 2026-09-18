@@ -80,8 +80,8 @@
             background: linear-gradient(rgb(13,26,51), rgb(26,38,77), rgb(51,64,89));
         }
         #profile-panel.show { display: block; }
-        #profile-svg { position: absolute; left: 0; right: 0; width: 100%;
-                       top: 24px; height: 190px; }
+        #profile-svg { position: absolute; left: 16px; top: 20px;
+                       width: calc(100% - 32px); height: calc(100% - 64px); }
         #profile-empty {
             position: absolute; inset: 0; display: flex; flex-direction: column;
             align-items: center; justify-content: center; gap: 8px;
@@ -256,7 +256,6 @@
             .left-col::-webkit-scrollbar { display: none; }
             .map-wrap { border-radius: 18px; overflow: hidden; }
             #map { height: 340px; }
-            #profile-svg { top: 30px; height: 220px; }
             .pass, .memo { margin-left: 0; margin-right: 0; }
             .tags { margin-left: 0; margin-right: 0; }
             .phase { margin: 0 0 28px; }
@@ -306,7 +305,7 @@
         <div class="map-wrap">
             <div id="map"></div>
             <div id="profile-panel">
-                <svg id="profile-svg" preserveAspectRatio="none"></svg>
+                <svg id="profile-svg"></svg>
                 <div id="profile-empty" class="hidden">
                     <div class="pe-ic">📈</div>
                     <div>Altitude data unavailable for this flight</div>
@@ -602,6 +601,7 @@
         resizeT = setTimeout(function() {
             if (previewMap) previewMap.invalidateSize();
             if (fullMap) fullMap.invalidateSize();
+            if (profileShown) drawProfile();
         }, 150);
     });
 
@@ -693,49 +693,80 @@
             document.getElementById("profile-svg").classList.add("hidden");
             return;
         }
-        var W = 1000;
-        var H = 190;
-        var padX = 30;
-        var padTop = 16;
-        var padBot = 22;
+        // Pixel-true render (viewBox == client size) — a stretched viewBox
+        // distorts dots and stroke widths. Mirrors the app's
+        // AltitudeProfileView: 15% headroom scale, plot band 7.5%–92.5% of
+        // the curve area, right-side ft scale, 6-label HH:mm time axis.
+        var svg = document.getElementById("profile-svg");
+        var W = svg.clientWidth;
+        var H = svg.clientHeight;
+        if (W < 10 || H < 10) return;
+        var axisH = 14;                       // reserved for the time axis
+        var plotH = H - axisH;
         var t0 = pts[0][0];
         var t1 = pts[pts.length - 1][0];
-        var maxAlt = 0;
-        pts.forEach(function(p) { if (p[1] > maxAlt) maxAlt = p[1]; });
-        maxAlt = Math.max(1000, Math.ceil(maxAlt / 1000) * 1000);
-        function X(t) { return padX + (t - t0) / Math.max(1, t1 - t0) * (W - padX * 2); }
-        function Y(alt) { return padTop + (1 - alt / maxAlt) * (H - padTop - padBot); }
+        var rawMax = 100;
+        pts.forEach(function(p) { if (p[1] > rawMax) rawMax = p[1]; });
+        var scaleMax = Math.max(Math.round(rawMax * 1.15), rawMax + 1);
+        function X(t) { return (t - t0) / Math.max(1, t1 - t0) * W; }
+        function Y(alt) {
+            var frac = Math.min(1, Math.max(0, alt / scaleMax));
+            return (1 - frac) * plotH * 0.85 + plotH * 0.075;
+        }
 
         var line = pts.map(function(p, i) {
             return (i ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1);
         }).join(" ");
-        var area = line + " L" + X(t1).toFixed(1) + " " + (H - padBot) +
-                   " L" + X(t0).toFixed(1) + " " + (H - padBot) + " Z";
+        var area = line + " L" + W + " " + plotH + " L0 " + plotH + " Z";
 
-        // Photo dots on the curve: x from the photo's own timestamp, y from
-        // the nearest track altitude — phase-coloured with a white ring,
-        // matching the app's markers.
+        // Photo dots: 9px phase-colored circles, x clamped to 2%–98% of the
+        // span, y interpolated from the track — same as the app's markers.
         var dots = "";
         (a.aerialPhotos || []).forEach(function(p) {
             if (!p.timestamp) return;
             var t = p.timestamp / 1000;
             if (t < t0 || t > t1) return;
+            var frac = Math.max(0.02, Math.min(0.98, (t - t0) / Math.max(1, t1 - t0)));
             var alt = altAt(pts, t);
-            var color = PHASE_COLORS[p.phaseBucket] || "#4db3d9";
-            dots += '<circle cx="' + X(t).toFixed(1) + '" cy="' + Y(alt).toFixed(1) +
-                    '" r="5" fill="' + color + '" stroke="#fff" stroke-width="1.5"/>';
+            var color = PHASE_COLORS[p.phaseBucket] || "rgba(255,255,255,0.6)";
+            dots += '<circle cx="' + (frac * W).toFixed(1) + '" cy="' + Y(alt).toFixed(1) +
+                    '" r="4.5" fill="' + color + '"/>';
         });
 
-        var svg = document.getElementById("profile-svg");
+        // Right-side altitude scale: max / half / 0 at the band's edges.
+        var mono = 'font-family="ui-monospace,SFMono-Regular,Menlo,monospace"';
+        var labelX = W - 22;
+        var yLabels =
+            '<g ' + mono + ' font-size="9" font-weight="500" fill="rgba(255,255,255,0.5)"' +
+            ' text-anchor="middle">' +
+            '<text x="' + labelX + '" y="' + (plotH * 0.075 + 3) + '">' + scaleMax + " ft</text>" +
+            '<text x="' + labelX + '" y="' + (plotH * 0.5 + 3) + '">' + Math.round(scaleMax / 2) + " ft</text>" +
+            '<text x="' + labelX + '" y="' + (plotH * 0.925 + 3) + '">0</text></g>';
+
+        // X-axis: 6 evenly-spaced viewer-local HH:mm labels, first hugging
+        // the left edge, last the right (the app's device-local fallback).
+        function hhmm(sec) {
+            var d = new Date(sec * 1000);
+            function pad(n) { return (n < 10 ? "0" : "") + n; }
+            return pad(d.getHours()) + ":" + pad(d.getMinutes());
+        }
+        var xLabels = '<g ' + mono + ' font-size="8" font-weight="500" fill="rgba(255,255,255,0.45)">';
+        for (var i = 0; i < 6; i++) {
+            var frac = i / 5;
+            var anchor = i === 0 ? "start" : (i === 5 ? "end" : "middle");
+            xLabels += '<text x="' + (frac * W).toFixed(1) + '" y="' + (H - 3) +
+                       '" text-anchor="' + anchor + '">' + hhmm(t0 + (t1 - t0) * frac) + "</text>";
+        }
+        xLabels += "</g>";
+
         svg.setAttribute("viewBox", "0 0 " + W + " " + H);
         svg.innerHTML =
             '<defs><linearGradient id="altfill" x1="0" y1="0" x2="0" y2="1">' +
             '<stop offset="0" stop-color="rgb(220,130,40)" stop-opacity="0.22"/>' +
             '<stop offset="1" stop-color="rgb(220,130,40)" stop-opacity="0"/></linearGradient></defs>' +
             '<path d="' + area + '" fill="url(#altfill)"/>' +
-            '<path d="' + line + '" fill="none" stroke="rgba(220,130,40,0.85)" stroke-width="2"/>' +
-            '<text x="' + padX + '" y="12" fill="rgba(255,255,255,0.5)" font-size="11">' +
-            (maxAlt / 1000) + ",000 ft</text>" + dots;
+            '<path d="' + line + '" fill="none" stroke="rgba(220,130,40,0.85)" stroke-width="1.5"/>' +
+            yLabels + dots + xLabels;
     }
     function altAt(pts, t) {
         var best = pts[0];
