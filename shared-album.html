@@ -226,8 +226,9 @@
             box-shadow: 0 6px 24px rgba(77,179,217,0.35);
         }
         .cta a img { width: 22px; height: 22px; border-radius: 5px; }
-        #cta-label { transition: opacity 0.35s ease; }
-        #cta-label.swap { opacity: 0; }
+        .cta-stack { display: grid; text-align: center; }
+        .cta-opt { grid-area: 1 / 1; transition: opacity 0.35s ease; white-space: nowrap; }
+        .cta-opt.off { opacity: 0; }
 
         /* ── states ──────────────────────────────────────────────── */
         .state { text-align: center; padding: 90px 24px 40px; }
@@ -378,7 +379,10 @@
 <div class="cta">
     <a id="cta-link" href="https://apps.apple.com/app/id6749645650">
         <img src="app-icon.png" alt="">
-        <span id="cta-label">Save this album in FlightPlus</span>
+        <span class="cta-stack" aria-live="polite">
+            <span class="cta-opt" id="cta-a">Save this album</span>
+            <span class="cta-opt off" id="cta-b">View more photos</span>
+        </span>
     </a>
 </div>
 
@@ -921,16 +925,9 @@
         lbIndex = (lbIndex + d + mediaItems.length) % mediaItems.length;
         renderLightbox();
     }
-    var CTA_LABELS = ["Save this album in FlightPlus", "View more photos in FlightPlus"];
-    var ctaIdx = 0;
     setInterval(function() {
-        var el = document.getElementById("cta-label");
-        el.classList.add("swap");
-        setTimeout(function() {
-            ctaIdx = (ctaIdx + 1) % CTA_LABELS.length;
-            el.textContent = CTA_LABELS[ctaIdx];
-            el.classList.remove("swap");
-        }, 350);
+        document.getElementById("cta-a").classList.toggle("off");
+        document.getElementById("cta-b").classList.toggle("off");
     }, 5000);
 
     document.getElementById("fm-close").addEventListener("click", closeFullMap);
