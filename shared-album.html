@@ -314,10 +314,23 @@
         return;
     }
 
-    // Keep the universal link intact for the CTA: the same /share/ URL opens
-    // the app when installed; App Store otherwise (Safari falls through).
-    document.getElementById("cta-link").href =
-        "https://flightplus.ai/share/" + encodeURIComponent(shareId);
+    // CTA: open the app (custom scheme — a universal link back to the SAME
+    // domain never triggers, which made the earlier href a dead tap), and
+    // fall back to the App Store when the app doesn't take over. The
+    // visibility check stops the fallback from firing after the app opened.
+    document.getElementById("cta-link").addEventListener("click", function(e) {
+        e.preventDefault();
+        var appOpened = false;
+        var onHide = function() { appOpened = true; };
+        document.addEventListener("visibilitychange", onHide);
+        window.location.href = "flightplus://share/" + encodeURIComponent(shareId);
+        setTimeout(function() {
+            document.removeEventListener("visibilitychange", onHide);
+            if (!appOpened && !document.hidden) {
+                window.location.href = APP_STORE;
+            }
+        }, 1600);
+    });
 
     // ── fetch, with China fallback ───────────────────────────────
     // Direct first; if Google Cloud is unreachable (mainland networks), retry
