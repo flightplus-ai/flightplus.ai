@@ -117,16 +117,48 @@
             background: rgba(0,0,0,0.25); color: #fff; font-size: 30px; pointer-events: none;
         }
 
+        /* ── fullscreen track map ────────────────────────────────── */
+        .fullmap-overlay {
+            position: fixed; inset: 0; z-index: 1900; background: var(--bg);
+            display: none;
+        }
+        .fullmap-overlay.open { display: block; }
+        #fullmap { position: absolute; inset: 0; }
+        .fm-close {
+            position: absolute; top: max(14px, env(safe-area-inset-top)); right: 16px;
+            z-index: 2001; width: 40px; height: 40px; border-radius: 50%;
+            background: rgba(10,12,18,0.75); color: #fff; border: 1px solid var(--border);
+            font-size: 17px; cursor: pointer;
+        }
+        #map { cursor: pointer; }
+        .map-expand-hint {
+            position: absolute; right: 10px; bottom: 10px; z-index: 800;
+            background: rgba(10,12,18,0.7); color: #fff; border-radius: 8px;
+            font-size: 11px; font-weight: 600; padding: 5px 9px; pointer-events: none;
+        }
+
         /* ── lightbox ────────────────────────────────────────────── */
         .lightbox {
             position: fixed; inset: 0; z-index: 2000; background: rgba(5,6,9,0.96);
             display: none; flex-direction: column; align-items: center; justify-content: center;
         }
         .lightbox.open { display: flex; }
-        .lightbox img, .lightbox video { max-width: 96vw; max-height: 78vh; border-radius: 10px; }
-        .lb-meta { color: var(--muted); font-size: 13px; margin-top: 12px; text-align: center;
-                   padding: 0 20px; }
-        .lb-meta b { color: var(--text); }
+        .lightbox img, .lightbox video { max-width: 96vw; max-height: 60vh; border-radius: 10px; }
+        .lightbox { overflow-y: auto; padding: 20px 0; }
+        .lb-meta { margin-top: 10px; width: min(96vw, 430px); }
+        .lb-count { text-align: center; color: var(--muted); font-size: 12px; margin-bottom: 8px; }
+        .lb-tags { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 10px; }
+        .lb-tags .tag { font-size: 12px; }
+        .lb-rows { background: rgba(22,24,31,0.85); border: 1px solid var(--border);
+                   border-radius: 12px; padding: 4px 14px; }
+        .lb-row { display: flex; align-items: center; gap: 10px; padding: 7px 0;
+                  border-bottom: 1px solid rgba(255,255,255,0.06); }
+        .lb-row:last-child { border-bottom: 0; }
+        .lb-row .ic { width: 22px; height: 22px; border-radius: 50%; flex: none;
+                      background: rgba(77,179,217,0.18); color: var(--accent);
+                      display: flex; align-items: center; justify-content: center; font-size: 11px; }
+        .lb-row .k { color: var(--muted); font-size: 13px; }
+        .lb-row .v { margin-left: auto; font-size: 14px; font-weight: 700; color: var(--text); }
         .lb-close {
             position: absolute; top: max(14px, env(safe-area-inset-top)); right: 16px;
             width: 38px; height: 38px; border-radius: 50%;
@@ -191,7 +223,10 @@
     </div>
 
     <div id="album" class="hidden">
-        <div id="map"></div>
+        <div style="position:relative">
+            <div id="map"></div>
+            <div class="map-expand-hint">⤢ Tap to expand</div>
+        </div>
         <div class="pass">
             <div class="route">
                 <div>
@@ -216,6 +251,11 @@
         <div class="tags" id="tags"></div>
         <div id="phases"></div>
     </div>
+</div>
+
+<div class="fullmap-overlay" id="fullmap-overlay">
+    <div id="fullmap"></div>
+    <button class="fm-close" id="fm-close" aria-label="Close map">✕</button>
 </div>
 
 <div class="lightbox" id="lightbox">
@@ -413,12 +453,33 @@
     }
 
     // ── map ──────────────────────────────────────────────────────
-    function renderMap(a) {
-        var map = L.map("map", {zoomControl: false, attributionControl: true});
-        L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
-            attribution: "&copy; OpenStreetMap &copy; CARTO", maxZoom: 18
-        }).addTo(map);
+    var albumData = null;
 
+    function renderMap(a) {
+        albumData = a;
+        // Preview map is a static, tap-to-expand preview — exactly like the
+        // app's card map. All interaction happens in the fullscreen map.
+        var map = L.map("map", {
+            zoomControl: false, attributionControl: false,
+            dragging: false, touchZoom: false, scrollWheelZoom: false,
+            doubleClickZoom: false, boxZoom: false, keyboard: false
+        });
+        addTiles(map);
+        document.getElementById("map").addEventListener("click", openFullMap);
+
+        drawFlight(map, a, false);
+    }
+
+    function addTiles(map) {
+        L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+            maxZoom: 18
+        }).addTo(map);
+    }
+
+    // Shared drawing for the preview and the fullscreen map. `interactive`
+    // controls whether photo dots open the lightbox (fullscreen only —
+    // on the preview any tap expands the map instead, like the app).
+    function drawFlight(map, a, interactive) {
         var bounds = [];
         if (a.flightTrack && a.flightTrack.length >= 2) {
             L.polyline(a.flightTrack, {color: "#4db3d9", weight: 3.5, opacity: 0.95}).addTo(map);
@@ -426,7 +487,7 @@
             endDot(map, a.flightTrack[0]);
             endDot(map, a.flightTrack[a.flightTrack.length - 1]);
         }
-        a.aerialPhotos.forEach(function(p, i) {
+        a.aerialPhotos.forEach(function(p) {
             if (typeof p.latitude !== "number" || typeof p.longitude !== "number") return;
             if (p.latitude === 0 && p.longitude === 0) return;
             bounds.push([p.latitude, p.longitude]);
@@ -435,9 +496,10 @@
                 html: '<div class="photo-dot"><img src="' + esc(p.thumbnailUrl || "") + '"></div>',
                 iconSize: [26, 26], iconAnchor: [13, 13]
             });
-            L.marker([p.latitude, p.longitude], {icon: icon})
-                .addTo(map)
-                .on("click", function() { openLightbox(indexOfPhoto(p.id)); });
+            var m = L.marker([p.latitude, p.longitude], {icon: icon, interactive: interactive}).addTo(map);
+            if (interactive) {
+                m.on("click", function() { closeFullMap(); openLightbox(indexOfPhoto(p.id)); });
+            }
         });
         if (bounds.length >= 2) {
             map.fitBounds(bounds, {padding: [30, 30]});
@@ -446,6 +508,25 @@
         } else {
             map.setView([20, 0], 2);
         }
+    }
+
+    // ── fullscreen track map (mirrors the app's full map overlay) ──
+    var fullMap = null;
+    function openFullMap() {
+        if (!albumData) return;
+        document.getElementById("fullmap-overlay").classList.add("open");
+        document.body.style.overflow = "hidden";
+        if (!fullMap) {
+            fullMap = L.map("fullmap", {zoomControl: true, attributionControl: false});
+            addTiles(fullMap);
+            drawFlight(fullMap, albumData, true);
+        }
+        // Leaflet needs a size kick after the container becomes visible.
+        setTimeout(function() { fullMap.invalidateSize(); }, 60);
+    }
+    function closeFullMap() {
+        document.getElementById("fullmap-overlay").classList.remove("open");
+        document.body.style.overflow = "";
     }
     function endDot(map, latlng) {
         L.marker(latlng, {icon: L.divIcon({className: "", html: '<div class="end-dot"></div>',
@@ -487,24 +568,43 @@
             img.src = p.originalImageUrl || p.imageUrl || p.thumbnailUrl;
             host.appendChild(img);
         }
-        var bits = [];
-        if (!m.personal) {
-            if (typeof p.altitude === "number") bits.push("<b>" + Math.round(p.altitude) + " ft</b>");
-            if (typeof p.groundSpeed === "number") bits.push(Math.round(p.groundSpeed) + " kts");
-            if (typeof p.track === "number") bits.push(Math.round(p.track) + "°");
+        // App-parity detail rows: Airline / Route / Altitude / Track /
+        // Speed / Date / Likes — one per line, hashtags on their own line.
+        var html = '<div class="lb-count">' + (lbIndex + 1) + " of " + mediaItems.length + "</div>";
+        if (p.hashtags) {
+            html += '<div class="lb-tags">' + p.hashtags.trim().split(/\s+/).map(function(h) {
+                return '<span class="tag">' + esc(h.charAt(0) === "#" ? h : "#" + h) + "</span>";
+            }).join("") + "</div>";
+        }
+        var rows = [];
+        function row(ic, k, v) { if (v != null && v !== "") rows.push([ic, k, v]); }
+        if (!m.personal && albumData) {
+            row("✈", "Airline", albumData.airlineName);
+            if (albumData.originAirportIATA && albumData.destinationAirportIATA) {
+                row("→", "Route", albumData.originAirportIATA + " → " + albumData.destinationAirportIATA);
+            }
+            if (typeof p.altitude === "number") row("▲", "Altitude", Math.round(p.altitude).toLocaleString() + " ft");
+            if (typeof p.track === "number") row("↑", "Track", Math.round(p.track) + "°");
+            if (typeof p.groundSpeed === "number") row("◷", "Speed", Math.round(p.groundSpeed) + " kts");
         }
         if (p.timestamp) {
-            bits.push(new Date(p.timestamp).toLocaleString(undefined,
-                {month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"}));
+            row("🕒", "Date", new Date(p.timestamp).toLocaleString(undefined,
+                {day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit"}));
         }
-        if (p.hashtags) bits.push(esc(p.hashtags));
-        document.getElementById("lb-meta").innerHTML =
-            (lbIndex + 1) + " / " + mediaItems.length + (bits.length ? " · " + bits.join(" · ") : "");
+        if (!m.personal && typeof p.likes === "number") row("♥", "Likes", String(p.likes));
+        if (rows.length) {
+            html += '<div class="lb-rows">' + rows.map(function(r) {
+                return '<div class="lb-row"><span class="ic">' + r[0] + '</span>' +
+                       '<span class="k">' + esc(r[1]) + '</span><span class="v">' + esc(r[2]) + "</span></div>";
+            }).join("") + "</div>";
+        }
+        document.getElementById("lb-meta").innerHTML = html;
     }
     function step(d) {
         lbIndex = (lbIndex + d + mediaItems.length) % mediaItems.length;
         renderLightbox();
     }
+    document.getElementById("fm-close").addEventListener("click", closeFullMap);
     document.getElementById("lb-close").addEventListener("click", closeLightbox);
     document.getElementById("lb-prev").addEventListener("click", function() { step(-1); });
     document.getElementById("lb-next").addEventListener("click", function() { step(1); });
