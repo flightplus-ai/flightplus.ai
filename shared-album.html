@@ -313,7 +313,7 @@
         document.getElementById("f-flight").textContent = a.flightNumber || "—";
         document.getElementById("f-aircraft").textContent = a.aircraftModel || "—";
         document.getElementById("f-date").textContent = fmtDate(a.dateKey);
-        var mediaCount = a.aerialPhotos.length + a.tripPhotos.length;
+        var mediaCount = a.aerialPhotos.length + (a.framePhotos || []).length + a.tripPhotos.length;
         document.getElementById("f-media").textContent = String(mediaCount);
         if (a.senderDisplayName) {
             document.getElementById("sender").innerHTML =
@@ -369,6 +369,13 @@
             var items = buckets[ph[0]];
             if (items && items.length) host.appendChild(sectionEl(ph[0], ph[1], ph[2], items, false));
         });
+        // Frames (Map Frame / Watermark composites) get their own section
+        // below the phase timeline, exactly like the app — they are excluded
+        // from phase buckets and never appear on the map.
+        var frames = a.framePhotos || [];
+        if (frames.length) {
+            host.appendChild(sectionEl("frames", "Frames", "rgb(77,179,217)", frames, true));
+        }
         var personal = (buckets["personal"] || []).concat(a.tripPhotos);
         if (personal.length) {
             host.appendChild(sectionEl("personal", "Personal", "rgb(220,145,175)", personal, true));
