@@ -5,9 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>FlightPlus — Shared Flight Album</title>
     <meta name="description" content="A flight album shared from FlightPlus — photos, flight track and flight details.">
-    <!-- Smart App Banner: Safari shows the app banner; tapping the shared URL
-         with the app installed opens the app via universal link (unchanged). -->
-    <meta name="apple-itunes-app" content="app-id=6749645650">
+    <meta name="theme-color" content="#0c0d12">
     <link rel="icon" href="app-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
@@ -78,7 +76,7 @@
 
         /* ── altitude profile panel (toggled via the plane arc) ──── */
         #profile-panel {
-            position: absolute; inset: 0; display: none;
+            position: absolute; inset: 0; display: none; z-index: 900;
             background: linear-gradient(rgb(13,26,51), rgb(26,38,77), rgb(51,64,89));
         }
         #profile-panel.show { display: block; }
@@ -93,7 +91,7 @@
 
         /* ── boarding-pass card ──────────────────────────────────── */
         .pass {
-            margin: -34px 16px 0; position: relative; z-index: 500;
+            margin: -34px 16px 0; position: relative; z-index: 1000;
             background: rgba(22,24,31,0.97);
             border: 1px solid var(--border);
             border-radius: 18px; padding: 20px 18px 14px;
