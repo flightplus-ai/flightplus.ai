@@ -60,6 +60,21 @@
             box-shadow: 0 0 0 4px rgba(77,179,217,0.25);
         }
 
+        /* ── altitude profile panel (toggled via the plane arc) ──── */
+        #profile-panel {
+            position: absolute; inset: 0; display: none;
+            background: linear-gradient(rgb(13,26,51), rgb(26,38,77), rgb(51,64,89));
+        }
+        #profile-panel.show { display: block; }
+        #profile-svg { position: absolute; left: 0; right: 0; width: 100%;
+                       top: 24px; height: 190px; }
+        #profile-empty {
+            position: absolute; inset: 0; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; gap: 8px;
+            color: rgba(255,255,255,0.6); font-size: 12px; padding-bottom: 40px;
+        }
+        #profile-empty .pe-ic { font-size: 26px; opacity: 0.6; }
+
         /* ── boarding-pass card ──────────────────────────────────── */
         .pass {
             margin: -34px 16px 0; position: relative; z-index: 500;
@@ -74,9 +89,13 @@
                    text-transform: uppercase; margin-top: 6px; max-width: 150px; }
         .route .dest { text-align: right; }
         .route .dest .ap-name { margin-left: auto; }
-        .plane-line { flex: 1; align-self: center; display: flex; align-items: center; gap: 6px;
-                      color: var(--muted); padding: 0 4px; }
-        .plane-line .dash { flex: 1; border-top: 1.5px dashed rgba(255,255,255,0.25); }
+        .plane-arc { flex: 1; align-self: center; position: relative; height: 26px;
+                     min-width: 70px; max-width: 140px; background: none; border: 0;
+                     cursor: pointer; padding: 0; }
+        .plane-arc svg { position: absolute; left: 0; right: 0; bottom: 2px;
+                         width: 100%; height: 18px; }
+        .plane-glyph { position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%);
+                       color: #fff; font-size: 14px; }
         .facts {
             display: flex; margin-top: 18px; padding-top: 14px;
             border-top: 1px solid var(--border);
@@ -131,11 +150,6 @@
             font-size: 17px; cursor: pointer;
         }
         #map { cursor: pointer; }
-        .map-expand-hint {
-            position: absolute; right: 10px; bottom: 10px; z-index: 800;
-            background: rgba(10,12,18,0.7); color: #fff; border-radius: 8px;
-            font-size: 11px; font-weight: 600; padding: 5px 9px; pointer-events: none;
-        }
 
         /* ── lightbox ────────────────────────────────────────────── */
         .lightbox {
@@ -148,7 +162,8 @@
         .lb-meta { margin-top: 10px; width: min(96vw, 430px); }
         .lb-count { text-align: center; color: var(--muted); font-size: 12px; margin-bottom: 8px; }
         .lb-tags { text-align: right; color: var(--accent); font-size: 13px;
-                   font-weight: 600; margin-bottom: 10px; padding: 0 4px; }
+                   font-weight: 600; margin-bottom: 10px; padding: 0 4px;
+                   line-height: 1.7; word-spacing: 6px; overflow-wrap: anywhere; }
         .lb-rows { padding: 0 4px; }
         .lb-row { display: flex; align-items: baseline; padding: 4px 0; }
         .lb-row .k { color: var(--muted); font-size: 13px; }
@@ -219,7 +234,13 @@
     <div id="album" class="hidden">
         <div style="position:relative">
             <div id="map"></div>
-            <div class="map-expand-hint">⤢ Tap to expand</div>
+            <div id="profile-panel">
+                <svg id="profile-svg" preserveAspectRatio="none"></svg>
+                <div id="profile-empty" class="hidden">
+                    <div class="pe-ic">📈</div>
+                    <div>Altitude data unavailable for this flight</div>
+                </div>
+            </div>
         </div>
         <div class="pass">
             <div class="route">
@@ -227,7 +248,13 @@
                     <div class="iata" id="o-iata">—</div>
                     <div class="ap-name" id="o-name"></div>
                 </div>
-                <div class="plane-line"><div class="dash"></div><span>✈</span><div class="dash"></div></div>
+                <button class="plane-arc" id="plane-arc" aria-label="Toggle flight profile">
+                    <svg viewBox="0 0 100 18" preserveAspectRatio="none">
+                        <path d="M 0 18 Q 50 -4 100 18" fill="none" stroke="rgba(255,255,255,0.4)"
+                              stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 3"/>
+                    </svg>
+                    <span class="plane-glyph">✈</span>
+                </button>
                 <div class="dest">
                     <div class="iata" id="d-iata">—</div>
                     <div class="ap-name" id="d-name"></div>
@@ -472,7 +499,10 @@
             doubleClickZoom: false, boxZoom: false, keyboard: false
         });
         addTiles(map);
-        document.getElementById("map").addEventListener("click", openFullMap);
+        document.getElementById("map").addEventListener("click", function() {
+            if (!profileShown) openFullMap();
+        });
+        document.getElementById("plane-arc").addEventListener("click", toggleProfile);
 
         drawFlight(map, a, false);
     }
@@ -515,6 +545,78 @@
         } else {
             map.setView([20, 0], 2);
         }
+    }
+
+    // ── altitude profile toggle (the app's v21.albumAltitudeToggle) ──
+    var profileShown = false;
+    var profileDrawn = false;
+    var PHASE_COLORS = {};
+    PHASES.forEach(function(ph) { PHASE_COLORS[ph[0]] = ph[2]; });
+
+    function toggleProfile() {
+        profileShown = !profileShown;
+        document.getElementById("profile-panel").classList.toggle("show", profileShown);
+        if (profileShown && !profileDrawn) { drawProfile(); profileDrawn = true; }
+    }
+
+    function drawProfile() {
+        var a = albumData || {};
+        var pts = a.altitudeTrack || [];
+        if (pts.length < 2) {
+            document.getElementById("profile-empty").classList.remove("hidden");
+            document.getElementById("profile-svg").classList.add("hidden");
+            return;
+        }
+        var W = 1000;
+        var H = 190;
+        var padX = 30;
+        var padTop = 16;
+        var padBot = 22;
+        var t0 = pts[0][0];
+        var t1 = pts[pts.length - 1][0];
+        var maxAlt = 0;
+        pts.forEach(function(p) { if (p[1] > maxAlt) maxAlt = p[1]; });
+        maxAlt = Math.max(1000, Math.ceil(maxAlt / 1000) * 1000);
+        function X(t) { return padX + (t - t0) / Math.max(1, t1 - t0) * (W - padX * 2); }
+        function Y(alt) { return padTop + (1 - alt / maxAlt) * (H - padTop - padBot); }
+
+        var line = pts.map(function(p, i) {
+            return (i ? "L" : "M") + X(p[0]).toFixed(1) + " " + Y(p[1]).toFixed(1);
+        }).join(" ");
+        var area = line + " L" + X(t1).toFixed(1) + " " + (H - padBot) +
+                   " L" + X(t0).toFixed(1) + " " + (H - padBot) + " Z";
+
+        // Photo dots on the curve: x from the photo's own timestamp, y from
+        // the nearest track altitude — phase-coloured with a white ring,
+        // matching the app's markers.
+        var dots = "";
+        (a.aerialPhotos || []).forEach(function(p) {
+            if (!p.timestamp) return;
+            var t = p.timestamp / 1000;
+            if (t < t0 || t > t1) return;
+            var alt = altAt(pts, t);
+            var color = PHASE_COLORS[p.phaseBucket] || "#4db3d9";
+            dots += '<circle cx="' + X(t).toFixed(1) + '" cy="' + Y(alt).toFixed(1) +
+                    '" r="5" fill="' + color + '" stroke="#fff" stroke-width="1.5"/>';
+        });
+
+        var svg = document.getElementById("profile-svg");
+        svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+        svg.innerHTML =
+            '<defs><linearGradient id="altfill" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0" stop-color="rgb(220,130,40)" stop-opacity="0.22"/>' +
+            '<stop offset="1" stop-color="rgb(220,130,40)" stop-opacity="0"/></linearGradient></defs>' +
+            '<path d="' + area + '" fill="url(#altfill)"/>' +
+            '<path d="' + line + '" fill="none" stroke="rgba(220,130,40,0.85)" stroke-width="2"/>' +
+            '<text x="' + padX + '" y="12" fill="rgba(255,255,255,0.5)" font-size="11">' +
+            (maxAlt / 1000) + ",000 ft</text>" + dots;
+    }
+    function altAt(pts, t) {
+        var best = pts[0];
+        for (var i = 0; i < pts.length; i++) {
+            if (Math.abs(pts[i][0] - t) < Math.abs(best[0] - t)) best = pts[i];
+        }
+        return best[1];
     }
 
     // ── fullscreen track map (mirrors the app's full map overlay) ──
@@ -581,7 +683,7 @@
         if (p.hashtags) {
             html += '<div class="lb-tags">' + p.hashtags.trim().split(/\s+/).map(function(h) {
                 return esc(h.charAt(0) === "#" ? h : "#" + h);
-            }).join("&nbsp;&nbsp;") + "</div>";
+            }).join(" ") + "</div>";
         }
         var rows = [];
         function row(ic, k, v) { if (v != null && v !== "") rows.push([ic, k, v]); }
