@@ -154,12 +154,31 @@
         }
         .fullmap-overlay.open { display: block; }
         #fullmap { position: absolute; inset: 0; }
-        .fm-close {
-            position: absolute; top: max(14px, env(safe-area-inset-top)); right: 16px;
-            z-index: 2001; width: 40px; height: 40px; border-radius: 50%;
-            background: rgba(10,12,18,0.75); color: #fff; border: 1px solid var(--border);
-            font-size: 17px; cursor: pointer;
+        /* App's floatingCircleButton: 36px, ultraThinMaterial + black 38%,
+           1px white 10% ring, white semibold glyph. */
+        .fm-btn {
+            width: 36px; height: 36px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.10);
+            background: rgba(0,0,0,0.38); backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            color: #fff; cursor: pointer; display: flex;
+            align-items: center; justify-content: center; padding: 0;
         }
+        .fm-btn svg { width: 17px; height: 17px; fill: none; stroke: #fff;
+                      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .fm-bar {
+            position: absolute; z-index: 2001; left: 16px; right: 16px;
+            top: calc(max(10px, env(safe-area-inset-top)) + 4px);
+            display: flex; align-items: flex-start; justify-content: space-between;
+            pointer-events: none;
+        }
+        .fm-bar .fm-btn { pointer-events: auto; }
+        .fm-stack { display: flex; flex-direction: column; gap: 12px; }
+        /* Track endpoints on the fullscreen map (app replica): green
+           play-circle start, red flag end. */
+        .tk-start { width: 22px; height: 22px; border-radius: 50%; background: #34c759;
+                    border: 1.5px solid #fff; color: #fff; display: flex; align-items: center;
+                    justify-content: center; font-size: 9px; box-shadow: 0 1px 3px rgba(0,0,0,0.4); }
+        .tk-end { font-size: 18px; filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); }
         #map { cursor: pointer; }
 
         /* ── lightbox ────────────────────────────────────────────── */
@@ -287,7 +306,21 @@
 
 <div class="fullmap-overlay" id="fullmap-overlay">
     <div id="fullmap"></div>
-    <button class="fm-close" id="fm-close" aria-label="Close map">✕</button>
+    <div class="fm-bar">
+        <button class="fm-btn" id="fm-close" aria-label="Back">
+            <svg viewBox="0 0 24 24"><polyline points="14.5 5 8 12 14.5 19"/></svg>
+        </button>
+        <div class="fm-stack">
+            <button class="fm-btn" id="fm-style" aria-label="Toggle map style">
+                <svg id="fm-style-map" viewBox="0 0 24 24"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4z"/><line x1="9" y1="4" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="20"/></svg>
+                <svg id="fm-style-globe" viewBox="0 0 24 24" class="hidden"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="3.5" y1="14.5" x2="20.5" y2="14.5"/></svg>
+            </button>
+            <button class="fm-btn" id="fm-eye" aria-label="Hide photo thumbnails">
+                <svg id="fm-eye-open" viewBox="0 0 24 24"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
+                <svg id="fm-eye-slash" viewBox="0 0 24 24" class="hidden"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/><line x1="4" y1="20" x2="20" y2="4"/></svg>
+            </button>
+        </div>
+    </div>
 </div>
 
 <div class="lightbox" id="lightbox">
@@ -519,9 +552,11 @@
     }
 
     function addTiles(map) {
-        L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+        var layer = L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
             maxZoom: 18
-        }).addTo(map);
+        });
+        layer.addTo(map);
+        return layer;
     }
 
     // Shared drawing for the preview and the fullscreen map. `interactive`
@@ -532,8 +567,19 @@
         if (a.flightTrack && a.flightTrack.length >= 2) {
             L.polyline(a.flightTrack, {color: "#4db3d9", weight: 3.5, opacity: 0.95}).addTo(map);
             bounds = a.flightTrack.slice();
-            endDot(map, a.flightTrack[0]);
-            endDot(map, a.flightTrack[a.flightTrack.length - 1]);
+            if (interactive) {
+                // App's track endpoints: green play-circle at the start,
+                // red flag at the end, anchored on the point.
+                L.marker(a.flightTrack[0], {icon: L.divIcon({className: "",
+                    html: '<div class="tk-start">▶</div>', iconSize: [22, 22], iconAnchor: [11, 11]}),
+                    interactive: false}).addTo(map);
+                L.marker(a.flightTrack[a.flightTrack.length - 1], {icon: L.divIcon({className: "",
+                    html: '<div class="tk-end">🚩</div>', iconSize: [22, 22], iconAnchor: [4, 20]}),
+                    interactive: false}).addTo(map);
+            } else {
+                endDot(map, a.flightTrack[0]);
+                endDot(map, a.flightTrack[a.flightTrack.length - 1]);
+            }
         }
         a.aerialPhotos.forEach(function(p) {
             if (typeof p.latitude !== "number" || typeof p.longitude !== "number") return;
@@ -556,6 +602,7 @@
             var m = L.marker([p.latitude, p.longitude], {icon: icon, interactive: interactive}).addTo(map);
             if (interactive) {
                 m.on("click", function() { closeFullMap(); openLightbox(indexOfPhoto(p.id)); });
+                fmPhotoMarkers.push(m);
             }
         });
         if (bounds.length >= 2) {
@@ -641,17 +688,49 @@
 
     // ── fullscreen track map (mirrors the app's full map overlay) ──
     var fullMap = null;
+    var fmPhotoMarkers = [];     // for the eye toggle
+    var fmThumbsHidden = false;
+    var fmTiles = null;
+    var fmHybrid = false;
+
     function openFullMap() {
         if (!albumData) return;
         document.getElementById("fullmap-overlay").classList.add("open");
         document.body.style.overflow = "hidden";
         if (!fullMap) {
-            fullMap = L.map("fullmap", {zoomControl: true, attributionControl: false});
-            addTiles(fullMap);
+            fullMap = L.map("fullmap", {zoomControl: false, attributionControl: false});
+            fmTiles = addTiles(fullMap);
             drawFlight(fullMap, albumData, true);
         }
         // Leaflet needs a size kick after the container becomes visible.
         setTimeout(function() { fullMap.invalidateSize(); }, 60);
+    }
+
+    // App parity: standard ⇄ hybrid, `map` icon on standard, `globe` on
+    // hybrid — the same pair FlightTrackMapView cycles.
+    function toggleMapStyle() {
+        if (!fullMap) return;
+        fmHybrid = !fmHybrid;
+        if (fmTiles) fullMap.removeLayer(fmTiles);
+        fmTiles = fmHybrid
+            ? L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", {maxZoom: 18})
+            : L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {maxZoom: 18});
+        fmTiles.addTo(fullMap);
+        document.getElementById("fm-style-map").classList.toggle("hidden", fmHybrid);
+        document.getElementById("fm-style-globe").classList.toggle("hidden", !fmHybrid);
+    }
+
+    // App parity (v25.trackMap.hideThumbs): route stays, thumbnails go.
+    function toggleThumbnails() {
+        if (!fullMap) return;
+        fmThumbsHidden = !fmThumbsHidden;
+        fmPhotoMarkers.forEach(function(m) {
+            if (fmThumbsHidden) fullMap.removeLayer(m); else m.addTo(fullMap);
+        });
+        document.getElementById("fm-eye-open").classList.toggle("hidden", fmThumbsHidden);
+        document.getElementById("fm-eye-slash").classList.toggle("hidden", !fmThumbsHidden);
+        document.getElementById("fm-eye").setAttribute("aria-label",
+            fmThumbsHidden ? "Show photo thumbnails" : "Hide photo thumbnails");
     }
     function closeFullMap() {
         document.getElementById("fullmap-overlay").classList.remove("open");
@@ -734,6 +813,8 @@
         renderLightbox();
     }
     document.getElementById("fm-close").addEventListener("click", closeFullMap);
+    document.getElementById("fm-style").addEventListener("click", toggleMapStyle);
+    document.getElementById("fm-eye").addEventListener("click", toggleThumbnails);
     document.getElementById("lb-close").addEventListener("click", closeLightbox);
     document.getElementById("lb-prev").addEventListener("click", function() { step(-1); });
     document.getElementById("lb-next").addEventListener("click", function() { step(1); });
