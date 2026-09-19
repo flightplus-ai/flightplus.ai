@@ -720,33 +720,71 @@
         img.src = url || "";
     }
 
+    // Trans-Pacific routes cross the antimeridian, where longitude jumps
+    // +179 → -179. Leaflet draws that jump as a line straight back across
+    // the whole world, and the resulting bounds span the entire globe — so
+    // the route reads as one long straight line and the map zooms out until
+    // the world no longer fills the screen. Unwrapping the longitudes into a
+    // continuous run (…179, 181, 183…) fixes both: Leaflet renders world
+    // copies natively, so it draws and fits correctly.
+    function unwrapTrack(track) {
+        if (!track || track.length < 2) return track || [];
+        var out = [[track[0][0], track[0][1]]];
+        var prev = track[0][1];
+        var offset = 0;
+        for (var i = 1; i < track.length; i++) {
+            var lon = track[i][1] + offset;
+            if (lon - prev > 180) { offset -= 360; lon -= 360; }
+            else if (lon - prev < -180) { offset += 360; lon += 360; }
+            prev = lon;
+            out.push([track[i][0], lon]);
+        }
+        return out;
+    }
+
+    /// Shift a longitude onto the branch nearest `ref`, so photo pins land on
+    /// the same world copy as the track instead of a globe away.
+    function branchLon(lon, ref) {
+        return lon + 360 * Math.round((ref - lon) / 360);
+    }
+
     function drawFlight(map, a, interactive) {
         var bounds = [];
-        if (a.flightTrack && a.flightTrack.length >= 2) {
-            L.polyline(a.flightTrack, {color: "#4db3d9", weight: 3.5, opacity: 0.95}).addTo(map);
-            bounds = a.flightTrack.slice();
+        var track = unwrapTrack(a.flightTrack || []);
+        // Reference longitude for placing photos on the track's world copy.
+        var refLon = 0;
+        if (track.length) {
+            var lons = track.map(function(p) { return p[1]; });
+            refLon = (Math.min.apply(null, lons) + Math.max.apply(null, lons)) / 2;
+        } else if (a.aerialPhotos && a.aerialPhotos.length) {
+            refLon = a.aerialPhotos[0].longitude || 0;
+        }
+        if (track.length >= 2) {
+            L.polyline(track, {color: "#4db3d9", weight: 3.5, opacity: 0.95}).addTo(map);
+            bounds = track.slice();
             if (interactive) {
                 // App's track endpoints: green play-circle at the start,
                 // red flag at the end, anchored on the point.
-                L.marker(a.flightTrack[0], {icon: L.divIcon({className: "",
+                L.marker(track[0], {icon: L.divIcon({className: "",
                     html: '<svg width="22" height="22" viewBox="0 0 22 22">' +
                           '<circle cx="11" cy="11" r="8" fill="#34c759"/>' +
                           '<path d="M 8.9 7.9 L 14.1 11 L 8.9 14.1 Z" fill="#fff"' +
                           ' stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>',
                     iconSize: [22, 22], iconAnchor: [11, 22]}),
                     interactive: false}).addTo(map);
-                L.marker(a.flightTrack[a.flightTrack.length - 1], {icon: L.divIcon({className: "",
+                L.marker(track[track.length - 1], {icon: L.divIcon({className: "",
                     html: '<div class="tk-end">🚩</div>', iconSize: [22, 22], iconAnchor: [5, 22]}),
                     interactive: false}).addTo(map);
             } else {
-                endDot(map, a.flightTrack[0]);
-                endDot(map, a.flightTrack[a.flightTrack.length - 1]);
+                endDot(map, track[0]);
+                endDot(map, track[track.length - 1]);
             }
         }
         a.aerialPhotos.forEach(function(p) {
             if (typeof p.latitude !== "number" || typeof p.longitude !== "number") return;
             if (p.latitude === 0 && p.longitude === 0) return;
-            bounds.push([p.latitude, p.longitude]);
+            var plon = branchLon(p.longitude, refLon);
+            bounds.push([p.latitude, plon]);
             // Fullscreen gets the app's large square pins (anchored on the
             // point); the preview keeps the small round dots — same split
             // the app makes between its card map and the full map overlay.
@@ -766,7 +804,7 @@
                           '" onerror="fpImgRetry(this)"></div>',
                     iconSize: [26, 26], iconAnchor: [13, 13]
                 });
-            var m = L.marker([p.latitude, p.longitude], {icon: icon, interactive: interactive}).addTo(map);
+            var m = L.marker([p.latitude, plon], {icon: icon, interactive: interactive}).addTo(map);
             if (interactive) {
                 m.on("click", function() { closeFullMap(); openLightbox(indexOfPhoto(p.id)); });
                 fmPhotoMarkers.push(m);
