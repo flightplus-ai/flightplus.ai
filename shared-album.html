@@ -643,6 +643,14 @@
         var m = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][parseInt(p[1], 10) - 1];
         return p[2] + " " + m + (withYear ? " " + p[0] : "");
     }
+    // Real takeoff (epoch s) at the origin's UTC offset → "HH:mm".
+    function departure(a) {
+        if (typeof a.departureEpoch === "number" && typeof a.originTimezoneOffset === "number") {
+            var t = new Date((a.departureEpoch + a.originTimezoneOffset) * 1000);
+            return String(t.getUTCHours()).padStart(2, "0") + ":" + String(t.getUTCMinutes()).padStart(2, "0");
+        }
+        return a.departureLocal || null;
+    }
     function seatValue(a) {
         var role = a.crewRole === "captain" ? "CAPT" : a.crewRole === "firstOfficer" ? "F/O" : "";
         var seat = (a.seat || "").trim();
@@ -665,7 +673,7 @@
         document.getElementById("d-name").textContent = dCode === "NA" ? "" : shortAirportName(a.destinationAirportName);
         document.getElementById("f-flight").textContent = (a.flightNumber || "—").toUpperCase();
         document.getElementById("f-date").textContent = ticketDay(a.dateKey);
-        document.getElementById("f-dep").textContent = a.departureLocal || "—";
+        document.getElementById("f-dep").textContent = departure(a) || "—";
         var ac = shortAircraft(a.aircraftModel);
         document.getElementById("f-aircraft").textContent = ac ? ac.toUpperCase() : "—";
         var seat = seatValue(a);
@@ -689,7 +697,7 @@
         document.getElementById("scan-rt").textContent = (a.originAirportIATA || "—") + " → " + (a.destinationAirportIATA || "—");
         document.getElementById("scan-f").textContent = a.flightNumber || "—";
         document.getElementById("scan-d").textContent = ticketDay(a.dateKey, true);
-        document.getElementById("scan-t").textContent = a.departureLocal || "—";
+        document.getElementById("scan-t").textContent = departure(a) || "—";
         placePass();
     }
     // ~36% of the full ticket over the map, as in the app; anchored to the
