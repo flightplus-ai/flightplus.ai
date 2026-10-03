@@ -8,9 +8,11 @@
     <meta name="theme-color" content="#0c0d12">
     <link rel="icon" href="app-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+    <!-- PDF417 + QR for the boarding pass barcode (same codes the app draws) -->
+    <script src="https://cdn.jsdelivr.net/npm/bwip-js@4.5.1/dist/bwip-js-min.js"></script>
     <style>
         :root {
             --bg: #0c0d12;
@@ -20,6 +22,12 @@
             --muted: #8b90a0;
             --accent: #4db3d9;          /* the app's theme color 0.3/0.7/0.85 */
             --border: rgba(255,255,255,0.08);
+            /* v56 boarding pass — the app's TicketInk (DESIGN.md §Boarding pass ticket) */
+            --stock: #F3EEE4;
+            --ink: #1B2433;
+            --ink2: #59616E;
+            --seat: #B06F1C;
+            --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         /* iOS Safari inflates text in blocks it judges to be "main content",
@@ -100,39 +108,83 @@
         }
         #profile-empty .pe-ic { font-size: 26px; opacity: 0.6; }
 
-        /* ── boarding-pass card ──────────────────────────────────── */
+        /* ── boarding pass (v56) — mirrors the app's BoardingPassTicketView ── */
         .pass {
-            margin: -34px 16px 0; position: relative; z-index: 1000;
-            background: rgba(22,24,31,0.97);
-            border: 1px solid var(--border);
-            border-radius: 18px; padding: 20px 18px 14px;
-            backdrop-filter: blur(8px);
+            margin: -60px 16px 0; position: relative; z-index: 1000;
+            font-family: var(--mono); color: var(--ink);
+            filter: drop-shadow(0 6px 12px rgba(0,0,0,0.28));
         }
-        .route { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+        .t-body { background: var(--stock); border-radius: 18px 18px 0 0; padding: 14px 18px 12px;
+                  position: relative; cursor: default; }
+        .pass.torn .t-body { border-radius: 18px 18px 0 0; }
+        /* side notches at the perforation (quarter bites once torn) */
+        .notch { position: absolute; width: 18px; height: 18px; border-radius: 50%;
+                 background: var(--bg); bottom: -9px; z-index: 2; }
+        .notch.l { left: -9px; } .notch.r { right: -9px; }
+        .t-head { position: relative; display: flex; align-items: center; justify-content: space-between;
+                  gap: 8px; min-height: 16px; }
+        .t-airline { display: flex; align-items: center; gap: 5px; max-width: 104px; min-width: 0;
+                     font-size: 9px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
+                     color: var(--ink); white-space: nowrap; overflow: hidden; }
+        .t-airline span { overflow: hidden; text-overflow: ellipsis; }
+        .t-airline img { width: 14px; height: 14px; object-fit: contain; border-radius: 2px; flex: none; }
+        .t-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 700;
+                   letter-spacing: 1.8px; color: var(--ink2); white-space: nowrap; pointer-events: none; }
+        .t-flight { font-size: 12px; font-weight: 700; color: var(--ink); white-space: nowrap; }
+        .route { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-top: 8px; }
         .route > div { flex: 1 1 0; min-width: 0; }
-        .iata { font-size: 32px; font-weight: 800; line-height: 1; white-space: nowrap; }
-        .ap-name { font-size: 10.5px; letter-spacing: 1.2px; color: var(--muted);
-                   text-transform: uppercase; margin-top: 6px; max-width: 150px; }
+        .iata { font-size: 30px; font-weight: 700; line-height: 1.05; white-space: nowrap; color: var(--ink); }
+        .ap-name { font-size: 10.5px; font-weight: 700; letter-spacing: 0.6px; color: var(--ink2);
+                   text-transform: uppercase; margin-top: 2px; line-height: 1.25;
+                   display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
         .route .dest { text-align: right; }
-        .route .dest .ap-name { margin-left: auto; }
-        .plane-arc { flex: 1; align-self: center; position: relative; height: 26px;
-                     min-width: 70px; max-width: 140px; background: none; border: 0;
-                     cursor: pointer; padding: 0; }
-        .plane-arc svg { position: absolute; left: 0; right: 0; bottom: 2px;
-                         width: 100%; height: 18px; }
-        .plane-glyph { position: absolute; left: 50%; top: 45%; transform: translate(-50%, -50%);
-                       color: #fff; font-size: 14px; }
-        .facts {
-            display: flex; margin-top: 18px; padding-top: 14px;
-            border-top: 1px solid var(--border);
-        }
-        .fact { flex: 1; text-align: center; }
-        .fact + .fact { border-left: 1px solid var(--border); }
-        .fact .k { font-size: 11px; color: var(--muted); margin-bottom: 4px; }
-        .fact .v { font-size: 15px; font-weight: 700; }
-        .fact .v.accent { color: var(--accent); }
-        .sender { text-align: center; font-size: 12px; color: var(--muted); margin-top: 12px; }
+        .plane-arc { flex: 0 1 84px !important; min-width: 44px; height: 30px; margin-top: 22px;
+                     position: relative; background: none; border: 0; cursor: pointer; padding: 0; }
+        .plane-arc svg.arc { position: absolute; left: 0; right: 0; bottom: 6px; width: 100%; height: 18px; }
+        .plane-arc svg.plane { position: absolute; left: 50%; top: 4px; width: 16px; height: 16px;
+                               transform: translateX(-50%); fill: var(--ink); }
+        .t-meta { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+        .t-meta .k { font-size: 9px; font-weight: 700; letter-spacing: 1.6px; color: var(--ink2); }
+        .t-meta .v { font-size: 17px; font-weight: 700; color: var(--ink); margin-top: 3px;
+                     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .t-meta .v.seat { color: var(--seat); }
+        .t-perf { height: 1px; padding: 0 20px; background: var(--stock); }
+        .t-perf::before { content: ""; display: block; height: 1px;
+                  background: repeating-linear-gradient(90deg, rgba(89,97,110,0.4) 0 4px, transparent 4px 8px); }
+        .t-stubwrap { background: var(--stock); border-radius: 0 0 18px 18px; position: relative;
+                      transform-origin: top right; transition: transform .38s ease, opacity .38s ease; }
+        .t-stub { height: 54px; padding: 0 18px; display: flex; align-items: center; gap: 14px; cursor: pointer; }
+        .t-barcode { width: 150px; height: 28px; border: 0; padding: 0; background: none; cursor: pointer; flex: none; }
+        .t-barcode canvas { width: 150px; height: 28px; display: block; image-rendering: pixelated; }
+        .t-count { margin-left: auto; text-align: right; }
+        .t-count .k { font-size: 9px; font-weight: 700; letter-spacing: 1.6px; color: var(--ink2); }
+        .t-count .v { font-size: 18px; font-weight: 700; color: var(--ink); line-height: 1.1; }
+        /* torn: stub gone, bottom edge square with quarter bites + fine serration */
+        .pass.torn .t-stubwrap { display: none; }
+        .pass.torn .t-perf { display: none; }
+        .pass.torn .t-body { border-radius: 18px 18px 0 0; padding-bottom: 14px;
+            -webkit-mask: radial-gradient(circle at 4px 100%, transparent 1.4px, #000 1.5px) 0 0 / 8px 100% repeat-x;
+                    mask: radial-gradient(circle at 4px 100%, transparent 1.4px, #000 1.5px) 0 0 / 8px 100% repeat-x; }
+        .pass.torn .notch { bottom: -9px; }
+        .pass.tearing .t-stubwrap { transform: translateY(70px) rotate(-5deg); opacity: 0; }
+        .sender { text-align: center; font-size: 12px; color: var(--muted); margin-top: 14px; }
         .sender b { color: var(--text); font-weight: 600; }
+        /* full-screen scan view */
+        .scan { position: fixed; inset: 0; z-index: 2100; background: var(--stock); color: var(--ink);
+                display: none; flex-direction: column; align-items: center; gap: 18px; overflow-y: auto;
+                padding: max(24px, env(safe-area-inset-top)) 24px 32px; font-family: var(--mono); }
+        .scan.open { display: flex; }
+        .scan .x { align-self: flex-end; width: 36px; height: 36px; border-radius: 50%; border: 0;
+                   background: rgba(0,0,0,0.06); color: var(--ink); font-size: 16px; font-weight: 700; cursor: pointer; }
+        .scan .cap { font-size: 11px; font-weight: 700; letter-spacing: 1.8px; color: #6B7380; }
+        .scan .rt { font-size: 34px; font-weight: 700; }
+        .scan .fields { display: flex; gap: 28px; }
+        .scan .fields div { text-align: center; }
+        .scan .fields .k { font-size: 9px; font-weight: 700; letter-spacing: 1.6px; color: var(--ink2); }
+        .scan .fields .v { font-size: 16px; font-weight: 700; margin-top: 3px; }
+        .scan canvas.qr { width: 240px; height: 240px; image-rendering: pixelated; }
+        .scan canvas.pdf { width: 300px; max-width: 100%; height: 80px; image-rendering: pixelated; }
+        .scan .hint { font-size: 11px; color: #6B7380; text-align: center; }
 
         /* ── memo + hashtags — one container, like the app's
               sharedCardMemoBlock ────────────────────────────────────── */
@@ -274,6 +326,7 @@
             .map-wrap { border-radius: 18px; overflow: hidden; }
             #map { height: 340px; }
             .pass, .notes { margin-left: 0; margin-right: 0; }
+            .pass { margin-left: 12px; margin-right: 12px; }
             .phase { margin: 0 0 28px; }
             .grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
             .lightbox img, .lightbox video { max-height: 72vh; }
@@ -328,31 +381,59 @@
                 </div>
             </div>
         </div>
-        <div class="pass">
-            <div class="route">
-                <div>
-                    <div class="iata" id="o-iata">—</div>
-                    <div class="ap-name" id="o-name"></div>
+        <div class="pass" id="pass">
+            <div class="t-body" id="t-body">
+                <div class="t-head">
+                    <span class="t-airline" id="t-airline"><img id="t-logo" alt="" hidden><span id="t-airline-name"></span></span>
+                    <span class="t-title">BOARDING PASS</span>
+                    <span class="t-flight" id="f-flight">—</span>
                 </div>
-                <button class="plane-arc" id="plane-arc" aria-label="Toggle flight profile">
-                    <svg viewBox="0 0 100 18" preserveAspectRatio="none">
-                        <path d="M 0 18 Q 50 -4 100 18" fill="none" stroke="rgba(255,255,255,0.4)"
-                              stroke-width="1.4" stroke-linecap="round" stroke-dasharray="2 3"/>
-                    </svg>
-                    <span class="plane-glyph">✈</span>
-                </button>
-                <div class="dest">
-                    <div class="iata" id="d-iata">—</div>
-                    <div class="ap-name" id="d-name"></div>
+                <div class="route">
+                    <div>
+                        <div class="iata" id="o-iata">—</div>
+                        <div class="ap-name" id="o-name"></div>
+                    </div>
+                    <button class="plane-arc" id="plane-arc" aria-label="Toggle flight profile">
+                        <svg class="arc" viewBox="0 0 100 18" preserveAspectRatio="none" aria-hidden="true">
+                            <path d="M 0 18 Q 50 -4 100 18" fill="none" stroke="rgba(89,97,110,0.7)"
+                                  stroke-width="1" stroke-linecap="round" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/>
+                        </svg>
+                        <svg class="plane" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" transform="rotate(90 12 12)"/></svg>
+                    </button>
+                    <div class="dest">
+                        <div class="iata" id="d-iata">—</div>
+                        <div class="ap-name" id="d-name"></div>
+                    </div>
+                </div>
+                <div class="t-meta">
+                    <div><div class="k">DATE</div><div class="v" id="f-date">—</div></div>
+                    <div><div class="k">DEP</div><div class="v" id="f-dep">—</div></div>
+                    <div><div class="k">A/C</div><div class="v" id="f-aircraft">—</div></div>
+                    <div><div class="k">SEAT</div><div class="v seat" id="f-seat">&nbsp;</div></div>
+                </div>
+                <span class="notch l" aria-hidden="true"></span><span class="notch r" aria-hidden="true"></span>
+            </div>
+            <div class="t-perf" aria-hidden="true"></div>
+            <div class="t-stubwrap" id="t-stubwrap">
+                <div class="t-stub" id="t-stub" role="button" tabindex="0" aria-label="Tear off stub">
+                    <button class="t-barcode" id="t-barcode" aria-label="Show scannable code for this album"><canvas id="t-pdf"></canvas></button>
+                    <div class="t-count"><div class="k" id="f-media-k">PHOTOS</div><div class="v" id="f-media">—</div></div>
                 </div>
             </div>
-            <div class="facts">
-                <div class="fact"><div class="k">Flight</div><div class="v accent" id="f-flight">—</div></div>
-                <div class="fact"><div class="k">Date</div><div class="v" id="f-date">—</div></div>
-                <div class="fact"><div class="k">Aircraft</div><div class="v" id="f-aircraft">—</div></div>
-                <div class="fact"><div class="k">Media</div><div class="v" id="f-media">—</div></div>
+        </div>
+        <div class="sender" id="sender"></div>
+        <div class="scan" id="scan" role="dialog" aria-modal="true" aria-label="Scan to open this flight album">
+            <button class="x" id="scan-x" aria-label="Close">✕</button>
+            <div class="cap">SCAN TO OPEN THIS FLIGHT ALBUM</div>
+            <div class="rt" id="scan-rt"></div>
+            <div class="fields">
+                <div><div class="k">FLIGHT</div><div class="v" id="scan-f"></div></div>
+                <div><div class="k">DATE</div><div class="v" id="scan-d"></div></div>
+                <div><div class="k">DEP</div><div class="v" id="scan-t"></div></div>
             </div>
-            <div class="sender" id="sender"></div>
+            <canvas class="qr" id="scan-qr"></canvas>
+            <canvas class="pdf" id="scan-pdf"></canvas>
+            <div class="hint">Any phone camera opens the album from the square code.</div>
         </div>
         <div class="notes hidden" id="notes">
             <p id="memo-text" class="hidden"></p>
@@ -487,15 +568,7 @@
     var mediaItems = [];   // flat list for the lightbox, in display order
 
     function render(a) {
-        document.getElementById("o-iata").textContent = a.originAirportIATA || "—";
-        document.getElementById("d-iata").textContent = a.destinationAirportIATA || "—";
-        document.getElementById("o-name").textContent = a.originAirportName || "";
-        document.getElementById("d-name").textContent = a.destinationAirportName || "";
-        document.getElementById("f-flight").textContent = a.flightNumber || "—";
-        document.getElementById("f-aircraft").textContent = a.aircraftModel || "—";
-        document.getElementById("f-date").textContent = fmtDate(a.dateKey);
-        var mediaCount = a.aerialPhotos.length + (a.framePhotos || []).length + a.tripPhotos.length;
-        document.getElementById("f-media").textContent = String(mediaCount);
+        renderPass(a);
         if (a.senderDisplayName) {
             document.getElementById("sender").innerHTML =
                 "Shared by <b>" + esc(a.senderDisplayName) + "</b> via FlightPlus";
@@ -532,13 +605,139 @@
             (a.originAirportIATA || "") + "→" + (a.destinationAirportIATA || "");
     }
 
-    function fmtDate(dateKey) {
+    // ── boarding pass (v56) — same texts as the app's BoardingPassText ──
+    function endpointCode(iata, name) {
+        if (iata && iata.trim()) return iata.trim().toUpperCase();
+        if (name && name.trim()) return name.trim().slice(0, 3).toUpperCase();
+        return "NA";
+    }
+    function shortAirportName(name) {
+        if (!name || !name.trim()) return "";
+        var drop = {"international":1, "intl":1, "intl.":1, "int'l":1, "airport":1, "aerodrome":1, "airfield":1};
+        var words = name.trim().split(/\s+/).filter(function(w) { return !drop[w.toLowerCase()]; });
+        return (words.length ? words.join(" ") : name.trim()).toUpperCase();
+    }
+    function shortAircraft(raw) {
+        if (!raw || !raw.trim()) return null;
+        raw = raw.trim();
+        var makers = ["boeing","airbus","embraer","bombardier","mcdonnell","douglas","cessna","beechcraft",
+                      "gulfstream","dassault","sukhoi","comac","antonov","tupolev","de","havilland","atr"];
+        var tokens = raw.split(" ");
+        if (tokens.length <= 1) return raw.length <= 20 ? raw : raw.slice(0, 20);
+        var out = [], sawModel = false;
+        for (var i = 0; i < tokens.length; i++) {
+            var t = tokens[i];
+            if (!sawModel && makers.indexOf(t.toLowerCase()) >= 0) continue;
+            if (!sawModel) { out.push(t); if (/\d/.test(t)) sawModel = true; continue; }
+            if (t.length <= 4) out.push(t);
+            break;
+        }
+        if (!out.length) return raw;
+        var j = out.join(" ");
+        return j.length <= 20 ? j : j.slice(0, 20);
+    }
+    function ticketDay(dateKey, withYear) {
         if (!dateKey) return "—";
         var p = dateKey.split("-");
         if (p.length !== 3) return dateKey;
-        var months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-        return months[parseInt(p[1], 10) - 1] + " " + parseInt(p[2], 10) + ", " + p[0].slice(2);
+        var m = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][parseInt(p[1], 10) - 1];
+        return p[2] + " " + m + (withYear ? " " + p[0] : "");
     }
+    function seatValue(a) {
+        var role = a.crewRole === "captain" ? "CAPT" : a.crewRole === "firstOfficer" ? "F/O" : "";
+        var seat = (a.seat || "").trim();
+        if (role) return seat ? role + " " + seat : role;
+        return seat;
+    }
+    function drawCode(canvas, bcid, text, scale) {
+        try {
+            bwipjs.toCanvas(canvas, {bcid: bcid, text: text, scale: scale || 2,
+                                     columns: bcid === "pdf417" ? 6 : undefined, padding: 0});
+        } catch (e) { /* the pass still reads without its barcode */ }
+    }
+    var passShareUrl = null;
+    function renderPass(a) {
+        var oCode = endpointCode(a.originAirportIATA, a.originAirportName);
+        var dCode = endpointCode(a.destinationAirportIATA, a.destinationAirportName);
+        document.getElementById("o-iata").textContent = oCode;
+        document.getElementById("d-iata").textContent = dCode;
+        document.getElementById("o-name").textContent = oCode === "NA" ? "" : shortAirportName(a.originAirportName);
+        document.getElementById("d-name").textContent = dCode === "NA" ? "" : shortAirportName(a.destinationAirportName);
+        document.getElementById("f-flight").textContent = (a.flightNumber || "—").toUpperCase();
+        document.getElementById("f-date").textContent = ticketDay(a.dateKey);
+        document.getElementById("f-dep").textContent = a.departureLocal || "—";
+        var ac = shortAircraft(a.aircraftModel);
+        document.getElementById("f-aircraft").textContent = ac ? ac.toUpperCase() : "—";
+        var seat = seatValue(a);
+        document.getElementById("f-seat").textContent = seat || "\u00a0";   // blank when not given
+        var airline = (a.airlineName || "").trim();
+        document.getElementById("t-airline-name").textContent = airline.toUpperCase();
+        var logo = document.getElementById("t-logo");
+        if (airline && a.airlineLogoSlug) {
+            logo.src = "/airline-logos/" + encodeURIComponent(a.airlineLogoSlug) + ".png";
+            logo.hidden = false;
+            logo.onerror = function() { logo.hidden = true; };
+        }
+        var mediaCount = a.aerialPhotos.length + (a.framePhotos || []).length + a.tripPhotos.length;
+        var hasVideo = a.aerialPhotos.some(function(p) { return p.isVideo; })
+                    || a.tripPhotos.some(function(p) { return p.isVideo; });
+        document.getElementById("f-media").textContent = String(mediaCount);
+        document.getElementById("f-media-k").textContent = hasVideo ? "MEDIA" : "PHOTOS";
+        passShareUrl = "https://flightplus.ai/share/" + a.shareId;
+        drawCode(document.getElementById("t-pdf"), "pdf417", passShareUrl, 2);
+        // scan view facts
+        document.getElementById("scan-rt").textContent = (a.originAirportIATA || "—") + " → " + (a.destinationAirportIATA || "—");
+        document.getElementById("scan-f").textContent = a.flightNumber || "—";
+        document.getElementById("scan-d").textContent = ticketDay(a.dateKey, true);
+        document.getElementById("scan-t").textContent = a.departureLocal || "—";
+        placePass();
+    }
+    // ~36% of the full ticket over the map, as in the app; anchored to the
+    // body so tearing the stub off doesn't move it.
+    function placePass() {
+        var body = document.getElementById("t-body");
+        var pass = document.getElementById("pass");
+        if (!body || !pass) return;
+        pass.style.marginTop = (-Math.round(body.offsetHeight * 0.45)) + "px";
+    }
+    function setTorn(torn) {
+        var pass = document.getElementById("pass");
+        try { localStorage.setItem("boardingPass.stubTorn", torn ? "1" : "0"); } catch (e) {}
+        if (torn) {
+            pass.classList.add("tearing");
+            setTimeout(function() { pass.classList.remove("tearing"); pass.classList.add("torn"); }, 360);
+        } else {
+            pass.classList.remove("torn");
+        }
+    }
+    function wirePass() {
+        try { if (localStorage.getItem("boardingPass.stubTorn") === "1") document.getElementById("pass").classList.add("torn"); } catch (e) {}
+        var stub = document.getElementById("t-stub");
+        stub.addEventListener("click", function(e) {
+            if (e.target.closest("#t-barcode")) return;
+            setTorn(true);
+        });
+        stub.addEventListener("keydown", function(e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setTorn(true); } });
+        document.getElementById("t-body").addEventListener("click", function(e) {
+            if (e.target.closest("#plane-arc")) return;
+            if (document.getElementById("pass").classList.contains("torn")) setTorn(false);
+        });
+        document.getElementById("t-barcode").addEventListener("click", function(e) {
+            e.stopPropagation();
+            if (!passShareUrl) return;
+            drawCode(document.getElementById("scan-qr"), "qrcode", passShareUrl, 8);
+            drawCode(document.getElementById("scan-pdf"), "pdf417", passShareUrl, 3);
+            document.getElementById("scan").classList.add("open");
+        });
+        document.getElementById("scan-x").addEventListener("click", function() {
+            document.getElementById("scan").classList.remove("open");
+        });
+        window.addEventListener("resize", placePass);
+        if (document.fonts && document.fonts.ready) document.fonts.ready.then(placePass);
+    }
+    wirePass();
+
+
 
     // App parity: every grid section sorts newest-first (timestamp desc) —
     // the same rule FlightSpecificGalleryView and SharedFlightCardView use
