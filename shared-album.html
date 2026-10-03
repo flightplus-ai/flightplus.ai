@@ -709,12 +709,17 @@
         return h > 0 ? Math.round(h * 0.45) : 86;
     }
     var previewBounds = null;
+    // The route's top-to-bottom (and side-to-side) span is fitted into the
+    // map area above the pass: a small gap under the map's top edge and the
+    // same gap above the pass's top edge. The gap clears the photo dots
+    // (26px, so 13px from their centre) with a little air.
+    var PREVIEW_GAP = 22;
     function fitPreview(map) {
         if (!map || !previewBounds) return;
         map.invalidateSize();
         map.fitBounds(previewBounds, {
-            paddingTopLeft: [36, 36],
-            paddingBottomRight: [36, passOverlap() + 36],
+            paddingTopLeft: [PREVIEW_GAP, PREVIEW_GAP],
+            paddingBottomRight: [PREVIEW_GAP, passOverlap() + PREVIEW_GAP],
             maxZoom: 12
         });
     }
@@ -852,6 +857,9 @@
         // app's card map. All interaction happens in the fullscreen map.
         var map = L.map("map", {
             zoomControl: false, attributionControl: false,
+            // Fractional zoom: fit the route to the free area exactly
+            // instead of rounding down to a whole level (up to 2× smaller).
+            zoomSnap: 0.1,
             dragging: false, touchZoom: false, scrollWheelZoom: false,
             doubleClickZoom: false, boxZoom: false, keyboard: false
         });
