@@ -701,12 +701,29 @@
         placePass();
     }
     // ~36% of the full ticket over the map, as in the app; anchored to the
-    // body so tearing the stub off doesn't move it.
+    // body so tearing the stub off doesn't move it. Measured whenever the
+    // pass actually has a size (it has none while the album is hidden).
+    function passOverlap() {
+        var body = document.getElementById("t-body");
+        var h = body ? body.offsetHeight : 0;
+        return h > 0 ? Math.round(h * 0.45) : 86;
+    }
+    var previewBounds = null;
+    function fitPreview(map) {
+        if (!map || !previewBounds) return;
+        map.invalidateSize();
+        map.fitBounds(previewBounds, {
+            paddingTopLeft: [36, 36],
+            paddingBottomRight: [36, passOverlap() + 36],
+            maxZoom: 12
+        });
+    }
     function placePass() {
         var body = document.getElementById("t-body");
         var pass = document.getElementById("pass");
-        if (!body || !pass) return;
-        pass.style.marginTop = (-Math.round(body.offsetHeight * 0.45)) + "px";
+        if (!body || !pass || body.offsetHeight === 0) return;
+        pass.style.marginTop = (-passOverlap()) + "px";
+        if (typeof previewMap !== "undefined" && previewMap && !profileShown) fitPreview(previewMap);
     }
     function setTorn(torn) {
         var pass = document.getElementById("pass");
@@ -741,6 +758,9 @@
             document.getElementById("scan").classList.remove("open");
         });
         window.addEventListener("resize", placePass);
+        if (window.ResizeObserver) {
+            new ResizeObserver(function() { placePass(); }).observe(document.getElementById("t-body"));
+        }
         if (document.fonts && document.fonts.ready) document.fonts.ready.then(placePass);
     }
     wirePass();
@@ -1018,7 +1038,14 @@
             }
         });
         if (bounds.length >= 2) {
-            map.fitBounds(bounds, {padding: [30, 30]});
+            if (interactive) {
+                map.fitBounds(bounds, {padding: [30, 30]});
+            } else {
+                // Preview: keep the whole route in the part of the map the
+                // boarding pass doesn't cover.
+                previewBounds = bounds;
+                fitPreview(map);
+            }
         } else if (bounds.length === 1) {
             map.setView(bounds[0], 9);
         } else {
