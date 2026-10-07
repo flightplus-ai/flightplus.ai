@@ -83,6 +83,7 @@
         .pin-stage { position: relative; width: 106px; height: 106px; }
         .pin-stage .photo-pin { position: absolute; left: 28px; top: 28px; }
         .pin-stage svg.wave { position: absolute; inset: 0; pointer-events: none; }
+        .pin-stage svg.wave.hidden { display: none; }
         .photo-pin img {
             width: 44px; height: 44px; border-radius: 4px;
             object-fit: cover; display: block;
@@ -459,6 +460,12 @@
             <button class="fm-btn" id="fm-eye" aria-label="Hide photo thumbnails">
                 <svg id="fm-eye-open" viewBox="0 0 24 24"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
                 <svg id="fm-eye-slash" viewBox="0 0 24 24" class="hidden"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/><line x1="4" y1="20" x2="20" y2="4"/></svg>
+            </button>
+            <!-- v59.waveToggle · app parity: hide only the directional waves.
+                 Glyph = the app's dot.radiowaves.forward, struck through when off. -->
+            <button class="fm-btn" id="fm-wave" aria-label="Hide direction waves">
+                <svg id="fm-wave-on" viewBox="0 0 24 24"><circle cx="7" cy="12" r="2" fill="#fff" stroke="none"/><path d="M10.5 8.5A5 5 0 0 1 10.5 15.5"/><path d="M13 6A8.5 8.5 0 0 1 13 18"/><path d="M15.5 3.5A12 12 0 0 1 15.5 20.5"/></svg>
+                <svg id="fm-wave-off" viewBox="0 0 24 24" class="hidden"><circle cx="7" cy="12" r="2" fill="#fff" stroke="none"/><path d="M10.5 8.5A5 5 0 0 1 10.5 15.5"/><path d="M13 6A8.5 8.5 0 0 1 13 18"/><path d="M15.5 3.5A12 12 0 0 1 15.5 20.5"/><line x1="4" y1="20" x2="20" y2="4"/></svg>
             </button>
         </div>
     </div>
@@ -1167,6 +1174,7 @@
     var fullMap = null;
     var fmPhotoMarkers = [];     // for the eye toggle
     var fmThumbsHidden = false;
+    var fmWavesHidden = false;   // v59.waveToggle
     var fmTiles = null;
     var fmHybrid = false;
 
@@ -1208,6 +1216,24 @@
         document.getElementById("fm-eye-slash").classList.toggle("hidden", !fmThumbsHidden);
         document.getElementById("fm-eye").setAttribute("aria-label",
             fmThumbsHidden ? "Show photo thumbnails" : "Hide photo thumbnails");
+        // Re-added markers get fresh icon DOM — re-apply the wave state.
+        applyWaveVisibility();
+    }
+
+    // v59.waveToggle · app parity: the directional waves on their own
+    // switch; the thumbnails stay.
+    function applyWaveVisibility() {
+        var waves = document.querySelectorAll("#fullmap .pin-stage svg.wave");
+        for (var i = 0; i < waves.length; i++) waves[i].classList.toggle("hidden", fmWavesHidden);
+    }
+    function toggleWaves() {
+        if (!fullMap) return;
+        fmWavesHidden = !fmWavesHidden;
+        applyWaveVisibility();
+        document.getElementById("fm-wave-on").classList.toggle("hidden", fmWavesHidden);
+        document.getElementById("fm-wave-off").classList.toggle("hidden", !fmWavesHidden);
+        document.getElementById("fm-wave").setAttribute("aria-label",
+            fmWavesHidden ? "Show direction waves" : "Hide direction waves");
     }
     function closeFullMap() {
         document.getElementById("fullmap-overlay").classList.remove("open");
@@ -1297,6 +1323,7 @@
     document.getElementById("fm-close").addEventListener("click", closeFullMap);
     document.getElementById("fm-style").addEventListener("click", toggleMapStyle);
     document.getElementById("fm-eye").addEventListener("click", toggleThumbnails);
+    document.getElementById("fm-wave").addEventListener("click", toggleWaves);
     document.getElementById("lb-close").addEventListener("click", closeLightbox);
     document.getElementById("lb-prev").addEventListener("click", function() { step(-1); });
     document.getElementById("lb-next").addEventListener("click", function() { step(1); });
