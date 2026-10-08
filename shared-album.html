@@ -122,14 +122,21 @@
         .notch { position: absolute; width: 18px; height: 18px; border-radius: 50%;
                  background: var(--bg); bottom: -9px; z-index: 2; }
         .notch.l { left: -9px; } .notch.r { right: -9px; }
-        .t-head { position: relative; display: flex; align-items: center; justify-content: space-between;
+        /* Header (app v61.ticketHeader): airline · BOARDING PASS · flight in three columns with
+           equal side columns so the title stays centred; script drops the title when the airline
+           name would not fit beside it, and falls back to the logo alone only after that. */
+        .t-head { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center;
                   gap: 8px; min-height: 16px; }
-        .t-airline { display: flex; align-items: center; gap: 5px; max-width: 104px; min-width: 0;
+        .t-head.no-title { grid-template-columns: minmax(0, 1fr) auto; }
+        .t-head.no-title .t-title { display: none; }
+        .t-head.logo-only #t-airline-name { display: none; }
+        .t-head .t-flight { justify-self: end; }
+        .t-airline { display: flex; align-items: center; gap: 5px; min-width: 0;
                      font-size: 9px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase;
                      color: var(--ink); white-space: nowrap; overflow: hidden; }
         .t-airline span { overflow: hidden; text-overflow: ellipsis; }
         .t-airline img { width: 14px; height: 14px; object-fit: contain; border-radius: 2px; flex: none; }
-        .t-title { position: absolute; left: 50%; transform: translateX(-50%); font-size: 9px; font-weight: 700;
+        .t-title { font-size: 9px; font-weight: 700;
                    letter-spacing: 1.8px; color: var(--ink2); white-space: nowrap; pointer-events: none; }
         .t-flight { font-size: 12px; font-weight: 700; color: var(--ink); white-space: nowrap; }
         .route { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; margin-top: 8px; }
@@ -144,10 +151,11 @@
         .plane-arc svg.arc { position: absolute; left: 0; right: 0; bottom: 6px; width: 100%; height: 18px; }
         .plane-arc svg.plane { position: absolute; left: 50%; top: 4px; width: 16px; height: 16px;
                                transform: translateX(-50%); fill: var(--ink); }
-        .t-meta { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; margin-top: 12px; }
+        .t-meta { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; }  /* fields at content width, equal gaps (app v61.ticketRow) */
+        .t-meta > div { flex: 0 0 auto; min-width: 0; }
         .t-meta .k { font-size: 9px; font-weight: 700; letter-spacing: 1.6px; color: var(--ink2); }
-        .t-meta .v { font-size: 17px; font-weight: 700; color: var(--ink); margin-top: 3px;
-                     white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .t-meta .v { font-size: clamp(13px, 4.2vw, 17px); font-weight: 700; color: var(--ink); margin-top: 3px;
+                     white-space: nowrap; }
         .t-meta .v.seat { color: var(--seat); }
         .t-perf { height: 1px; padding: 0 20px; background: var(--stock); }
         .t-perf::before { content: ""; display: block; height: 1px;
@@ -643,12 +651,25 @@
         var j = out.join(" ");
         return j.length <= 20 ? j : j.slice(0, 20);
     }
+    // Same order as the app: keep the airline name; drop the centred title first,
+    // and show the logo alone only when the name fits nowhere.
+    function fitTicketHeader() {
+        var head = document.querySelector(".t-head"); var name = document.getElementById("t-airline-name");
+        if (!head || !name) return;
+        head.classList.remove("no-title", "logo-only");
+        var fits = function () { return name.scrollWidth <= name.clientWidth + 1; };
+        if (!name.textContent || fits()) return;
+        head.classList.add("no-title"); if (fits()) return;
+        head.classList.add("logo-only");
+    }
+    window.addEventListener("resize", function () { fitTicketHeader(); });
     function ticketDay(dateKey, withYear) {
         if (!dateKey) return "—";
         var p = dateKey.split("-");
         if (p.length !== 3) return dateKey;
         var m = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][parseInt(p[1], 10) - 1];
-        return p[2] + " " + m + (withYear ? " " + p[0] : "");
+        // Full year on the stub, two-digit year in the DATE cell (fits the column).
+        return p[2] + " " + m + " " + (withYear ? p[0] : p[0].slice(2));
     }
     // Real takeoff (epoch s) at the origin's UTC offset → "HH:mm".
     function departure(a) {
@@ -687,6 +708,7 @@
         document.getElementById("f-seat").textContent = seat || "\u00a0";   // blank when not given
         var airline = (a.airlineName || "").trim();
         document.getElementById("t-airline-name").textContent = airline.toUpperCase();
+        fitTicketHeader();
         var logo = document.getElementById("t-logo");
         if (airline && a.airlineLogoSlug) {
             logo.src = "/airline-logos/" + encodeURIComponent(a.airlineLogoSlug) + ".png";
