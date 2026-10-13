@@ -10,8 +10,8 @@
 <!--
   Email action handler for FlightPlus (verify email, reset password).
   Firebase's default page calls identitytoolkit.googleapis.com from the browser,
-  which is blocked in mainland China. This page makes the same calls directly
-  and falls back to the China gateway (cn-gw.flightplus.ai/auth/ → identitytoolkit).
+  which is blocked in mainland China. This page makes the same calls through the
+  China gateway (cn-gw.flightplus.ai/auth/ → identitytoolkit), falling back to Google directly.
   No external fonts or scripts: Google Fonts is blocked in China too.
 -->
 <style>
@@ -50,16 +50,20 @@
 (function () {
   var q = new URLSearchParams(location.search);
   var mode = q.get("mode"), code = q.get("oobCode"), key = q.get("apiKey");
-  var BASES = ["https://identitytoolkit.googleapis.com/v1/", "https://cn-gw.flightplus.ai/auth/v1/"];
+  // Gateway first: it answers from everywhere, and in mainland China a direct call can reach
+  // Google but lose the reply — a retry would then see the code as already used.
+  var BASES = ["https://cn-gw.flightplus.ai/auth/v1/", "https://identitytoolkit.googleapis.com/v1/"];
+  var retried = false;
+  var isIOS = /iPhone|iPad|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   var $ = function (id) { return document.getElementById(id); };
   function show(title, msg, isErr) { $("title").textContent = title; $("msg").textContent = msg; $("msg").className = isErr ? "err" : ""; }
 
-  // POST to Identity Toolkit: direct first, the China gateway if the direct host can't be reached.
+  // POST to Identity Toolkit: the gateway, then Google directly if the gateway can't be reached.
   // An HTTP answer (even 400) from either is final; only a network failure or timeout moves on.
   function call(path, body) {
     var i = 0;
     function attempt() {
-      var ctrl = new AbortController(), t = setTimeout(function () { ctrl.abort(); }, i === 0 ? 6000 : 20000);
+      var ctrl = new AbortController(), t = setTimeout(function () { ctrl.abort(); }, 12000);
       return fetch(BASES[i] + path + "?key=" + encodeURIComponent(key), {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: ctrl.signal
       }).then(function (r) {
@@ -67,7 +71,7 @@
         return r.json().then(function (j) { if (!r.ok) throw { code: (j.error && j.error.message) || "ERROR" }; return j; });
       }, function (e) {
         clearTimeout(t);
-        if (++i < BASES.length) return attempt();
+        if (++i < BASES.length) { retried = true; return attempt(); }
         throw { code: "NETWORK" };
       });
     }
@@ -95,8 +99,17 @@
         b.classList.add("hidden");
         show("Email verified ✓", "You're all set. Return to FlightPlus to continue.");
         $("openApp").classList.remove("hidden");
-        setTimeout(function () { location.href = "flightplus://auth/verified"; }, 700);
-      }, function (e) { b.disabled = false; b.textContent = "Try again"; show("Verification failed", explain(e), true); });
+        if (isIOS) setTimeout(function () { location.href = "flightplus://auth/verified"; }, 700);
+      }, function (e) {
+        b.disabled = false; b.textContent = "Try again";
+        var c = (e && e.code) || "";
+        // A used code after a lost reply most likely means the first try worked.
+        var maybeDone = retried && c.indexOf("INVALID_OOB_CODE") === 0;
+        show(maybeDone ? "Probably verified" : "Verification failed",
+             maybeDone ? "Your email may already be verified. Open FlightPlus to check." : explain(e), !maybeDone);
+        // The app re-checks the account when it opens, so this helps either way.
+        $("openApp").classList.remove("hidden");
+      });
     };
   } else if (mode === "resetPassword") {
     call("accounts:resetPassword", { oobCode: code }).then(function (j) {
