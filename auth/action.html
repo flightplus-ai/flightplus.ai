@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>FlightPlus Account</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0c0d12">
+<link rel="icon" href="/app-icon.png">
+<!--
+  Email action handler for FlightPlus (verify email, reset password).
+  Firebase's default page calls identitytoolkit.googleapis.com from the browser,
+  which is blocked in mainland China. This page makes the same calls directly
+  and falls back to the China gateway (cn-gw.flightplus.ai/auth/ → identitytoolkit).
+  No external fonts or scripts: Google Fonts is blocked in China too.
+-->
+<style>
+  :root { --bg:#0c0d12; --card:#16181f; --text:#f2f3f6; --muted:#8b90a0; --accent:#4db3d9; --border:rgba(255,255,255,0.08); --err:#ff7a7a; }
+  * { box-sizing:border-box; }
+  body { margin:0; min-height:100vh; background:var(--bg); color:var(--text);
+         font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif;
+         display:flex; align-items:center; justify-content:center; padding:24px 16px; }
+  .card { width:100%; max-width:420px; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:28px 24px; text-align:center; }
+  .logo { width:64px; height:64px; border-radius:14px; }
+  h1 { font-size:22px; margin:16px 0 8px; }
+  p { color:var(--muted); font-size:16px; line-height:1.5; margin:0 0 20px; }
+  .btn { display:block; width:100%; border:0; border-radius:12px; padding:15px; font-size:16px; font-weight:600;
+         background:var(--accent); color:#06121a; text-decoration:none; cursor:pointer; }
+  .btn[disabled] { opacity:.55; cursor:default; }
+  .btn.secondary { background:rgba(255,255,255,0.08); color:var(--text); margin-top:12px; }
+  input { width:100%; border:1px solid var(--border); background:rgba(255,255,255,0.05); color:var(--text);
+          border-radius:12px; padding:14px; font-size:17px; margin-bottom:14px; }
+  .err { color:var(--err); }
+  .hidden { display:none; }
+</style>
+</head>
+<body>
+<main class="card">
+  <img class="logo" src="/app-icon.png" alt="FlightPlus">
+  <h1 id="title">FlightPlus</h1>
+  <p id="msg">Loading…</p>
+  <form id="pwForm" class="hidden" autocomplete="off">
+    <input id="pw" type="password" placeholder="New password (at least 6 characters)" minlength="6" required autocomplete="new-password">
+    <button class="btn" id="pwBtn" type="submit">Save new password</button>
+  </form>
+  <button class="btn hidden" id="actionBtn" type="button"></button>
+  <a class="btn secondary hidden" id="openApp" href="flightplus://auth/verified">Open FlightPlus</a>
+</main>
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var mode = q.get("mode"), code = q.get("oobCode"), key = q.get("apiKey");
+  var BASES = ["https://identitytoolkit.googleapis.com/v1/", "https://cn-gw.flightplus.ai/auth/v1/"];
+  var $ = function (id) { return document.getElementById(id); };
+  function show(title, msg, isErr) { $("title").textContent = title; $("msg").textContent = msg; $("msg").className = isErr ? "err" : ""; }
+
+  // POST to Identity Toolkit: direct first, the China gateway if the direct host can't be reached.
+  // An HTTP answer (even 400) from either is final; only a network failure or timeout moves on.
+  function call(path, body) {
+    var i = 0;
+    function attempt() {
+      var ctrl = new AbortController(), t = setTimeout(function () { ctrl.abort(); }, i === 0 ? 6000 : 20000);
+      return fetch(BASES[i] + path + "?key=" + encodeURIComponent(key), {
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: ctrl.signal
+      }).then(function (r) {
+        clearTimeout(t);
+        return r.json().then(function (j) { if (!r.ok) throw { code: (j.error && j.error.message) || "ERROR" }; return j; });
+      }, function (e) {
+        clearTimeout(t);
+        if (++i < BASES.length) return attempt();
+        throw { code: "NETWORK" };
+      });
+    }
+    return attempt();
+  }
+  function explain(e) {
+    var c = (e && e.code) || "";
+    if (c.indexOf("INVALID_OOB_CODE") === 0 || c.indexOf("EXPIRED_OOB_CODE") === 0)
+      return "This link has expired or was already used. Open FlightPlus and request a new email.";
+    if (c.indexOf("WEAK_PASSWORD") === 0) return "Please choose a password with at least 6 characters.";
+    if (c.indexOf("USER_DISABLED") === 0) return "This account has been disabled.";
+    if (c.indexOf("USER_NOT_FOUND") === 0) return "This account no longer exists.";
+    if (c === "NETWORK") return "We couldn't reach the server. Check your connection and try again.";
+    return "Something went wrong (" + c + "). Please try again.";
+  }
+
+  if (!mode || !code || !key) { show("Link incomplete", "Please open the link from your email again.", true); return; }
+
+  if (mode === "verifyEmail") {
+    show("Verify your email", "Tap the button to confirm your email address for FlightPlus.");
+    var b = $("actionBtn"); b.textContent = "Verify email"; b.classList.remove("hidden");
+    b.onclick = function () {
+      b.disabled = true; b.textContent = "Verifying…";
+      call("accounts:update", { oobCode: code }).then(function () {
+        b.classList.add("hidden");
+        show("Email verified ✓", "You're all set. Return to FlightPlus to continue.");
+        $("openApp").classList.remove("hidden");
+        setTimeout(function () { location.href = "flightplus://auth/verified"; }, 700);
+      }, function (e) { b.disabled = false; b.textContent = "Try again"; show("Verification failed", explain(e), true); });
+    };
+  } else if (mode === "resetPassword") {
+    call("accounts:resetPassword", { oobCode: code }).then(function (j) {
+      show("Reset your password", "Choose a new password for " + (j.email || "your account") + ".");
+      $("pwForm").classList.remove("hidden");
+      $("pwForm").onsubmit = function (ev) {
+        ev.preventDefault();
+        var pb = $("pwBtn"); pb.disabled = true; pb.textContent = "Saving…";
+        call("accounts:resetPassword", { oobCode: code, newPassword: $("pw").value }).then(function () {
+          $("pwForm").classList.add("hidden");
+          show("Password changed ✓", "Sign in to FlightPlus with your new password.");
+          var o = $("openApp"); o.href = "flightplus://"; o.classList.remove("hidden");
+        }, function (e) { pb.disabled = false; pb.textContent = "Save new password"; show("Couldn't change password", explain(e), true); });
+      };
+    }, function (e) { show("Reset link problem", explain(e), true); });
+  } else {
+    // Other actions (email change recovery, etc.) are rare: hand them to Firebase's own page.
+    location.replace("https://flightps.firebaseapp.com/__/auth/action" + location.search);
+  }
+})();
+</script>
+</body>
+</html>
