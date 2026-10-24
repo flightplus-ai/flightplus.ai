@@ -53,11 +53,13 @@
   var q = new URLSearchParams(location.search);
   var mode = q.get("mode"), code = q.get("oobCode"), linkKey = q.get("apiKey");
   // FlightPlus's own Firebase project (flightps). Firebase puts the project's Web API key
-  // (the "Browser key") in its email links; the iOS app's key is the same project's other key.
+  // (the "Browser key") in its email links — so it is public by design (GitHub secret scanning
+  // flags it; it is API-restricted to Identity Toolkit + Secure Token in Google Cloud).
   // The page never trusts the link's apiKey: a crafted link carrying another project's key would
   // otherwise make flightplus.ai collect a new password for that project. Any other key = not ours.
   var API_KEY = "AIzaSyDaKDZxbXMsdrqHMIMYepYShr2A2dzfagU";
-  var OWN_KEYS = [API_KEY, "AIzaSyDExpSKuPzQiZ13y9DfTHjRoAGSKIxUvb4"];
+  // Only the Browser key: Firebase's emails never carry the iOS app's key.
+  var OWN_KEYS = [API_KEY];
   // Gateway first: it answers from everywhere, and in mainland China a direct call can reach
   // Google but lose the reply — a retry would then see the code as already used.
   var BASES = ["https://cn-gw.flightplus.ai/auth/v1/", "https://identitytoolkit.googleapis.com/v1/"];
