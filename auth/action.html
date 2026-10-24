@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>FlightPlus Account</title>
 <meta name="robots" content="noindex">
+<!-- The URL carries the one-time oobCode: never send it on in a Referer. -->
+<meta name="referrer" content="no-referrer">
 <meta name="theme-color" content="#0c0d12">
 <link rel="icon" href="/app-icon.png">
 <!--
@@ -49,7 +51,13 @@
 <script>
 (function () {
   var q = new URLSearchParams(location.search);
-  var mode = q.get("mode"), code = q.get("oobCode"), key = q.get("apiKey");
+  var mode = q.get("mode"), code = q.get("oobCode"), linkKey = q.get("apiKey");
+  // FlightPlus's own Firebase project (flightps). Firebase puts the project's Web API key
+  // (the "Browser key") in its email links; the iOS app's key is the same project's other key.
+  // The page never trusts the link's apiKey: a crafted link carrying another project's key would
+  // otherwise make flightplus.ai collect a new password for that project. Any other key = not ours.
+  var API_KEY = "AIzaSyDaKDZxbXMsdrqHMIMYepYShr2A2dzfagU";
+  var OWN_KEYS = [API_KEY, "AIzaSyDExpSKuPzQiZ13y9DfTHjRoAGSKIxUvb4"];
   // Gateway first: it answers from everywhere, and in mainland China a direct call can reach
   // Google but lose the reply — a retry would then see the code as already used.
   var BASES = ["https://cn-gw.flightplus.ai/auth/v1/", "https://identitytoolkit.googleapis.com/v1/"];
@@ -64,7 +72,7 @@
     var i = 0;
     function attempt() {
       var ctrl = new AbortController(), t = setTimeout(function () { ctrl.abort(); }, 12000);
-      return fetch(BASES[i] + path + "?key=" + encodeURIComponent(key), {
+      return fetch(BASES[i] + path + "?key=" + encodeURIComponent(API_KEY), {
         method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: ctrl.signal
       }).then(function (r) {
         clearTimeout(t);
@@ -88,7 +96,17 @@
     return "Something went wrong (" + c + "). Please try again.";
   }
 
-  if (!mode || !code || !key) { show("Link incomplete", "Please open the link from your email again.", true); return; }
+  // Clickjacking guard (GitHub Pages can't send X-Frame-Options / frame-ancestors): this page
+  // takes a new password, so it renders nothing actionable inside a frame.
+  if (window.top !== window.self) {
+    show("Open this link directly", "For your security, this page only works when opened from your email.", true);
+    return;
+  }
+  if (linkKey && OWN_KEYS.indexOf(linkKey) < 0) {
+    show("This link isn't from FlightPlus", "Don't enter a password here. Request a new email from the FlightPlus app.", true);
+    return;
+  }
+  if (!mode || !code) { show("Link incomplete", "Please open the link from your email again.", true); return; }
 
   if (mode === "verifyEmail") {
     show("Verify your email", "Tap the button to confirm your email address for FlightPlus.");
