@@ -527,9 +527,13 @@
             document.getElementById(x).classList.toggle("hidden", x !== id);
         });
     }
+    // QA 2026-10-24 · also escape quotes: esc() output goes into src="…"
+    // attributes too, and textContent → innerHTML leaves " and ' as-is, so a
+    // crafted URL could break out of the attribute and run script here.
     function esc(s) {
-        var d = document.createElement("div"); d.textContent = s == null ? "" : String(s);
-        return d.innerHTML;
+        return (s == null ? "" : String(s)).replace(/[&<>"']/g, function(c) {
+            return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c];
+        });
     }
 
     if (!shareId) {
