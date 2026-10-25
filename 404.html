@@ -9,6 +9,9 @@
         (function() {
             var m = window.location.pathname.match(/^\/share\/([A-Za-z0-9_-]+)/);
             if (m) window.location.replace("/shared-album.html?id=" + m[1]);
+            // 2026-10-25 · a shared Club task in path form.
+            var t = window.location.pathname.match(/^\/task\/(photos|waypoints)\/([A-Za-z]{2})\b/);
+            if (t) window.location.replace("/task/?kind=" + t[1] + "&cc=" + t[2].toUpperCase());
         })();
     </script>
     <meta charset="UTF-8">

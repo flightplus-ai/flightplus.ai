@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>FlightPlus — VFR Waypoint Task</title>
+    <meta name="description" content="Help pilots find VFR waypoints from the air: a task in the FlightPlus Club.">
+    <meta name="theme-color" content="#14223b">
+    <meta name="apple-itunes-app" content="app-id=6749645650">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="FlightPlus">
+    <meta property="og:title" content="A FlightPlus task: VFR waypoints">
+    <meta property="og:description" content="Help pilots find VFR waypoints from the air. Join the task in FlightPlus.">
+    <meta property="og:image" content="https://flightplus.ai/task-art/photos.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="robots" content="noindex">
+    <link rel="icon" href="/app-icon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700;800&display=swap">
+    <!--
+      2026-10-25 · the public page behind a shared Club task
+      (flightplus.ai/task/?kind=photos|waypoints&cc=XX). Mirrors the app's
+      VFRTaskPage / VFRWaypointTaskPage minus YOUR CONTRIBUTION: hero, three
+      steps, everyone's progress, briefing. Data: the vfrSharedTask function
+      (totals only, no names). Keep the steps and briefing in step with the
+      two Swift pages.
+    -->
+    <style>
+        :root {
+            --bg: #14223b;              /* AppTheme.dark.pageBackground */
+            --panel: #14213b;           /* VFRInk.chart */
+            --text: #ffffff;
+            --muted: rgba(255,255,255,0.6);
+            --dim: rgba(255,255,255,0.35);
+            --sky: #4db3d9;             /* the theme accent */
+            --amber: #f2a93b;           /* BoardInk.amber */
+            --flap: #F2EAD3;            /* BoardInk.flapInk */
+            --stock: #F3EEE4;           /* TicketInk.stock */
+            --asphalt: #262933;         /* VFRInk.asphalt */
+            --line: rgba(255,255,255,0.08);
+            --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+        body {
+            background: var(--bg); color: var(--text);
+            font-family: "Plus Jakarta Sans", -apple-system, sans-serif;
+            min-height: 100vh;
+        }
+        .wrap { max-width: 640px; margin: 0 auto; padding-bottom: 120px; }
+        .hidden { display: none !important; }
+
+        .topbar {
+            position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+            max-width: 640px; margin: 0 auto;
+            display: flex; align-items: center; justify-content: space-between; padding: 14px 16px;
+        }
+        .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; }
+        .brand img { width: 34px; height: 34px; border-radius: 8px; }
+        .brand span { font-weight: 800; font-size: 17px; color: #fff; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
+        .appstore-badge svg { height: 40px; display: block; }
+
+        /* hero: photo, MISSION, title, purpose — VFRTaskPage.hero */
+        .hero { position: relative; height: 330px; overflow: hidden; background: #0d1626; }
+        .hero img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+        .hero::after {
+            content: ""; position: absolute; inset: 0;
+            background: linear-gradient(rgba(0,0,0,0.35) 0%, transparent 30%, rgba(20,34,59,0.75) 72%, var(--bg) 100%);
+        }
+        .hero-text { position: absolute; left: 20px; right: 20px; bottom: 4px; z-index: 1; }
+        .annunciator {
+            display: inline-block; font: 700 11px var(--mono); letter-spacing: 1.2px; color: var(--amber);
+            padding: 4px 8px; border: 1px solid rgba(242,169,59,0.55); border-radius: 4px;
+            background: rgba(242,169,59,0.12); margin-bottom: 8px;
+        }
+        .hero h1 { font-size: 28px; font-weight: 800; line-height: 1.15; margin-bottom: 8px; }
+        .hero p { font-size: 16px; color: rgba(255,255,255,0.8); line-height: 1.35; }
+
+        .body { padding: 0 20px; display: flex; flex-direction: column; gap: 26px; margin-top: 26px; }
+        .country { display: flex; align-items: center; gap: 10px; font: 700 13px var(--mono); letter-spacing: 1.6px; }
+        .country .flag { font-size: 24px; letter-spacing: 0; }
+
+        /* three steps — VFRTaskSteps */
+        .steps { display: flex; align-items: flex-start; }
+        .step { flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+        .step-ic {
+            width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            background: rgba(77,179,217,0.12); border: 1.2px solid rgba(77,179,217,0.6); color: var(--sky);
+        }
+        .step-ic svg { width: 20px; height: 20px; }
+        .step-n { font: 700 10px var(--mono); letter-spacing: 1.2px; color: var(--sky); margin-top: 2px; }
+        .step-t { font-size: 16px; font-weight: 700; }
+        .step-l { font-size: 12px; color: var(--dim); line-height: 1.35; }
+        .step-gap { width: 26px; margin-top: 22px; border-top: 1.2px dashed rgba(255,255,255,0.25); flex: none; }
+
+        .section-title { font: 700 13px var(--mono); letter-spacing: 1.6px; color: var(--dim); margin-bottom: 12px; }
+        .panel {
+            background: var(--panel); border: 1px solid rgba(255,255,255,0.10);
+            border-radius: 16px; overflow: hidden;
+        }
+        .rule-h { height: 1px; background: var(--line); }
+        .gauge-row { display: flex; align-items: center; gap: 18px; padding: 16px; }
+        .gauge { width: 118px; height: 118px; flex: none; position: relative; }
+        .gauge svg { width: 100%; height: 100%; }
+        .gauge-label { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .value { font: 700 26px var(--mono); }
+        .label { font: 700 11px var(--mono); letter-spacing: 1px; text-transform: uppercase; }
+        .figures { display: flex; flex-direction: column; gap: 10px; }
+        .totals { display: flex; height: 78px; }
+        .total { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 0 4px; text-align: center; }
+        .total + .total { border-left: 1px solid var(--line); }
+        .total .num { font: 700 20px var(--mono); }
+        /* The app shrinks a long label to fit (minimumScaleFactor 0.75). */
+        .total .label { color: rgba(255,255,255,0.5); white-space: nowrap; font-size: min(11px, 2.6vw); letter-spacing: min(1px, 0.2vw); }
+        .country-row { display: flex; align-items: center; gap: 12px; padding: 0 16px; height: 62px; }
+        .country-row .flag { font-size: 24px; }
+        .country-row b { display: block; font-size: 16px; }
+        .country-row span { font-size: 13px; color: var(--muted); }
+
+        /* breaks — VFRTaskBreak */
+        .break { display: flex; align-items: center; gap: 12px; padding: 16px 0; }
+        .break::before, .break::after { content: ""; flex: 1; height: 1px; background: rgba(255,255,255,0.09); }
+        .break h2 { font: 700 15px var(--mono); letter-spacing: 1.6px; color: var(--stock); white-space: nowrap; }
+
+        .lead { font-size: 16px; color: rgba(255,255,255,0.75); line-height: 1.45; }
+
+        /* briefing — VFRBriefingCard, one open at a time */
+        .q { border: 0; background: none; color: inherit; font: inherit; width: 100%; text-align: left; cursor: pointer;
+             padding: 16px; display: block; }
+        .q + .q { border-top: 1px solid var(--line); }
+        .q-head { display: flex; justify-content: space-between; gap: 8px; font-size: 16px; font-weight: 700; }
+        .q-head i { font-style: normal; color: rgba(255,255,255,0.5); font-size: 11px; transition: transform 0.2s; margin-top: 4px; }
+        .q.open .q-head i { transform: rotate(180deg); }
+        .q-a { display: none; margin-top: 8px; font-size: 16px; line-height: 1.6; color: rgba(255,255,255,0.78); white-space: pre-line; overflow-wrap: anywhere; }
+        .q.open .q-a { display: block; }
+
+        .cta {
+            position: fixed; left: 0; right: 0; bottom: 0; z-index: 20;
+            padding: 14px 20px calc(10px + env(safe-area-inset-bottom));
+            background: linear-gradient(rgba(20,34,59,0), var(--bg) 45%);
+            display: flex; justify-content: center;
+        }
+        .cta a {
+            width: 100%; max-width: 600px; display: flex; align-items: center; justify-content: center; gap: 10px;
+            text-decoration: none; background: var(--sky); color: #fff; font-weight: 800; font-size: 16px;
+            border-radius: 14px; padding: 15px 22px;
+        }
+        .cta a img { width: 22px; height: 22px; border-radius: 5px; }
+
+        .state { text-align: center; padding: 140px 24px 40px; }
+        .state h1 { font-size: 20px; margin-bottom: 8px; }
+        .state p { color: var(--muted); font-size: 15px; line-height: 1.6; }
+        .spinner { width: 30px; height: 30px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--sky);
+                   border-radius: 50%; animation: spin 0.9s linear infinite; margin: 0 auto 16px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @media (hover: hover) { .cta a:hover { filter: brightness(1.08); } }
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <div class="topbar">
+        <a class="brand" href="/"><img src="/app-icon.png" alt=""><span>FlightPlus</span></a>
+        <a class="appstore-badge" href="https://apps.apple.com/app/id6749645650" target="_blank" rel="noopener" aria-label="Download on the App Store">
+            <svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" role="img">
+                <rect width="120" height="40" rx="7" fill="#000" stroke="#a6a6a6" stroke-width="1"/>
+                <path fill="#fff" d="M24.77 20.3a4.95 4.95 0 0 1 2.36-4.15 5.07 5.07 0 0 0-3.99-2.16c-1.68-.18-3.31 1-4.17 1-.87 0-2.19-.98-3.61-.95a5.32 5.32 0 0 0-4.47 2.73c-1.93 3.35-.49 8.27 1.36 10.98.93 1.33 2.01 2.81 3.43 2.76 1.39-.06 1.91-.89 3.58-.89 1.66 0 2.14.89 3.59.85 1.49-.02 2.43-1.34 3.32-2.68a10.96 10.96 0 0 0 1.52-3.09 4.78 4.78 0 0 1-2.92-4.4zM22.04 12.21a4.87 4.87 0 0 0 1.11-3.49 4.96 4.96 0 0 0-3.21 1.66 4.64 4.64 0 0 0-1.14 3.36 4.1 4.1 0 0 0 3.24-1.53z"/>
+                <text x="38" y="17" font-family="-apple-system, Helvetica, Arial" font-size="8" fill="#fff">Download on the</text>
+                <text x="38" y="30" font-family="-apple-system, Helvetica, Arial" font-size="13" font-weight="600" fill="#fff">App Store</text>
+            </svg>
+        </a>
+    </div>
+
+    <div id="loading" class="state"><div class="spinner"></div><p>Loading the task…</p></div>
+    <div id="error" class="state hidden">
+        <h1 id="error-title">This task isn't open</h1>
+        <p id="error-text">It may have ended. Open FlightPlus to see the tasks running in the Club.</p>
+    </div>
+
+    <div id="task" class="hidden">
+        <div class="hero">
+            <img id="hero-img" alt="">
+            <div class="hero-text">
+                <span class="annunciator">MISSION</span>
+                <h1 id="title"></h1>
+                <p id="purpose"></p>
+            </div>
+        </div>
+        <div class="body">
+            <div class="country"><span class="flag" id="flag"></span><span id="country-name"></span></div>
+            <div class="steps" id="steps"></div>
+            <div>
+                <div class="section-title">EVERYONE'S PROGRESS</div>
+                <div class="panel" id="progress"></div>
+            </div>
+            <div class="break"><h2>BRIEFING</h2></div>
+            <div id="file-format" class="hidden">
+                <div class="section-title">WHAT A FILE NEEDS</div>
+                <p class="lead">For many waypoints at once, load a KML, KMZ, GPX or CSV file. One waypoint per row or placemark; a name, a code and a position are required.</p>
+            </div>
+            <div class="panel" id="briefing"></div>
+        </div>
+    </div>
+</div>
+
+<div class="cta">
+    <a id="cta-link" href="https://apps.apple.com/app/id6749645650">
+        <img src="/app-icon.png" alt="">
+        <span id="cta-text">Open in FlightPlus</span>
+    </a>
+</div>
+
+<script>
+(function() {
+    "use strict";
+
+    var API_DIRECT = "https://asia-southeast1-flightps.cloudfunctions.net/vfrSharedTask";
+    var API_GATEWAY = "https://cn-gw.flightplus.ai/fn/vfrSharedTask";
+    var APP_STORE = "https://apps.apple.com/app/id6749645650";
+
+    var ICONS = {
+        map: '<path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2Zm0 0v14m6-12v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>',
+        camera: '<path d="M4 8h3l2-3h6l2 3h3v11H4V8Z" fill="currentColor"/><circle cx="12" cy="13" r="3.4" fill="#14223b"/>',
+        seal: '<path d="m12 2 2.4 2 3.1-.3.9 3 2.6 1.8-1.2 2.9 1.2 2.9-2.6 1.8-.9 3-3.1-.3L12 22l-2.4-2-3.1.3-.9-3L3 15.5l1.2-2.9L3 9.7l2.6-1.8.9-3 3.1.3L12 2Z" fill="currentColor"/><path d="m8.5 12 2.4 2.4 4.6-4.8" fill="none" stroke="#14223b" stroke-width="2"/>',
+        globe: '<circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18" fill="none" stroke="currentColor" stroke-width="2"/>',
+        pin: '<path d="M12 21s-6-6.2-6-11a6 6 0 0 1 12 0c0 4.8-6 11-6 11Z" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="10" r="2.2" fill="currentColor"/>'
+    };
+
+    // The pages' own words — VFRTaskPage / VFRWaypointTaskPage (keep in step).
+    var KINDS = {
+        photos: {
+            purpose: "Show pilots what each waypoint looks like from the air.",
+            steps: [["map", "Find", "a waypoint on the map"], ["camera", "Add", "your photo of it"], ["seal", "Live", "after a quick review"]],
+            questions: [
+                ["What is a VFR waypoint?", "A reporting point: a place on the ground that pilots flying by sight use to say where they are, such as a town, a bridge, a dam or a mosque. Air traffic control may ask a pilot to report a waypoint, and the pilot has to find it by eye."],
+                ["Why add photos?", "A chart shows a triangle and a name. A photo shows what the place really looks like from the cockpit, so a pilot new to the area can pick it out first time."],
+                ["What makes a good photo?", "Only photos taken from the air with the landmark clearly visible are accepted. Any height, any direction: several views of one waypoint help. Leave out anything personal and non-aerial, such as faces, names and IDs."],
+                ["How do I add one?", "Open a waypoint in the Finder and tap Add Photo. Pick from your flight albums or your phone gallery. Then choose Share or Only Me."],
+                ["What is reviewed?", "A shared photo is reviewed by FlightPlus before other pilots see it: is it this waypoint, is it from the air, is anything private in it. You see In Review, then Live. If something is off you see Needs a Fix with the reason."],
+                ["What is not reviewed?", "Photos you keep as Only Me. They are yours alone, show at once, and earn no credits. You can share them later."],
+                ["Can I add a missing waypoint?", "Yes. Open the waypoint task in Club › Tasks: place it on the map, type its coordinates, or load a file. You can also press and hold the map in the Finder. Shared waypoints are reviewed the same way."]
+            ]
+        },
+        waypoints: {
+            purpose: "Put the places pilots report over on every pilot's map.",
+            steps: [["globe", "Choose", "a country you fly in"], ["pin", "Add", "on the map, by position, or a file"], ["seal", "Live", "after a quick review"]],
+            questions: [
+                ["What is a VFR waypoint?", "A place on the ground that pilots flying by sight report over or steer by: a town, a bridge, a dam, a river mouth. Some are published in a country's AIP. Many are simply the ones local pilots and controllers use."],
+                ["What is most useful?", "The checkpoints printed on your VFR chart that your GPS doesn't have: towns, dams, bridges, river mouths. A country's official VFR waypoints are often already loaded by FlightPlus, so a file of them comes back as already there."],
+                ["Why add them?", "The Waypoint Finder is only as good as its list. Every waypoint you add goes on every pilot's map, and becomes a place pilots can photograph from the air."],
+                ["Can I improve a waypoint that's already there?", "Yes. Open it in the Finder and tap Suggest an Edit: add a Look (what to look for from the air) or an alias (a name local pilots or the tower use). Each is reviewed; a chosen one earns credits and shows your name if you want it to."],
+                ["Where can the data come from?", "A public source, such as a country's AIP or a chart that is free to reuse, or your own knowledge of where you fly. Both are welcome. When you load a file, say which under Where is this data from. Please don't copy from a paid chart or app."],
+                ["How do I add one?", "Tap Add Waypoints and choose a country. Then place it on the map, type its coordinates, or load a file. Give it the name pilots use, and say what to look for from the air."],
+                ["What is reviewed?", "FlightPlus reviews every shared waypoint before other pilots see it: is it a real place pilots use, is it in the right spot, is it already on the map. You see In Review, then Live. If something is off you see Needs a Fix with the reason. One that is already there is merged into the existing waypoint."],
+                ["What is not reviewed?", "Waypoints you keep as Only Me. They show on your map at once, you can add photos to them, and they earn no credits. You can share them later."],
+                ["What happens once it is live?", "It appears in the Waypoint Finder for everyone, marked as added by pilots, and joins the photo task as a waypoint that needs a photo."]
+            ]
+        }
+    };
+
+    var qs = new URLSearchParams(location.search);
+    var path = location.pathname.match(/\/task\/(photos|waypoints)\/([A-Za-z]{2})/);
+    var kind = qs.get("kind") || (path ? path[1] : "");
+    var cc = (qs.get("cc") || (path ? path[2] : "")).toUpperCase();
+
+    function show(id) {
+        ["loading", "error", "task"].forEach(function(x) {
+            document.getElementById(x).classList.toggle("hidden", x !== id);
+        });
+    }
+    function fail(title, text) {
+        document.getElementById("error-title").textContent = title;
+        document.getElementById("error-text").textContent = text;
+        show("error");
+    }
+    function el(tag, cls, text) {
+        var e = document.createElement(tag);
+        if (cls) e.className = cls;
+        if (text != null) e.textContent = text;
+        return e;
+    }
+    function flag(code) {
+        return String.fromCodePoint.apply(null, code.split("").map(function(c) { return 0x1F1A5 + c.charCodeAt(0); }));
+    }
+    function plural(n, one, many) { return n === 1 ? one : many; }
+
+    if (!KINDS[kind] || !/^[A-Z]{2}$/.test(cc)) {
+        fail("This link is incomplete", "It is missing the task or the country. Open FlightPlus to see the tasks in the Club.");
+    }
+
+    // Open: the app's own scheme (a universal link back to this same domain
+    // never leaves Safari), then the App Store when the app does not take over.
+    document.getElementById("cta-link").addEventListener("click", function(e) {
+        if (!KINDS[kind] || !/^[A-Z]{2}$/.test(cc)) return;
+        e.preventDefault();
+        var appOpened = false;
+        var onHide = function() { appOpened = true; };
+        document.addEventListener("visibilitychange", onHide);
+        window.location.href = "flightplus://task/" + kind + "/" + cc;
+        setTimeout(function() {
+            document.removeEventListener("visibilitychange", onHide);
+            if (!appOpened && !document.hidden) window.location.href = APP_STORE;
+        }, 1600);
+    });
+
+    function fetchJson(url, timeoutMs) {
+        return new Promise(function(resolve, reject) {
+            var ctrl = new AbortController();
+            var t = setTimeout(function() { ctrl.abort(); }, timeoutMs);
+            fetch(url, {signal: ctrl.signal}).then(function(r) {
+                clearTimeout(t);
+                if (r.status === 404) { reject({kind: "closed"}); return; }
+                if (!r.ok) { reject({kind: "http"}); return; }
+                r.json().then(resolve, reject);
+            }, function(err) { clearTimeout(t); reject(err); });
+        });
+    }
+    // Direct first; mainland networks fall back to the gateway, cn=1 moving
+    // the hero photo onto it too (same as the shared album).
+    function load() {
+        var q = "?kind=" + kind + "&cc=" + cc;
+        return fetchJson(API_DIRECT + q, 8000).catch(function(err) {
+            if (err && err.kind === "closed") throw err;
+            return fetchJson(API_GATEWAY + q + "&cn=1", 15000);
+        });
+    }
+
+    function renderHero(t) {
+        // Photo task: portal photo, else the bundled country photo, else the
+        // general one. Waypoint task: the bundled country photo first.
+        var img = document.getElementById("hero-img");
+        var art = ["/task-art/" + kind + "-" + cc + ".jpg", "/task-art/" + kind + ".jpg"];
+        var chain = kind === "photos" ? [t.heroUrl].concat(art) : [art[0], t.heroUrl, art[1]];
+        chain = chain.filter(Boolean);
+        var i = 0;
+        img.onerror = function() { i += 1; if (i < chain.length) img.src = chain[i]; };
+        img.src = chain[0];
+    }
+
+    function renderSteps(steps) {
+        var box = document.getElementById("steps");
+        steps.forEach(function(s, i) {
+            if (i > 0) box.appendChild(el("div", "step-gap"));
+            var step = el("div", "step");
+            var ic = el("div", "step-ic");
+            ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICONS[s[0]] + "</svg>";
+            step.appendChild(ic);
+            step.appendChild(el("div", "step-n", "STEP " + (i + 1)));
+            step.appendChild(el("div", "step-t", s[1]));
+            step.appendChild(el("div", "step-l", s[2]));
+            box.appendChild(step);
+        });
+    }
+
+    function totals(cells) {
+        var row = el("div", "totals");
+        cells.forEach(function(c) {
+            var cell = el("div", "total");
+            cell.appendChild(el("div", "num", String(c[0])));
+            cell.appendChild(el("div", "label", c[1]));
+            row.appendChild(cell);
+        });
+        return row;
+    }
+
+    // VFRCoverageGauge: a 270° dial with ticks, sky arc on asphalt.
+    function gauge(p) {
+        p = Math.max(0, Math.min(1, p));
+        var r = 59 - 3, c = 59, ticks = "";
+        for (var s = 0; s <= 27; s++) {
+            var a = (135 + s * 10) * Math.PI / 180, inner = r - (s % 9 === 0 ? 9 : 5);
+            ticks += "M" + (c + Math.cos(a) * inner).toFixed(2) + " " + (c + Math.sin(a) * inner).toFixed(2) +
+                "L" + (c + Math.cos(a) * r).toFixed(2) + " " + (c + Math.sin(a) * r).toFixed(2);
+        }
+        var ring = 59 - 17 - 4.5, len = 2 * Math.PI * ring;
+        var arc = function(frac, color) {
+            return '<circle cx="59" cy="59" r="' + ring + '" fill="none" stroke="' + color + '" stroke-width="9" stroke-linecap="round" ' +
+                'stroke-dasharray="' + (len * frac).toFixed(2) + " " + len.toFixed(2) + '" transform="rotate(135 59 59)"/>';
+        };
+        var box = el("div", "gauge");
+        box.innerHTML = '<svg viewBox="0 0 118 118" aria-hidden="true"><path d="' + ticks + '" stroke="rgba(255,255,255,0.28)" stroke-width="1"/>' +
+            arc(0.75, "#262933") + arc(0.75 * Math.max(p, 0.004), "#4db3d9") + "</svg>";
+        var label = el("div", "gauge-label");
+        label.appendChild(el("div", "value", Math.round(p * 100) + "%"));
+        var cap = el("div", "label", "COVERED");
+        cap.style.color = "rgba(255,255,255,0.55)";
+        label.appendChild(cap);
+        box.appendChild(label);
+        box.setAttribute("role", "img");
+        box.setAttribute("aria-label", "Coverage " + Math.round(p * 100) + " percent");
+        return box;
+    }
+
+    function figure(value, label, color) {
+        var f = el("div");
+        var v = el("div", "value", String(value));
+        v.style.color = color;
+        f.appendChild(v);
+        var l = el("div", "label", label);
+        l.style.color = "rgba(255,255,255,0.7)";
+        f.appendChild(l);
+        return f;
+    }
+
+    function renderProgress(t) {
+        var box = document.getElementById("progress");
+        var p = t.progress || {};
+        if (kind === "photos") {
+            var top = el("div", "gauge-row");
+            top.appendChild(gauge(p.goal ? p.done / p.goal : 0));
+            var figs = el("div", "figures");
+            figs.appendChild(figure(p.done, "of " + p.goal + " photographed", "var(--sky)"));
+            figs.appendChild(figure(p.missing, "still need a photo", "var(--amber)"));
+            top.appendChild(figs);
+            box.appendChild(top);
+            box.appendChild(el("div", "rule-h"));
+            box.appendChild(totals([[p.photos, plural(p.photos, "WAYPOINT PHOTO", "WAYPOINT PHOTOS")],
+                                    [p.contributors, plural(p.contributors, "CONTRIBUTOR", "CONTRIBUTORS")]]));
+        } else {
+            box.appendChild(totals([[p.waypoints, plural(p.waypoints, "PILOT WAYPOINT", "PILOT WAYPOINTS")],
+                                    [p.contributors, plural(p.contributors, "CONTRIBUTOR", "CONTRIBUTORS")],
+                                    [p.countriesOpen, plural(p.countriesOpen, "COUNTRY OPEN", "COUNTRIES OPEN")]]));
+            box.appendChild(el("div", "rule-h"));
+            var row = el("div", "country-row");
+            row.appendChild(el("span", "flag", flag(cc)));
+            var words = el("div");
+            words.appendChild(el("b", null, t.countryName));
+            var line = p.onMap === 0 ? "No waypoints yet. Be the first." :
+                plural(p.onMap, "1 waypoint", p.onMap + " waypoints") + (p.byPilots > 0 ? " · " + p.byPilots + " added by pilots" : "");
+            words.appendChild(el("span", null, line));
+            row.appendChild(words);
+            box.appendChild(row);
+        }
+    }
+
+    function renderBriefing(t) {
+        var qs = KINDS[kind].questions.slice();
+        if (t.briefingSource && t.briefingSource.q && t.briefingSource.a) qs.push([t.briefingSource.q, t.briefingSource.a]);
+        var box = document.getElementById("briefing");
+        qs.forEach(function(item, i) {
+            var b = el("button", "q" + (i === 0 ? " open" : ""));
+            b.type = "button";
+            var head = el("div", "q-head");
+            head.appendChild(el("span", null, item[0]));
+            head.appendChild(el("i", null, "▼"));
+            b.appendChild(head);
+            b.appendChild(el("div", "q-a", item[1]));
+            b.setAttribute("aria-expanded", i === 0 ? "true" : "false");
+            b.addEventListener("click", function() {
+                var wasOpen = b.classList.contains("open");
+                Array.prototype.forEach.call(box.children, function(x) {
+                    x.classList.remove("open");
+                    x.setAttribute("aria-expanded", "false");
+                });
+                if (!wasOpen) { b.classList.add("open"); b.setAttribute("aria-expanded", "true"); }
+            });
+            box.appendChild(b);
+        });
+    }
+
+    if (KINDS[kind] && /^[A-Z]{2}$/.test(cc)) {
+        load().then(function(t) {
+            renderHero(t);
+            document.getElementById("title").textContent = t.title;
+            document.getElementById("purpose").textContent = KINDS[kind].purpose;
+            document.getElementById("flag").textContent = flag(cc);
+            document.getElementById("country-name").textContent = String(t.countryName || cc).toUpperCase();
+            renderSteps(KINDS[kind].steps);
+            renderProgress(t);
+            if (kind === "waypoints") document.getElementById("file-format").classList.remove("hidden");
+            renderBriefing(t);
+            document.title = "FlightPlus — " + t.title + " · " + t.countryName;
+            show("task");
+        }).catch(function(err) {
+            if (err && err.kind === "closed") {
+                fail("This task isn't open", "It may have ended, or not started yet. Open FlightPlus to see the tasks running in the Club.");
+            } else {
+                fail("Couldn't load the task", "Check your connection and try again.");
+            }
+        });
+    }
+})();
+</script>
+</body>
+</html>

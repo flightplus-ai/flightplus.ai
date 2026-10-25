@@ -5,7 +5,9 @@
       {
         "appID": "FFXZ4C279L.FlightPlus.FlightPlus",
         "paths": [
-          "/share/*"
+          "/share/*",
+          "/task",
+          "/task/*"
         ]
       }
     ]
