@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>FlightPlus Account</title>
+<title data-i18n="docTitle">FlightPlus Account</title>
 <meta name="robots" content="noindex">
 <!-- The URL carries the one-time oobCode: never send it on in a Referer. -->
 <meta name="referrer" content="no-referrer">
@@ -20,7 +20,7 @@
   :root { --bg:#0c0d12; --card:#16181f; --text:#f2f3f6; --muted:#8b90a0; --accent:#4db3d9; --border:rgba(255,255,255,0.08); --err:#ff7a7a; }
   * { box-sizing:border-box; }
   body { margin:0; min-height:100vh; background:var(--bg); color:var(--text);
-         font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Helvetica Neue",Arial,sans-serif;
+         font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Hiragino Sans GB","Noto Sans SC","Helvetica Neue",Arial,sans-serif;
          display:flex; align-items:center; justify-content:center; padding:24px 16px; }
   .card { width:100%; max-width:420px; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:28px 24px; text-align:center; }
   .logo { width:64px; height:64px; border-radius:14px; }
@@ -40,17 +40,78 @@
 <main class="card">
   <img class="logo" src="/app-icon.png" alt="FlightPlus">
   <h1 id="title">FlightPlus</h1>
-  <p id="msg">Loading…</p>
+  <p id="msg" data-i18n="loading">Loading…</p>
   <form id="pwForm" class="hidden" autocomplete="off">
-    <input id="pw" type="password" placeholder="New password (at least 6 characters)" minlength="6" required autocomplete="new-password">
-    <button class="btn" id="pwBtn" type="submit">Save new password</button>
+    <input id="pw" type="password" placeholder="New password (at least 6 characters)" data-i18n-placeholder="pwPlaceholder" minlength="6" required autocomplete="new-password">
+    <button class="btn" id="pwBtn" type="submit" data-i18n="savePw">Save new password</button>
   </form>
   <button class="btn hidden" id="actionBtn" type="button"></button>
-  <a class="btn secondary hidden" id="openApp" href="flightplus://auth/verified">Open FlightPlus</a>
+  <a class="btn secondary hidden" id="openApp" href="flightplus://auth/verified" data-i18n="openApp">Open FlightPlus</a>
 </main>
 <script>
 (function () {
   var q = new URLSearchParams(location.search);
+  // Language: ?lang=zh… / ?lang=en (Firebase adds lang= when the app sets auth.languageCode)
+  // wins; otherwise the browser language. Every visible string goes through t().
+  var LANG = (function () {
+    var p = (q.get("lang") || "").toLowerCase();
+    if (p.indexOf("zh") === 0) return "zh";
+    if (p.indexOf("en") === 0) return "en";
+    return /^zh/i.test(navigator.language || "") ? "zh" : "en";
+  })();
+  var STR = {
+    en: {
+      docTitle: "FlightPlus Account", loading: "Loading…",
+      pwPlaceholder: "New password (at least 6 characters)", savePw: "Save new password", openApp: "Open FlightPlus",
+      expired: "This link has expired or was already used. Open FlightPlus and request a new email.",
+      weak: "Please choose a password with at least 6 characters.",
+      disabled: "This account has been disabled.", notFound: "This account no longer exists.",
+      network: "We couldn't reach the server. Check your connection and try again.",
+      generic: "Something went wrong ({c}). Please try again.",
+      framedT: "Open this link directly", framedM: "For your security, this page only works when opened from your email.",
+      foreignT: "This link isn't from FlightPlus", foreignM: "Don't enter a password here. Request a new email from the FlightPlus app.",
+      incompleteT: "Link incomplete", incompleteM: "Please open the link from your email again.",
+      verifyT: "Verify your email", verifyM: "Tap the button to confirm your email address for FlightPlus.",
+      verifyBtn: "Verify email", verifying: "Verifying…",
+      verifiedT: "Email verified ✓", verifiedM: "You're all set. Return to FlightPlus to continue.",
+      tryAgain: "Try again", maybeT: "Probably verified", maybeM: "Your email may already be verified. Open FlightPlus to check.",
+      failT: "Verification failed",
+      resetT: "Reset your password", resetM: "Choose a new password for {email}.", yourAccount: "your account",
+      saving: "Saving…", changedT: "Password changed ✓", changedM: "Sign in to FlightPlus with your new password.",
+      changeFailT: "Couldn't change password", resetProblemT: "Reset link problem"
+    },
+    zh: {
+      docTitle: "FlightPlus 账户", loading: "加载中…",
+      pwPlaceholder: "新密码（至少 6 位）", savePw: "保存新密码", openApp: "打开 FlightPlus",
+      expired: "这个链接已过期或已被使用。请打开 FlightPlus，重新发送邮件。",
+      weak: "请设置至少 6 位的密码。",
+      disabled: "这个账户已被停用。", notFound: "这个账户已不存在。",
+      network: "无法连接服务器。请检查网络后重试。",
+      generic: "出了点问题（{c}）。请重试。",
+      framedT: "请直接打开这个链接", framedM: "为了你的安全，这个页面只能从邮件中打开。",
+      foreignT: "这个链接不是 FlightPlus 发出的", foreignM: "请不要在这里输入密码。请在 FlightPlus App 中重新发送邮件。",
+      incompleteT: "链接不完整", incompleteM: "请从邮件中重新打开链接。",
+      verifyT: "验证邮箱", verifyM: "点按钮，确认你在 FlightPlus 使用的邮箱。",
+      verifyBtn: "验证邮箱", verifying: "验证中…",
+      verifiedT: "邮箱已验证 ✓", verifiedM: "一切就绪。回到 FlightPlus 继续吧。",
+      tryAgain: "重试", maybeT: "可能已验证", maybeM: "你的邮箱可能已经验证过了。打开 FlightPlus 看看。",
+      failT: "验证失败",
+      resetT: "重置密码", resetM: "为 {email} 设置新密码。", yourAccount: "你的账户",
+      saving: "保存中…", changedT: "密码已修改 ✓", changedM: "请用新密码登录 FlightPlus。",
+      changeFailT: "无法修改密码", resetProblemT: "重置链接有问题"
+    }
+  };
+  function t(k, vars) {
+    var v = (STR[LANG][k] != null ? STR[LANG][k] : STR.en[k]);
+    if (vars) for (var n in vars) v = v.split("{" + n + "}").join(vars[n]);
+    return v;
+  }
+  if (LANG === "zh") {
+    document.documentElement.lang = "zh-Hans";
+    document.title = t("docTitle");
+    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function (el) { el.textContent = t(el.getAttribute("data-i18n")); });
+    Array.prototype.forEach.call(document.querySelectorAll("[data-i18n-placeholder]"), function (el) { el.placeholder = t(el.getAttribute("data-i18n-placeholder")); });
+  }
   var mode = q.get("mode"), code = q.get("oobCode"), linkKey = q.get("apiKey");
   // FlightPlus's own Firebase project (flightps). Firebase puts the project's Web API key
   // (the "Browser key") in its email links — so it is public by design (GitHub secret scanning
@@ -90,61 +151,61 @@
   function explain(e) {
     var c = (e && e.code) || "";
     if (c.indexOf("INVALID_OOB_CODE") === 0 || c.indexOf("EXPIRED_OOB_CODE") === 0)
-      return "This link has expired or was already used. Open FlightPlus and request a new email.";
-    if (c.indexOf("WEAK_PASSWORD") === 0) return "Please choose a password with at least 6 characters.";
-    if (c.indexOf("USER_DISABLED") === 0) return "This account has been disabled.";
-    if (c.indexOf("USER_NOT_FOUND") === 0) return "This account no longer exists.";
-    if (c === "NETWORK") return "We couldn't reach the server. Check your connection and try again.";
-    return "Something went wrong (" + c + "). Please try again.";
+      return t("expired");
+    if (c.indexOf("WEAK_PASSWORD") === 0) return t("weak");
+    if (c.indexOf("USER_DISABLED") === 0) return t("disabled");
+    if (c.indexOf("USER_NOT_FOUND") === 0) return t("notFound");
+    if (c === "NETWORK") return t("network");
+    return t("generic", { c: c });
   }
 
   // Clickjacking guard (GitHub Pages can't send X-Frame-Options / frame-ancestors): this page
   // takes a new password, so it renders nothing actionable inside a frame.
   if (window.top !== window.self) {
-    show("Open this link directly", "For your security, this page only works when opened from your email.", true);
+    show(t("framedT"), t("framedM"), true);
     return;
   }
   if (linkKey && OWN_KEYS.indexOf(linkKey) < 0) {
-    show("This link isn't from FlightPlus", "Don't enter a password here. Request a new email from the FlightPlus app.", true);
+    show(t("foreignT"), t("foreignM"), true);
     return;
   }
-  if (!mode || !code) { show("Link incomplete", "Please open the link from your email again.", true); return; }
+  if (!mode || !code) { show(t("incompleteT"), t("incompleteM"), true); return; }
 
   if (mode === "verifyEmail") {
-    show("Verify your email", "Tap the button to confirm your email address for FlightPlus.");
-    var b = $("actionBtn"); b.textContent = "Verify email"; b.classList.remove("hidden");
+    show(t("verifyT"), t("verifyM"));
+    var b = $("actionBtn"); b.textContent = t("verifyBtn"); b.classList.remove("hidden");
     b.onclick = function () {
-      b.disabled = true; b.textContent = "Verifying…";
+      b.disabled = true; b.textContent = t("verifying");
       call("accounts:update", { oobCode: code }).then(function () {
         b.classList.add("hidden");
-        show("Email verified ✓", "You're all set. Return to FlightPlus to continue.");
+        show(t("verifiedT"), t("verifiedM"));
         $("openApp").classList.remove("hidden");
         if (isIOS) setTimeout(function () { location.href = "flightplus://auth/verified"; }, 700);
       }, function (e) {
-        b.disabled = false; b.textContent = "Try again";
+        b.disabled = false; b.textContent = t("tryAgain");
         var c = (e && e.code) || "";
         // A used code after a lost reply most likely means the first try worked.
         var maybeDone = retried && c.indexOf("INVALID_OOB_CODE") === 0;
-        show(maybeDone ? "Probably verified" : "Verification failed",
-             maybeDone ? "Your email may already be verified. Open FlightPlus to check." : explain(e), !maybeDone);
+        show(maybeDone ? t("maybeT") : t("failT"),
+             maybeDone ? t("maybeM") : explain(e), !maybeDone);
         // The app re-checks the account when it opens, so this helps either way.
         $("openApp").classList.remove("hidden");
       });
     };
   } else if (mode === "resetPassword") {
     call("accounts:resetPassword", { oobCode: code }).then(function (j) {
-      show("Reset your password", "Choose a new password for " + (j.email || "your account") + ".");
+      show(t("resetT"), t("resetM", { email: j.email || t("yourAccount") }));
       $("pwForm").classList.remove("hidden");
       $("pwForm").onsubmit = function (ev) {
         ev.preventDefault();
-        var pb = $("pwBtn"); pb.disabled = true; pb.textContent = "Saving…";
+        var pb = $("pwBtn"); pb.disabled = true; pb.textContent = t("saving");
         call("accounts:resetPassword", { oobCode: code, newPassword: $("pw").value }).then(function () {
           $("pwForm").classList.add("hidden");
-          show("Password changed ✓", "Sign in to FlightPlus with your new password.");
+          show(t("changedT"), t("changedM"));
           var o = $("openApp"); o.href = "flightplus://"; o.classList.remove("hidden");
-        }, function (e) { pb.disabled = false; pb.textContent = "Save new password"; show("Couldn't change password", explain(e), true); });
+        }, function (e) { pb.disabled = false; pb.textContent = t("savePw"); show(t("changeFailT"), explain(e), true); });
       };
-    }, function (e) { show("Reset link problem", explain(e), true); });
+    }, function (e) { show(t("resetProblemT"), explain(e), true); });
   } else {
     // Other actions (email change recovery, etc.) are rare: hand them to Firebase's own page.
     location.replace("https://flightps.firebaseapp.com/__/auth/action" + location.search);

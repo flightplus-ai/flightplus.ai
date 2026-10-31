@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FlightPlus 服务条款：阅读使用 FlightPlus 的条款和条件。">
+    <title>服务条款 - FlightPlus</title>
+    <link rel="alternate" hreflang="en" href="https://flightplus.ai/terms-of-service.html">
+    <link rel="alternate" hreflang="zh-Hans" href="https://flightplus.ai/zh/terms-of-service.html">
+    <link rel="alternate" hreflang="x-default" href="https://flightplus.ai/terms-of-service.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            color: #1d1d1f;
+            background: #f5f5f7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .header {
+            background: #1d1d1f;
+            color: #f5f5f7;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #86868b;
+            font-size: 1rem;
+        }
+
+        .header a {
+            color: #4DB3D9;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .header a:hover {
+            color: #3A9BC4;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .content {
+            line-height: 1.8;
+        }
+
+        .content h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            color: #1d1d1f;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e5e7;
+        }
+
+        .content h2:first-of-type {
+            margin-top: 0;
+        }
+
+        .content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #1d1d1f;
+        }
+
+        .content p {
+            margin-bottom: 1rem;
+            color: #1d1d1f;
+            font-size: 1rem;
+        }
+
+        .content ul, .content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .content li {
+            margin-bottom: 0.5rem;
+            color: #1d1d1f;
+        }
+
+        .content strong {
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .content a {
+            color: #4DB3D9;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .content a:hover {
+            border-bottom-color: #4DB3D9;
+        }
+
+        .highlight-box {
+            background: #f5f5f7;
+            border-left: 4px solid #4DB3D9;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .footer {
+            background: #1d1d1f;
+            color: #f5f5f7;
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #86868b;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #f5f5f7;
+        }
+
+        .footer-copyright {
+            font-size: 0.75rem;
+            color: #86868b;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+
+            .content h2 {
+                font-size: 1.5rem;
+            }
+
+            .content h3 {
+                font-size: 1.125rem;
+            }
+        }
+
+        /* zh: CJK text reads better without the negative tracking, and wrapped
+           headings need a little more line height than Latin ones. */
+        * { letter-spacing: normal !important; }
+        .content .zh-note { font-size: 0.9375rem; color: #86868b; margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>服务条款</h1>
+            <p>生效日期：2025 年 12 月 16 日</p>
+            <a href="index.html">← 返回 FlightPlus</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <p class="zh-note">本中文版本仅供参考；如与<a href="../terms-of-service.html?lang=en" lang="en" hreflang="en" onclick="try{localStorage.setItem('fp.lang','en')}catch(e){}">英文版本</a>有任何不一致，以英文版本为准。</p>
+            <p>
+                本服务条款（“条款”）适用于你对 FlightPlus 移动应用、网站及相关服务（“服务”）的使用。创建账户或使用服务，即表示你同意本条款。
+            </p>
+
+            <h2>1. 资格与账户注册</h2>
+            <p>
+                你必须年满 13 周岁（或你所在司法管辖区要求的最低年龄），并具备订立有约束力合同的能力，才能使用服务。创建账户时，你同意提供准确、最新且完整的信息。你有责任对账户凭证保密，并对你账户下发生的所有活动负责。
+            </p>
+
+            <h2>2. 订阅方案与付款</h2>
+            <p>
+                FlightPlus 提供免费的 Explorer 等级和付费的 Insighter 等级（$4.99/月或 $49.99/年），并提供 7 天免费试用。订阅通过 Apple 的 App 内购买系统购买，并受 Apple 的条款和条件约束。价格以你的当地货币显示（由美元换算），可能因地区而异。可能需要缴纳税费。
+            </p>
+            <p>
+                除非在续订日期前至少 24 小时取消，订阅将自动续订。你可以在 Apple 账户设置中管理或取消订阅。我们可能会在提前通知后更改订阅价格；价格变更将在下一个计费周期生效。
+            </p>
+
+            <h2>3. 用户内容</h2>
+
+            <h3>3.1 所有权</h3>
+            <p>
+                你保留你上传到 FlightPlus 的所有照片、说明文字及其他内容（“用户内容”）的所有权。
+            </p>
+
+            <h3>3.2 许可</h3>
+            <p>
+                上传用户内容，即表示你授予 FlightPlus 一项全球范围、非独占、免版税的许可，仅为运营和改进服务之目的，托管、存储、展示、修改和分发你的内容。
+            </p>
+
+            <h3>3.3 公开照片与私密照片</h3>
+            <div class="highlight-box">
+                <p><strong>公开照片：</strong>你设为公开的照片对所有 FlightPlus 用户可见，可被他人点赞和浏览，并且 FlightPlus 可能在未来的产品、功能或营销材料中使用这些照片。</p>
+                <p><strong>私密照片：</strong>你设为私密的照片只有你自己能看到。FlightPlus 不会将私密照片用于在 App 内向你展示以外的任何用途。</p>
+            </div>
+
+            <h3>3.4 你的责任</h3>
+            <p>
+                你声明并保证，你拥有上传用户内容所需的一切权利，且你的内容不违反任何法律、不侵犯任何第三方权利，也不违反本条款。你对你的用户内容承担全部责任。
+            </p>
+
+            <h2>4. 可接受的使用</h2>
+            <p>你同意不会：</p>
+            <ul>
+                <li>违反任何适用的法律或法规</li>
+                <li>侵犯他人的权利（包括知识产权）</li>
+                <li>上传有害、淫秽、诽谤或其他令人反感的内容</li>
+                <li>试图对服务进行逆向工程、干扰服务或使服务过载</li>
+                <li>未经我们书面同意将服务用于任何商业目的</li>
+                <li>冒充任何个人或实体，或虚假陈述你与任何个人或实体的关系</li>
+                <li>未经其他用户同意收集或获取有关他们的信息</li>
+                <li>使用自动化系统（机器人、爬虫）访问服务</li>
+            </ul>
+            <p>
+                我们保留移除违反上述规则的内容或暂停相关账户的权利。
+            </p>
+
+            <h2>5. 知识产权</h2>
+            <p>
+                FlightPlus 及其许可方保留对服务的一切权利、所有权和利益，包括我们提供的所有商标、标志、软件和内容。除本条款明确规定外，不向你授予任何权利。
+            </p>
+
+            <h2>6. 第三方服务</h2>
+            <p>
+                服务可能与第三方服务集成（例如 Firebase、Apple App Store、航班追踪 API）。你对第三方服务的使用受其各自的条款和条件及隐私政策约束。我们不对第三方服务负责。
+            </p>
+
+            <h2>7. 终止与删除账户</h2>
+
+            <h3>7.1 账户终止</h3>
+            <p>
+                你可以随时在 App 设置中删除账户，或发邮件至 <a href="mailto:info@flightplus.ai">info@flightplus.ai</a> 联系我们删除。我们可以随时暂停或终止你对服务的访问，无论是否有原因，包括因违反本条款或法律义务。终止后，你使用服务的许可即告结束，但本条款中依其性质应继续有效的条款仍然有效。
+            </p>
+
+            <h3>7.2 删除账户时立即删除数据</h3>
+            <div class="highlight-box">
+                <p><strong>你在 App 中确认删除账户后，FlightPlus 会立即永久删除以下数据：</strong></p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li><strong>个人资料数据：</strong>你的姓名、邮箱、头像、显示名称，以及所有其他账户信息。</li>
+                    <li><strong>航班历史：</strong>所有航班记录，包括航班号、航线、日期、飞机信息、座位一侧标记、说明文字、话题标签和旅程备注。</li>
+                    <li><strong>私密航拍照片：</strong>你设为私密的所有照片，包括相关元数据（时间戳、GPS 坐标、高度、航向和航班追踪数据）。</li>
+                    <li><strong>个人旅行照片：</strong>所有导入的旅行照片及其相关元数据（设备时间戳、时区偏移和航班关联）。</li>
+                </ul>
+            </div>
+            <p>
+                此删除在你确认后立即进行，且永久、不可撤销。账户一旦删除，我们将无法恢复你的任何数据。请确保在开始删除账户前，已导出或备份任何想保留的数据。
+            </p>
+
+            <h3>7.3 公开航拍照片</h3>
+            <p>
+                <strong>删除账户后，已发布的公开航拍照片将从 FlightPlus 中删除。</strong>将照片发布为公开，即表示你已授予 FlightPlus 按第 3.2 节所述展示和使用这些照片的许可。但是，如果有任何公开照片在你删除账户前已被纳入其他产品、服务或营销材料，我们不会追溯或移除这些使用实例。删除账户后，任何剩余公开照片上的个人署名信息（姓名、头像和账户关联）都将被移除。
+            </p>
+
+            <h3>7.4 数据删除的例外</h3>
+            <p>
+                尽管有上述规定，我们仍可能根据适用法律的要求，或为解决争议、执行我们的协议，或出于防范欺诈和保障安全等正当业务目的，保留有限的信息。任何保留的数据都将尽可能匿名化或汇总处理，且不会用于识别你的个人身份。
+            </p>
+
+            <h2>8. 免责声明</h2>
+            <p>
+                服务按“现状”和“现有”基础提供，不提供任何形式的明示或默示保证，包括但不限于适销性、特定用途适用性和不侵权的保证。我们不保证服务不会中断、没有错误或绝对安全。
+            </p>
+
+            <h2>9. 责任限制</h2>
+            <p>
+                在法律允许的最大范围内，FlightPlus 不对任何间接、附带、特殊、后果性或惩罚性损害负责，也不对任何利润或收入损失（无论直接还是间接产生），或任何数据、使用、商誉或其他无形损失负责。对于因本条款或服务引起或与之相关的任何索赔，我们的累计责任不超过以下两者中的较高者：(A) 100 美元（或等值的当地货币）；或 (B) 索赔前 12 个月内你向 FlightPlus 支付的金额。
+            </p>
+
+            <h2>10. 赔偿</h2>
+            <p>
+                对于因你使用服务、你的用户内容或你违反本条款而引起或与之相关的任何索赔、损害、损失、责任和费用（包括律师费），你同意向 FlightPlus、其关联公司及其各自的高级职员、董事、员工和代理人作出赔偿，并使其免受损害。
+            </p>
+
+            <h2>11. 适用法律与争议解决</h2>
+            <p>
+                本条款受 Singapore 法律管辖，不考虑其法律冲突规定。对于因本条款或服务引起或与之相关的任何争议，你同意接受 Singapore 法院的专属管辖。
+            </p>
+
+            <h2>12. 条款的变更</h2>
+            <p>
+                我们可能会不时更新本条款。如有重大变更，我们会通过邮件或 App 内通知告知你。变更生效后你继续使用服务，即表示你同意修订后的条款。
+            </p>
+
+            <h2>13. 联系方式</h2>
+            <p>
+                如果你对本条款有任何疑问，请联系我们：
+            </p>
+            <p>
+                <strong>FlightPlus 法务</strong><br>
+                邮箱：<a href="mailto:info@flightplus.ai">info@flightplus.ai</a><br>
+            </p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="index.html">首页</a>
+                <a href="index.html#features">功能</a>
+                <a href="index.html#pricing">价格</a>
+                <a href="privacy-policy.html">隐私政策</a>
+                <a href="terms-of-service.html">服务条款</a>
+                <a href="../terms-of-service.html?lang=en" lang="en" hreflang="en" onclick="try{localStorage.setItem('fp.lang','en')}catch(e){}">English</a>
+            </div>
+            <p class="footer-copyright">
+                © 2026 FlightPlus。保留所有权利。
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

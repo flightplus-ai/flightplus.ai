@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="FlightPlus turns hours of unsorted window-seat photos and videos into a professional, data-rich flight album in minutes. Built for pilots and frequent flyers.">
     <title>FlightPlus - Turn Hours of Flight Photos into a Pro Album in Minutes</title>
+    <link rel="alternate" hreflang="en" href="https://flightplus.ai/">
+    <link rel="alternate" hreflang="zh-Hans" href="https://flightplus.ai/zh/">
+    <link rel="alternate" hreflang="x-default" href="https://flightplus.ai/">
+    <script>
+        // Chinese browsers get the zh/ copy, unless English was chosen (?lang=en, or the "English" link on zh pages).
+        (function () {
+            try {
+                if (new URLSearchParams(location.search).get("lang") === "en") return;
+                try { if (localStorage.getItem("fp.lang") === "en") return; } catch (e) {}
+                if (/^zh/i.test(navigator.language || "")) location.replace("/zh/" + location.hash);
+            } catch (e) {}
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -17,7 +30,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif;
             line-height: 1.47059;
             color: #1d1d1f;
             overflow-x: hidden;
@@ -683,6 +696,7 @@
             <a href="index.html" class="current">Home</a>
             <a href="how-to-use.html">How to Use</a>
             <a href="my-story.html">My Story</a>
+            <a href="zh/" lang="zh-Hans" hreflang="zh-Hans" onclick="try{localStorage.removeItem('fp.lang')}catch(e){}">中文</a>
         </nav>
         <div class="hero-content">
             <img src="app-icon.png" alt="FlightPlus App Icon" class="app-icon">
@@ -902,6 +916,7 @@
                 <a href="mailto:info@flightplus.ai">Support</a>
                 <a href="privacy-policy.html">Privacy Policy</a>
                 <a href="terms-of-service.html">Terms of Service</a>
+                <a href="zh/" lang="zh-Hans" hreflang="zh-Hans" onclick="try{localStorage.removeItem('fp.lang')}catch(e){}">中文</a>
             </div>
             <p class="footer-copyright">
                 © 2026 FlightPlus. All rights reserved.

@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FlightPlus — Shared Flight Album</title>
-    <meta name="description" content="A flight album shared from FlightPlus — photos, flight track and flight details.">
+    <title data-i18n="docTitle">FlightPlus — Shared Flight Album</title>
+    <meta name="description" content="A flight album shared from FlightPlus — photos, flight track and flight details." data-i18n-content="metaDesc">
     <meta name="theme-color" content="#0c0d12">
     <link rel="icon" href="app-icon.png">
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -27,7 +27,7 @@
             --ink: #1B2433;
             --ink2: #59616E;
             --seat: #B06F1C;
-            --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+            --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", monospace;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         /* iOS Safari inflates text in blocks it judges to be "main content",
@@ -38,7 +38,7 @@
         body {
             background: var(--bg);
             color: var(--text);
-            font-family: "Plus Jakarta Sans", -apple-system, sans-serif;
+            font-family: "Plus Jakarta Sans", -apple-system, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
             min-height: 100vh;
         }
         /* Scrolling works everywhere; the bar itself stays invisible. */
@@ -358,24 +358,24 @@
 <div class="wrap">
     <div class="topbar">
         <a class="brand" href="/"><img src="app-icon.png" alt=""><span>FlightPlus</span></a>
-        <a class="appstore-badge" href="https://apps.apple.com/app/id6749645650" target="_blank" rel="noopener" aria-label="Download on the App Store">
+        <a class="appstore-badge" href="https://apps.apple.com/app/id6749645650" target="_blank" rel="noopener" aria-label="Download on the App Store" data-i18n-aria="badgeAria">
             <!-- Official-style App Store badge, inlined so it renders everywhere
                  (incl. regions where Apple's CDN is unreachable). -->
             <svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" role="img">
                 <rect width="120" height="40" rx="7" fill="#000" stroke="#a6a6a6" stroke-width="1"/>
                 <path fill="#fff" d="M24.77 20.3a4.95 4.95 0 0 1 2.36-4.15 5.07 5.07 0 0 0-3.99-2.16c-1.68-.18-3.31 1-4.17 1-.87 0-2.19-.98-3.61-.95a5.32 5.32 0 0 0-4.47 2.73c-1.93 3.35-.49 8.27 1.36 10.98.93 1.33 2.01 2.81 3.43 2.76 1.39-.06 1.91-.89 3.58-.89 1.66 0 2.14.89 3.59.85 1.49-.02 2.43-1.34 3.32-2.68a10.96 10.96 0 0 0 1.52-3.09 4.78 4.78 0 0 1-2.92-4.4zM22.04 12.21a4.87 4.87 0 0 0 1.11-3.49 4.96 4.96 0 0 0-3.21 1.66 4.64 4.64 0 0 0-1.14 3.36 4.1 4.1 0 0 0 3.24-1.53z"/>
-                <text x="38" y="17" font-family="-apple-system, Helvetica, Arial" font-size="8" fill="#fff">Download on the</text>
-                <text x="38" y="30" font-family="-apple-system, Helvetica, Arial" font-size="13" font-weight="600" fill="#fff">App Store</text>
+                <text x="38" y="17" font-family="-apple-system, Helvetica, Arial, PingFang SC, Hiragino Sans GB, Noto Sans SC" font-size="8" fill="#fff" data-i18n="badgeTop">Download on the</text>
+                <text x="38" y="30" font-family="-apple-system, Helvetica, Arial, PingFang SC, Hiragino Sans GB, Noto Sans SC" font-size="13" font-weight="600" fill="#fff">App Store</text>
             </svg>
         </a>
     </div>
 
-    <div id="loading" class="state"><div class="spinner"></div><p>Loading shared album…</p></div>
+    <div id="loading" class="state"><div class="spinner"></div><p data-i18n="loading">Loading shared album…</p></div>
 
     <div id="error" class="state hidden">
         <div class="big">✈️</div>
-        <h1 id="error-title">Album not available</h1>
-        <p id="error-text">This shared album may have been removed or the link has expired.</p>
+        <h1 id="error-title" data-i18n="unavailT">Album not available</h1>
+        <p id="error-text" data-i18n="unavailM">This shared album may have been removed or the link has expired.</p>
     </div>
 
     <div id="album" class="hidden">
@@ -386,7 +386,7 @@
                 <svg id="profile-svg"></svg>
                 <div id="profile-empty" class="hidden">
                     <div class="pe-ic">📈</div>
-                    <div>Altitude data unavailable for this flight</div>
+                    <div data-i18n="noAltitude">Altitude data unavailable for this flight</div>
                 </div>
             </div>
         </div>
@@ -394,7 +394,7 @@
             <div class="t-body" id="t-body">
                 <div class="t-head">
                     <span class="t-airline" id="t-airline"><img id="t-logo" alt="" hidden><span id="t-airline-name"></span></span>
-                    <span class="t-title">BOARDING PASS</span>
+                    <span class="t-title" data-i18n="boardingPass">BOARDING PASS</span>
                     <span class="t-flight" id="f-flight">—</span>
                 </div>
                 <div class="route">
@@ -402,7 +402,7 @@
                         <div class="iata" id="o-iata">—</div>
                         <div class="ap-name" id="o-name"></div>
                     </div>
-                    <button class="plane-arc" id="plane-arc" aria-label="Toggle flight profile">
+                    <button class="plane-arc" id="plane-arc" aria-label="Toggle flight profile" data-i18n-aria="toggleProfile">
                         <svg class="arc" viewBox="0 0 100 18" preserveAspectRatio="none" aria-hidden="true">
                             <path d="M 0 18 Q 50 -4 100 18" fill="none" stroke="rgba(89,97,110,0.7)"
                                   stroke-width="1" stroke-linecap="round" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/>
@@ -415,34 +415,34 @@
                     </div>
                 </div>
                 <div class="t-meta">
-                    <div><div class="k">DATE</div><div class="v" id="f-date">—</div></div>
-                    <div><div class="k">DEP</div><div class="v" id="f-dep">—</div></div>
-                    <div><div class="k">A/C</div><div class="v" id="f-aircraft">—</div></div>
-                    <div><div class="k">SEAT</div><div class="v seat" id="f-seat">&nbsp;</div></div>
+                    <div><div class="k" data-i18n="date">DATE</div><div class="v" id="f-date">—</div></div>
+                    <div><div class="k" data-i18n="dep">DEP</div><div class="v" id="f-dep">—</div></div>
+                    <div><div class="k" data-i18n="aircraft">A/C</div><div class="v" id="f-aircraft">—</div></div>
+                    <div><div class="k" data-i18n="seat">SEAT</div><div class="v seat" id="f-seat">&nbsp;</div></div>
                 </div>
                 <span class="notch l" aria-hidden="true"></span><span class="notch r" aria-hidden="true"></span>
             </div>
             <div class="t-perf" aria-hidden="true"></div>
             <div class="t-stubwrap" id="t-stubwrap">
-                <div class="t-stub" id="t-stub" role="button" tabindex="0" aria-label="Tear off stub">
-                    <button class="t-barcode" id="t-barcode" aria-label="Show scannable code for this album"><canvas id="t-pdf"></canvas></button>
-                    <div class="t-count"><div class="k" id="f-media-k">PHOTOS</div><div class="v" id="f-media">—</div></div>
+                <div class="t-stub" id="t-stub" role="button" tabindex="0" aria-label="Tear off stub" data-i18n-aria="tearStub">
+                    <button class="t-barcode" id="t-barcode" aria-label="Show scannable code for this album" data-i18n-aria="showCode"><canvas id="t-pdf"></canvas></button>
+                    <div class="t-count"><div class="k" id="f-media-k" data-i18n="photosK">PHOTOS</div><div class="v" id="f-media">—</div></div>
                 </div>
             </div>
         </div>
         <div class="sender" id="sender"></div>
-        <div class="scan" id="scan" role="dialog" aria-modal="true" aria-label="Scan to open this flight album">
-            <button class="x" id="scan-x" aria-label="Close">✕</button>
-            <div class="cap">SCAN TO OPEN THIS FLIGHT ALBUM</div>
+        <div class="scan" id="scan" role="dialog" aria-modal="true" aria-label="Scan to open this flight album" data-i18n-aria="scanAria">
+            <button class="x" id="scan-x" aria-label="Close" data-i18n-aria="close">✕</button>
+            <div class="cap" data-i18n="scanCap">SCAN TO OPEN THIS FLIGHT ALBUM</div>
             <div class="rt" id="scan-rt"></div>
             <div class="fields">
-                <div><div class="k">FLIGHT</div><div class="v" id="scan-f"></div></div>
-                <div><div class="k">DATE</div><div class="v" id="scan-d"></div></div>
-                <div><div class="k">DEP</div><div class="v" id="scan-t"></div></div>
+                <div><div class="k" data-i18n="flight">FLIGHT</div><div class="v" id="scan-f"></div></div>
+                <div><div class="k" data-i18n="date">DATE</div><div class="v" id="scan-d"></div></div>
+                <div><div class="k" data-i18n="dep">DEP</div><div class="v" id="scan-t"></div></div>
             </div>
             <canvas class="qr" id="scan-qr"></canvas>
             <canvas class="pdf" id="scan-pdf"></canvas>
-            <div class="hint">Any phone camera opens the album from the square code.</div>
+            <div class="hint" data-i18n="scanHint">Any phone camera opens the album from the square code.</div>
         </div>
         <div class="notes hidden" id="notes">
             <p id="memo-text" class="hidden"></p>
@@ -457,21 +457,21 @@
 <div class="fullmap-overlay" id="fullmap-overlay">
     <div id="fullmap"></div>
     <div class="fm-bar">
-        <button class="fm-btn" id="fm-close" aria-label="Back">
+        <button class="fm-btn" id="fm-close" aria-label="Back" data-i18n-aria="back">
             <svg viewBox="0 0 24 24"><polyline points="14.5 5 8 12 14.5 19"/></svg>
         </button>
         <div class="fm-stack">
-            <button class="fm-btn" id="fm-style" aria-label="Toggle map style">
+            <button class="fm-btn" id="fm-style" aria-label="Toggle map style" data-i18n-aria="mapStyle">
                 <svg id="fm-style-map" viewBox="0 0 24 24"><path d="M9 4 3.5 6v14L9 18l6 2 5.5-2V4L15 6 9 4z"/><line x1="9" y1="4" x2="9" y2="18"/><line x1="15" y1="6" x2="15" y2="20"/></svg>
                 <svg id="fm-style-globe" viewBox="0 0 24 24" class="hidden"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="4" ry="9"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="3.5" y1="14.5" x2="20.5" y2="14.5"/></svg>
             </button>
-            <button class="fm-btn" id="fm-eye" aria-label="Hide photo thumbnails">
+            <button class="fm-btn" id="fm-eye" aria-label="Hide photo thumbnails" data-i18n-aria="hideThumbs">
                 <svg id="fm-eye-open" viewBox="0 0 24 24"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/></svg>
                 <svg id="fm-eye-slash" viewBox="0 0 24 24" class="hidden"><path d="M2 12s3.5-6.5 10-6.5S22 12 22 12s-3.5 6.5-10 6.5S2 12 2 12z"/><circle cx="12" cy="12" r="2.6"/><line x1="4" y1="20" x2="20" y2="4"/></svg>
             </button>
             <!-- v59.waveToggle · app parity: hide only the directional waves.
                  Glyph = the app's dot.radiowaves.forward, struck through when off. -->
-            <button class="fm-btn" id="fm-wave" aria-label="Hide direction waves">
+            <button class="fm-btn" id="fm-wave" aria-label="Hide direction waves" data-i18n-aria="hideWaves">
                 <svg id="fm-wave-on" viewBox="0 0 24 24"><circle cx="7" cy="12" r="2" fill="#fff" stroke="none"/><path d="M10.5 8.5A5 5 0 0 1 10.5 15.5"/><path d="M13 6A8.5 8.5 0 0 1 13 18"/><path d="M15.5 3.5A12 12 0 0 1 15.5 20.5"/></svg>
                 <svg id="fm-wave-off" viewBox="0 0 24 24" class="hidden"><circle cx="7" cy="12" r="2" fill="#fff" stroke="none"/><path d="M10.5 8.5A5 5 0 0 1 10.5 15.5"/><path d="M13 6A8.5 8.5 0 0 1 13 18"/><path d="M15.5 3.5A12 12 0 0 1 15.5 20.5"/><line x1="4" y1="20" x2="20" y2="4"/></svg>
             </button>
@@ -480,10 +480,10 @@
 </div>
 
 <div class="lightbox" id="lightbox">
-    <button class="lb-close" id="lb-close" aria-label="Close">✕</button>
-    <button class="lb-nav lb-prev" id="lb-prev" aria-label="Previous">‹</button>
+    <button class="lb-close" id="lb-close" aria-label="Close" data-i18n-aria="close">✕</button>
+    <button class="lb-nav lb-prev" id="lb-prev" aria-label="Previous" data-i18n-aria="prev">‹</button>
     <div id="lb-content"></div>
-    <button class="lb-nav lb-next" id="lb-next" aria-label="Next">›</button>
+    <button class="lb-nav lb-next" id="lb-next" aria-label="Next" data-i18n-aria="next">›</button>
     <div class="lb-meta" id="lb-meta"></div>
 </div>
 
@@ -491,8 +491,8 @@
     <a id="cta-link" href="https://apps.apple.com/app/id6749645650">
         <img src="app-icon.png" alt="">
         <span class="cta-stack" aria-live="polite">
-            <span class="cta-opt" id="cta-a">Save this album</span>
-            <span class="cta-opt off" id="cta-b">View more photos</span>
+            <span class="cta-opt" id="cta-a" data-i18n="ctaSave">Save this album</span>
+            <span class="cta-opt off" id="cta-b" data-i18n="ctaMore">View more photos</span>
         </span>
     </a>
 </div>
@@ -501,6 +501,92 @@
 (function() {
     "use strict";
 
+    // ── language ──────────────────────────────────────────────────
+    // Chinese when the browser language starts with "zh"; ?lang=zh / ?lang=en forces.
+    // Every fixed string on the page comes from STR (user content is never translated).
+    var LANG = (function() {
+        var p = (new URLSearchParams(location.search).get("lang") || "").toLowerCase();
+        if (p.indexOf("zh") === 0) return "zh";
+        if (p.indexOf("en") === 0) return "en";
+        return /^zh/i.test(navigator.language || "") ? "zh" : "en";
+    })();
+    var STR = {
+        en: {
+            docTitle: "FlightPlus — Shared Flight Album",
+            metaDesc: "A flight album shared from FlightPlus — photos, flight track and flight details.",
+            badgeAria: "Download on the App Store", badgeTop: "Download on the",
+            loading: "Loading shared album…",
+            unavailT: "Album not available", unavailM: "This shared album may have been removed or the link has expired.",
+            noAltitude: "Altitude data unavailable for this flight",
+            boardingPass: "BOARDING PASS", toggleProfile: "Toggle flight profile",
+            date: "DATE", dep: "DEP", aircraft: "A/C", seat: "SEAT", flight: "FLIGHT",
+            tearStub: "Tear off stub", showCode: "Show scannable code for this album",
+            photosK: "PHOTOS", mediaK: "MEDIA", capt: "CAPT", fo: "F/O",
+            scanAria: "Scan to open this flight album", scanCap: "SCAN TO OPEN THIS FLIGHT ALBUM",
+            scanHint: "Any phone camera opens the album from the square code.",
+            close: "Close", back: "Back", mapStyle: "Toggle map style",
+            hideThumbs: "Hide photo thumbnails", showThumbs: "Show photo thumbnails",
+            hideWaves: "Hide direction waves", showWaves: "Show direction waves",
+            prev: "Previous", next: "Next",
+            ctaSave: "Save this album", ctaMore: "View more photos",
+            missingId: "This link is missing its album id.",
+            sharedBy: "Shared by <b>{name}</b> via FlightPlus", flightWord: "Flight",
+            taxi: "Taxi", takeOff: "Take Off", climb: "Climb", cruise: "Cruise", turning: "Turning",
+            descent: "Descent", land: "Land", personal: "Personal", photos: "Photos", frames: "Frames",
+            countOf: "{i} of {n}", airline: "Airline", route: "Route", altitude: "Altitude", track: "Track",
+            speed: "Speed", dateRow: "Date", likes: "Likes", ft: " ft", kts: " kts",
+            offT: "This share was turned off", offM: "The sender has stopped sharing this album, or the link expired.",
+            goneT: "Album not found", goneM: "This shared album may have been removed, or the link is incomplete.",
+            failT: "Couldn't load the album", failM: "Please check your connection and try again."
+        },
+        zh: {
+            docTitle: "FlightPlus — 分享的航班相册",
+            metaDesc: "从 FlightPlus 分享的航班相册：照片、飞行轨迹和航班信息。",
+            badgeAria: "在 App Store 下载", badgeTop: "下载",
+            loading: "正在加载分享的相册…",
+            unavailT: "相册不可用", unavailM: "这个分享的相册可能已被删除，或链接已过期。",
+            noAltitude: "这个航班没有高度数据",
+            boardingPass: "登机牌", toggleProfile: "切换高度剖面",
+            date: "日期", dep: "出发", aircraft: "机型", seat: "座位", flight: "航班",
+            tearStub: "撕下存根", showCode: "显示这个相册的二维码",
+            photosK: "照片", mediaK: "照片和视频", capt: "机长", fo: "副驾驶",
+            scanAria: "扫码打开这个航班相册", scanCap: "扫码打开这个航班相册",
+            scanHint: "用任意手机相机扫描方形码，就能打开相册。",
+            close: "关闭", back: "返回", mapStyle: "切换地图样式",
+            hideThumbs: "隐藏照片缩略图", showThumbs: "显示照片缩略图",
+            hideWaves: "隐藏方向波纹", showWaves: "显示方向波纹",
+            prev: "上一张", next: "下一张",
+            ctaSave: "收藏这个相册", ctaMore: "查看更多照片",
+            missingId: "这个链接缺少相册 ID。",
+            sharedBy: "<b>{name}</b> 通过 FlightPlus 分享", flightWord: "航班",
+            taxi: "滑行", takeOff: "起飞", climb: "爬升", cruise: "巡航", turning: "转弯",
+            descent: "下降", land: "降落", personal: "个人照片", photos: "照片", frames: "相框",
+            countOf: "{i} / {n}", airline: "航空公司", route: "航线", altitude: "高度", track: "航迹",
+            speed: "地速", dateRow: "日期", likes: "赞", ft: " 英尺", kts: " 节",
+            offT: "这个分享已关闭", offM: "分享者已停止分享这个相册，或链接已过期。",
+            goneT: "找不到相册", goneM: "这个分享的相册可能已被删除，或链接不完整。",
+            failT: "无法加载相册", failM: "请检查网络后重试。"
+        }
+    };
+    function tr(k, vars) {
+        var v = STR[LANG][k] != null ? STR[LANG][k] : STR.en[k];
+        if (vars) for (var n in vars) v = v.split("{" + n + "}").join(vars[n]);
+        return v;
+    }
+    // English keeps plain String(n); Chinese gets zh-Hans digit grouping.
+    function num(n) { return LANG === "zh" && typeof n === "number" ? n.toLocaleString("zh-Hans") : String(n); }
+    if (LANG === "zh") {
+        document.documentElement.lang = "zh-Hans";
+        document.title = tr("docTitle");
+        Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function(e) { e.textContent = tr(e.getAttribute("data-i18n")); });
+        Array.prototype.forEach.call(document.querySelectorAll("[data-i18n-aria]"), function(e) { e.setAttribute("aria-label", tr(e.getAttribute("data-i18n-aria"))); });
+        Array.prototype.forEach.call(document.querySelectorAll("[data-i18n-content]"), function(e) { e.setAttribute("content", tr(e.getAttribute("data-i18n-content"))); });
+        // Apple's zh-CN badge: "App Store" on top, a small "下载" under it.
+        Array.prototype.forEach.call(document.querySelectorAll(".appstore-badge text"), function(e) {
+            e.setAttribute("y", e.getAttribute("data-i18n") ? "32" : "22");
+        });
+    }
+
     // ── config ────────────────────────────────────────────────────
     var API_DIRECT = "https://asia-southeast1-flightps.cloudfunctions.net/getSharedAlbum";
     var API_GATEWAY = "https://cn-gw.flightplus.ai/fn/getSharedAlbum";
@@ -508,14 +594,14 @@
 
     // Phase order + palette, byte-matched to the app's PhaseBucket.
     var PHASES = [
-        ["taxi",     "Taxi",     "rgb(200,195,175)"],
-        ["takeOff",  "Take Off", "rgb(180,220,110)"],
-        ["climb",    "Climb",    "rgb(120,200,180)"],
-        ["cruise",   "Cruise",   "rgb(77,179,217)"],
-        ["turning",  "Turning",  "rgb(175,135,220)"],
-        ["descent",  "Descent",  "rgb(140,200,230)"],
-        ["land",     "Land",     "rgb(160,180,220)"],
-        ["personal", "Personal", "rgb(220,145,175)"]
+        ["taxi",     tr("taxi"),     "rgb(200,195,175)"],
+        ["takeOff",  tr("takeOff"),  "rgb(180,220,110)"],
+        ["climb",    tr("climb"),    "rgb(120,200,180)"],
+        ["cruise",   tr("cruise"),   "rgb(77,179,217)"],
+        ["turning",  tr("turning"),  "rgb(175,135,220)"],
+        ["descent",  tr("descent"),  "rgb(140,200,230)"],
+        ["land",     tr("land"),     "rgb(160,180,220)"],
+        ["personal", tr("personal"), "rgb(220,145,175)"]
     ];
 
     var qs = new URLSearchParams(location.search);
@@ -537,7 +623,7 @@
     }
 
     if (!shareId) {
-        document.getElementById("error-text").textContent = "This link is missing its album id.";
+        document.getElementById("error-text").textContent = tr("missingId");
         show("error");
         return;
     }
@@ -589,8 +675,7 @@
     function render(a) {
         renderPass(a);
         if (a.senderDisplayName) {
-            document.getElementById("sender").innerHTML =
-                "Shared by <b>" + esc(a.senderDisplayName) + "</b> via FlightPlus";
+            document.getElementById("sender").innerHTML = tr("sharedBy", {name: esc(a.senderDisplayName)});
         }
         var memo = (a.memo || "").trim();
         var tagList = (a.hashtags || []).filter(function(h) { return h; });
@@ -620,7 +705,7 @@
         renderPhases(a);
         show("album");
         renderMap(a);
-        document.title = "FlightPlus — " + (a.flightNumber || "Flight") + " " +
+        document.title = "FlightPlus — " + (a.flightNumber || tr("flightWord")) + " " +
             (a.originAirportIATA || "") + "→" + (a.destinationAirportIATA || "");
     }
 
@@ -671,6 +756,14 @@
         if (!dateKey) return "—";
         var p = dateKey.split("-");
         if (p.length !== 3) return dateKey;
+        if (LANG === "zh") {
+            // 25/10/12 in the DATE cell, 2025年10月12日 on the stub and scan view.
+            var day = new Date(Date.UTC(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10)));
+            if (isNaN(day.getTime())) return dateKey;
+            return day.toLocaleDateString("zh-Hans", withYear
+                ? {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}
+                : {year: "2-digit", month: "2-digit", day: "2-digit", timeZone: "UTC"});
+        }
         var m = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][parseInt(p[1], 10) - 1];
         // Full year on the stub, two-digit year in the DATE cell (fits the column).
         return p[2] + " " + m + " " + (withYear ? p[0] : p[0].slice(2));
@@ -684,7 +777,7 @@
         return a.departureLocal || null;
     }
     function seatValue(a) {
-        var role = a.crewRole === "captain" ? "CAPT" : a.crewRole === "firstOfficer" ? "F/O" : "";
+        var role = a.crewRole === "captain" ? tr("capt") : a.crewRole === "firstOfficer" ? tr("fo") : "";
         var seat = (a.seat || "").trim();
         if (role) return seat ? role + " " + seat : role;
         return seat;
@@ -722,8 +815,8 @@
         var mediaCount = a.aerialPhotos.length + (a.framePhotos || []).length + a.tripPhotos.length;
         var hasVideo = a.aerialPhotos.some(function(p) { return p.isVideo; })
                     || a.tripPhotos.some(function(p) { return p.isVideo; });
-        document.getElementById("f-media").textContent = String(mediaCount);
-        document.getElementById("f-media-k").textContent = hasVideo ? "MEDIA" : "PHOTOS";
+        document.getElementById("f-media").textContent = num(mediaCount);
+        document.getElementById("f-media-k").textContent = hasVideo ? tr("mediaK") : tr("photosK");
         passShareUrl = "https://flightplus.ai/share/" + a.shareId;
         drawCode(document.getElementById("t-pdf"), "pdf417", passShareUrl, 2);
         // scan view facts
@@ -830,7 +923,7 @@
         // render above the phase sections), then buckets in flight order,
         // then Personal for trip photos.
         if (unclassified.length) {
-            host.appendChild(sectionEl(null, "Photos", "rgb(77,179,217)", newestFirst(unclassified), false));
+            host.appendChild(sectionEl(null, tr("photos"), "rgb(77,179,217)", newestFirst(unclassified), false));
         }
         PHASES.forEach(function(ph) {
             if (ph[0] === "personal") return;
@@ -842,11 +935,11 @@
         // from phase buckets and never appear on the map.
         var frames = a.framePhotos || [];
         if (frames.length) {
-            host.appendChild(sectionEl("frames", "Frames", "rgb(77,179,217)", newestFirst(frames), true));
+            host.appendChild(sectionEl("frames", tr("frames"), "rgb(77,179,217)", newestFirst(frames), true));
         }
         var personal = (buckets["personal"] || []).concat(a.tripPhotos);
         if (personal.length) {
-            host.appendChild(sectionEl("personal", "Personal", "rgb(220,145,175)", newestFirst(personal), true));
+            host.appendChild(sectionEl("personal", tr("personal"), "rgb(220,145,175)", newestFirst(personal), true));
         }
     }
 
@@ -855,7 +948,7 @@
         sec.className = "phase";
         sec.innerHTML =
             '<div class="phase-head"><div class="phase-bar" style="background:' + color + '"></div>' +
-            "<h2>" + esc(title) + '</h2><span class="phase-count">' + items.length + "</span></div>";
+            "<h2>" + esc(title) + '</h2><span class="phase-count">' + num(items.length) + "</span></div>";
         var grid = document.createElement("div");
         grid.className = "grid";
         items.forEach(function(p) {
@@ -1159,8 +1252,8 @@
         var yLabels =
             '<g ' + mono + ' font-size="9" font-weight="500" fill="rgba(255,255,255,0.5)"' +
             ' text-anchor="middle">' +
-            '<text x="' + labelX + '" y="' + (plotH * 0.075 + 3) + '">' + scaleMax + " ft</text>" +
-            '<text x="' + labelX + '" y="' + (plotH * 0.5 + 3) + '">' + Math.round(scaleMax / 2) + " ft</text>" +
+            '<text x="' + labelX + '" y="' + (plotH * 0.075 + 3) + '">' + num(scaleMax) + tr("ft") + "</text>" +
+            '<text x="' + labelX + '" y="' + (plotH * 0.5 + 3) + '">' + num(Math.round(scaleMax / 2)) + tr("ft") + "</text>" +
             '<text x="' + labelX + '" y="' + (plotH * 0.925 + 3) + '">0</text></g>';
 
         // X-axis: 6 evenly-spaced viewer-local HH:mm labels, first hugging
@@ -1241,7 +1334,7 @@
         document.getElementById("fm-eye-open").classList.toggle("hidden", fmThumbsHidden);
         document.getElementById("fm-eye-slash").classList.toggle("hidden", !fmThumbsHidden);
         document.getElementById("fm-eye").setAttribute("aria-label",
-            fmThumbsHidden ? "Show photo thumbnails" : "Hide photo thumbnails");
+            fmThumbsHidden ? tr("showThumbs") : tr("hideThumbs"));
         // Re-added markers get fresh icon DOM — re-apply the wave state.
         applyWaveVisibility();
     }
@@ -1259,7 +1352,7 @@
         document.getElementById("fm-wave-on").classList.toggle("hidden", fmWavesHidden);
         document.getElementById("fm-wave-off").classList.toggle("hidden", !fmWavesHidden);
         document.getElementById("fm-wave").setAttribute("aria-label",
-            fmWavesHidden ? "Show direction waves" : "Hide direction waves");
+            fmWavesHidden ? tr("showWaves") : tr("hideWaves"));
     }
     function closeFullMap() {
         document.getElementById("fullmap-overlay").classList.remove("open");
@@ -1307,7 +1400,7 @@
         }
         // App-parity detail rows: Airline / Route / Altitude / Track /
         // Speed / Date / Likes — one per line, hashtags on their own line.
-        var html = '<div class="lb-count">' + (lbIndex + 1) + " of " + mediaItems.length + "</div>";
+        var html = '<div class="lb-count">' + tr("countOf", {i: num(lbIndex + 1), n: num(mediaItems.length)}) + "</div>";
         if (p.hashtags) {
             html += '<div class="lb-tags">' + p.hashtags.trim().split(/\s+/).map(function(h) {
                 return esc(h.charAt(0) === "#" ? h : "#" + h);
@@ -1316,19 +1409,19 @@
         var rows = [];
         function row(ic, k, v) { if (v != null && v !== "") rows.push([ic, k, v]); }
         if (!m.personal && albumData) {
-            row("✈", "Airline", albumData.airlineName);
+            row("✈", tr("airline"), albumData.airlineName);
             if (albumData.originAirportIATA && albumData.destinationAirportIATA) {
-                row("→", "Route", albumData.originAirportIATA + " → " + albumData.destinationAirportIATA);
+                row("→", tr("route"), albumData.originAirportIATA + " → " + albumData.destinationAirportIATA);
             }
-            if (typeof p.altitude === "number") row("▲", "Altitude", Math.round(p.altitude).toLocaleString() + " ft");
-            if (typeof p.track === "number") row("↑", "Track", Math.round(p.track) + "°");
-            if (typeof p.groundSpeed === "number") row("◷", "Speed", Math.round(p.groundSpeed) + " kts");
+            if (typeof p.altitude === "number") row("▲", tr("altitude"), (LANG === "zh" ? Math.round(p.altitude).toLocaleString("zh-Hans") : Math.round(p.altitude).toLocaleString()) + tr("ft"));
+            if (typeof p.track === "number") row("↑", tr("track"), Math.round(p.track) + "°");
+            if (typeof p.groundSpeed === "number") row("◷", tr("speed"), num(Math.round(p.groundSpeed)) + tr("kts"));
         }
         if (p.timestamp) {
-            row("🕒", "Date", new Date(p.timestamp).toLocaleString(undefined,
+            row("🕒", tr("dateRow"), new Date(p.timestamp).toLocaleString(LANG === "zh" ? "zh-Hans" : undefined,
                 {day: "numeric", month: "short", year: "numeric", hour: "numeric", minute: "2-digit"}));
         }
-        if (!m.personal && typeof p.likes === "number") row("♥", "Likes", String(p.likes));
+        if (!m.personal && typeof p.likes === "number") row("♥", tr("likes"), num(p.likes));
         if (rows.length) {
             html += '<div class="lb-rows">' + rows.map(function(r) {
                 return '<div class="lb-row"><span class="k">' + esc(r[1]) +
@@ -1379,14 +1472,14 @@
         var t = document.getElementById("error-title");
         var x = document.getElementById("error-text");
         if (err && err.kind === "inactive") {
-            t.textContent = "This share was turned off";
-            x.textContent = "The sender has stopped sharing this album, or the link expired.";
+            t.textContent = tr("offT");
+            x.textContent = tr("offM");
         } else if (err && err.kind === "gone") {
-            t.textContent = "Album not found";
-            x.textContent = "This shared album may have been removed, or the link is incomplete.";
+            t.textContent = tr("goneT");
+            x.textContent = tr("goneM");
         } else {
-            t.textContent = "Couldn't load the album";
-            x.textContent = "Please check your connection and try again.";
+            t.textContent = tr("failT");
+            x.textContent = tr("failM");
         }
         show("error");
     });

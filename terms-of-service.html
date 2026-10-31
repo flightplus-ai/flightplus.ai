@@ -5,6 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="FlightPlus Terms of Service - Read our terms and conditions for using FlightPlus.">
     <title>Terms of Service - FlightPlus</title>
+    <link rel="alternate" hreflang="en" href="https://flightplus.ai/terms-of-service.html">
+    <link rel="alternate" hreflang="zh-Hans" href="https://flightplus.ai/zh/terms-of-service.html">
+    <link rel="alternate" hreflang="x-default" href="https://flightplus.ai/terms-of-service.html">
+    <script>
+        // Chinese browsers get the zh/ copy, unless English was chosen (?lang=en, or the "English" link on zh pages).
+        (function () {
+            try {
+                if (new URLSearchParams(location.search).get("lang") === "en") return;
+                try { if (localStorage.getItem("fp.lang") === "en") return; } catch (e) {}
+                if (/^zh/i.test(navigator.language || "")) location.replace("/zh/terms-of-service.html" + location.hash);
+            } catch (e) {}
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -16,7 +29,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif;
             line-height: 1.6;
             color: #1d1d1f;
             background: #f5f5f7;
@@ -351,6 +364,7 @@
                 <a href="index.html#pricing">Pricing</a>
                 <a href="privacy-policy.html">Privacy Policy</a>
                 <a href="terms-of-service.html">Terms of Service</a>
+                <a href="zh/terms-of-service.html" lang="zh-Hans" hreflang="zh-Hans" onclick="try{localStorage.removeItem('fp.lang')}catch(e){}">中文</a>
             </div>
             <p class="footer-copyright">
                 © 2026 FlightPlus. All rights reserved.

@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FlightPlus 隐私政策：了解我们如何收集、使用和保护你的数据。">
+    <title>隐私政策 - FlightPlus</title>
+    <link rel="alternate" hreflang="en" href="https://flightplus.ai/privacy-policy.html">
+    <link rel="alternate" hreflang="zh-Hans" href="https://flightplus.ai/zh/privacy-policy.html">
+    <link rel="alternate" hreflang="x-default" href="https://flightplus.ai/privacy-policy.html">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Noto Sans SC', sans-serif;
+            line-height: 1.6;
+            color: #1d1d1f;
+            background: #f5f5f7;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .header {
+            background: #1d1d1f;
+            color: #f5f5f7;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .header h1 {
+            font-size: clamp(1.75rem, 4vw, 2.5rem);
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 0.5rem;
+        }
+
+        .header p {
+            color: #86868b;
+            font-size: 1rem;
+        }
+
+        .header a {
+            color: #4DB3D9;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            transition: color 0.3s ease;
+        }
+
+        .header a:hover {
+            color: #3A9BC4;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+            background: white;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .content {
+            line-height: 1.8;
+        }
+
+        .content h2 {
+            font-size: 1.75rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-top: 3rem;
+            margin-bottom: 1rem;
+            color: #1d1d1f;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e5e5e7;
+        }
+
+        .content h2:first-of-type {
+            margin-top: 0;
+        }
+
+        .content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
+            margin-top: 2rem;
+            margin-bottom: 0.75rem;
+            color: #1d1d1f;
+        }
+
+        .content p {
+            margin-bottom: 1rem;
+            color: #1d1d1f;
+            font-size: 1rem;
+        }
+
+        .content ul, .content ol {
+            margin-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .content li {
+            margin-bottom: 0.5rem;
+            color: #1d1d1f;
+        }
+
+        .content strong {
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+
+        .content a {
+            color: #4DB3D9;
+            text-decoration: none;
+            border-bottom: 1px solid transparent;
+            transition: border-color 0.3s ease;
+        }
+
+        .content a:hover {
+            border-bottom-color: #4DB3D9;
+        }
+
+        .highlight-box {
+            background: #f5f5f7;
+            border-left: 4px solid #4DB3D9;
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 4px;
+        }
+
+        .highlight-box p {
+            margin-bottom: 0.5rem;
+        }
+
+        .highlight-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .footer {
+            background: #1d1d1f;
+            color: #f5f5f7;
+            text-align: center;
+            padding: 3rem 2rem;
+            margin-top: 3rem;
+        }
+
+        .footer-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: #86868b;
+            text-decoration: none;
+            font-size: 0.875rem;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: #f5f5f7;
+        }
+
+        .footer-copyright {
+            font-size: 0.75rem;
+            color: #86868b;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+
+            .content h2 {
+                font-size: 1.5rem;
+            }
+
+            .content h3 {
+                font-size: 1.125rem;
+            }
+        }
+
+        /* zh: CJK text reads better without the negative tracking, and wrapped
+           headings need a little more line height than Latin ones. */
+        * { letter-spacing: normal !important; }
+        .content .zh-note { font-size: 0.9375rem; color: #86868b; margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-content">
+            <h1>隐私政策</h1>
+            <p>生效日期：2025 年 12 月 16 日</p>
+            <a href="index.html">← 返回 FlightPlus</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content">
+            <p class="zh-note">本中文版本仅供参考；如与<a href="../privacy-policy.html?lang=en" lang="en" hreflang="en" onclick="try{localStorage.setItem('fp.lang','en')}catch(e){}">英文版本</a>有任何不一致，以英文版本为准。</p>
+            <p>
+                FlightPlus（“我们”）为航空爱好者提供记录、整理和分享航拍照片的工具，包括地图照片探索、飞行日志和专属相框。本隐私政策说明你使用 FlightPlus 移动 App、网站及相关服务（统称“服务”）时，我们如何收集、使用、披露和保护信息。
+            </p>
+
+            <h2>1. 我们收集的信息</h2>
+
+            <h3>1.1 账户与个人资料信息</h3>
+            <p>
+                你创建账户时，我们会收集你的姓名、邮箱、密码，以及你选择提供的任何可选个人资料信息，例如头像或显示名称。我们还会记录你的订阅等级（Explorer 或 Insighter）和订阅状态。
+            </p>
+
+            <h3>1.2 航班与旅程数据</h3>
+            <p>
+                我们会收集你的航班信息，包括航班号、航线、日期、飞机信息、座位一侧标记（左侧/右侧/前方视角）、说明文字、话题标签，以及你为旅程添加的任何备注。
+            </p>
+
+            <h3>1.3 照片与媒体</h3>
+            <p>
+                <strong>公开照片：</strong>你将照片设为公开后，所有 FlightPlus 用户都能看到这些照片，并可以点赞、浏览和分享。FlightPlus 可能在未来的产品、功能或营销材料中使用公开照片。我们会收集与公开照片相关的元数据，包括时间戳、高度、航向、GPS 坐标、航班追踪数据和互动数据（赞、浏览量）。
+            </p>
+            <p>
+                <strong>私密照片：</strong>你设为私密的照片只有你自己能看到。私密照片不会分享给其他用户，FlightPlus 也不会将其用于在 App 内向你展示以外的任何用途。
+            </p>
+            <p>
+                <strong>旅行照片：</strong>如果你选择导入个人旅行照片，我们会收集这些图片及相关元数据（设备时间戳、时区偏移），以便将它们关联到具体航班。旅行照片不会分享给其他用户，FlightPlus 也不会将其用于在 App 内向你展示以外的任何用途。
+            </p>
+
+            <h3>1.4 设备与使用数据</h3>
+            <p>
+                我们会收集设备标识符、操作系统版本、App 版本、日志文件和事件数据（例如功能使用情况、崩溃），以帮助我们诊断问题、提升性能，并了解你如何使用服务。
+            </p>
+
+            <h3>1.5 位置、相机和媒体库访问</h3>
+            <p>
+                我们会请求访问你设备的定位服务（前台和后台），以便准确地为航拍照片标注 GPS 坐标，并帮助你识别从航班上可以看到的地标。我们会请求相机权限，让你可以直接在 App 内拍摄航拍照片。我们会请求照片库权限，让你可以把已有照片导入航班相册，并把处理后的照片保存到照片库。
+            </p>
+
+            <h2>2. 我们如何使用信息</h2>
+            <p>我们将收集的信息用于：</p>
+            <ol>
+                <li><strong>提供核心功能：</strong>验证你的账户、存储你的航班和照片、呈现地图、管理订阅，以及支持社交互动（赞、浏览）。</li>
+                <li><strong>公开分享：</strong>向其他用户展示公开照片、支持点赞和评论，并允许通过链接分享。FlightPlus 可能在未来的产品、功能或营销材料中使用公开照片。</li>
+                <li><strong>个性化与支持：</strong>推荐内容、排查问题，并提供 App 内消息或推送通知。</li>
+                <li><strong>分析与改进：</strong>监控性能、发现滥用行为，并提升安全性和可靠性。</li>
+                <li><strong>法律与合规：</strong>执行我们的服务条款、调查违规行为，并履行监管义务。</li>
+            </ol>
+
+            <div class="highlight-box">
+                <p><strong>重要：</strong>私密照片只有你自己能看到，FlightPlus 不会将其用于在 App 内向你展示以外的任何用途。</p>
+            </div>
+
+            <h2>3. 我们如何分享信息</h2>
+            <p>在以下情况下，我们可能会分享你的信息：</p>
+            <ul>
+                <li><strong>服务提供商：</strong>我们会与帮助我们运营服务的第三方供应商分享数据（例如托管、分析、支付处理、客户支持）。这些供应商依合同有义务保护你的数据，并且只能将其用于我们指定的用途。</li>
+                <li><strong>公开分享：</strong>公开照片、赞和评论对所有 FlightPlus 用户以及任何拿到分享链接的人可见。FlightPlus 可能在未来的产品、功能或营销材料中使用公开照片。</li>
+                <li><strong>业务转让：</strong>如果我们进行合并、出售或业务重组，你的信息可能会转移给承继实体。</li>
+                <li><strong>法律要求：</strong>在法律要求时，或为了保护用户、公众或我们的权利，我们可能会披露信息。</li>
+                <li><strong>同意：</strong>经你明确同意，我们会出于其他任何目的分享数据。</li>
+            </ul>
+            <p>
+                除非你更改可见性设置，私密照片始终只有你自己能访问。
+            </p>
+
+            <h2>4. 你的选择与权利</h2>
+            <p>对于你的数据，你享有以下权利：</p>
+            <ul>
+                <li><strong>照片可见性控制：</strong>你可以随时在 App 设置中将每张照片切换为公开或私密。</li>
+                <li><strong>个人资料设置：</strong>你可以随时通过 App 或联系我们，更新或删除你的账户信息。</li>
+                <li><strong>访问、更正、删除：</strong>你可以发邮件至 <a href="mailto:info@flightplus.ai">info@flightplus.ai</a> 联系我们，申请获取你的数据副本、更正不准确的信息，或申请删除。</li>
+                <li><strong>删除账户：</strong>你可以随时在 App 设置中删除账户。确认删除账户后，你的所有个人数据（包括私密航拍照片、个人旅行照片和已发布的公开航拍照片）将按下文第 5 节所述立即永久删除。但是，如果有任何公开照片已被纳入其他产品、服务或营销材料，我们不会追溯或移除这些使用实例。</li>
+                <li><strong>退订：</strong>你可以点击任何营销邮件中的退订链接，不再接收营销邮件。你可以在设备设置中关闭推送通知。</li>
+                <li><strong>位置/相机权限：</strong>你可以随时在设备的隐私设置中撤销位置或相机权限，但这可能会限制部分功能。</li>
+            </ul>
+
+            <h2>5. 数据保留与删除</h2>
+
+            <h3>5.1 使用期间的保留</h3>
+            <p>
+                只要你的账户处于有效状态，或为提供服务所需，我们就会保留你的个人数据。
+            </p>
+
+            <h3>5.2 删除账户时立即删除数据</h3>
+            <div class="highlight-box">
+                <p><strong>你在 App 中确认删除账户后，FlightPlus 会立即永久删除以下个人数据：</strong></p>
+                <ul style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                    <li><strong>个人资料数据：</strong>你的姓名、邮箱、密码、头像、显示名称、订阅信息，以及所有其他与账户相关的信息。</li>
+                    <li><strong>航班历史：</strong>你创建的所有航班记录，包括航班号、航线、出发和到达日期、飞机信息、座位一侧标记（左侧/右侧/前方视角）、说明文字、话题标签，以及关于旅程的任何个人备注。</li>
+                    <li><strong>私密航拍照片：</strong>你设为私密的所有照片，包括所有相关元数据，例如时间戳、GPS 坐标、高度、航向和航班追踪数据（FR24）。<strong>私密照片会在你确认删除账户后立即删除。</strong></li>
+                    <li><strong>个人旅行照片：</strong>所有导入的个人旅行照片，包括设备时间戳、时区偏移，以及与具体航班的任何关联。</li>
+                </ul>
+            </div>
+            <p>
+                此删除在你确认后立即进行，且永久、不可撤销。账户一旦删除，我们将无法恢复你的个人数据。建议你在开始删除账户前，导出或备份任何想保留的数据。
+            </p>
+
+            <h3>5.3 公开航拍照片</h3>
+            <p>
+                <strong>删除账户后，已发布的公开航拍照片将从 FlightPlus 中删除。</strong>当你将照片发布为公开时，即授予 FlightPlus 按第 2 节所述展示、使用和保留该照片的许可。但是，如果有任何公开照片在你删除账户前已被纳入其他产品、服务或营销材料，我们不会追溯或移除这些使用实例。删除账户后，任何剩余公开照片上的个人署名信息（姓名、头像和账户关联）都将被移除。
+            </p>
+
+            <h3>5.4 如何删除账户</h3>
+            <p>
+                你可以在 FlightPlus App 的设置菜单中删除账户。删除流程需要你在 App 内确认。确认后，你的数据会立即删除，你也会被退出登录。你也可以发邮件至 <a href="mailto:info@flightplus.ai">info@flightplus.ai</a> 联系我们，申请删除账户。
+            </p>
+
+            <h3>5.5 删除后的有限保留</h3>
+            <p>
+                尽管有上述规定，删除账户后，我们仍可能仅为以下目的保留有限的、匿名化或汇总的信息：
+            </p>
+            <ul>
+                <li>遵守法律义务（例如税务记录、法律程序）</li>
+                <li>解决争议或执行我们的服务条款</li>
+                <li>防范欺诈、滥用或安全威胁</li>
+                <li>不识别个人用户的汇总分析</li>
+            </ul>
+            <p>
+                为上述目的保留的任何数据都不会用于识别你的个人身份，并会在不再需要时删除。
+            </p>
+
+            <h2>6. 安全</h2>
+            <p>
+                我们采取技术和组织措施保护你的数据，包括传输加密、访问控制和按用户隔离的存储。但是，没有任何系统是 100% 安全的。如果你怀疑账户遭到未经授权的访问，请立即联系我们。
+            </p>
+
+            <h2>7. 儿童隐私</h2>
+            <p>
+                FlightPlus 不面向 13 岁以下（或你所在司法管辖区要求的最低年龄以下）的用户。我们不会在知情的情况下收集儿童的个人信息。如果你认为有儿童向我们提供了个人信息，请联系我们，以便我们将其删除。
+            </p>
+
+            <h2>8. 国际使用</h2>
+            <p>
+                FlightPlus 由一家在 Singapore 注册的公司运营。使用服务即表示你同意你的数据在 Singapore 以及我们或我们的服务提供商开展业务的其他国家处理和存储，这些国家的数据保护法律可能与你所在司法管辖区不同。
+            </p>
+
+            <h2>9. 本政策的更新</h2>
+            <p>
+                我们可能会不时更新本隐私政策。如有重大变更，我们会通过 App 内通知或邮件告知你。变更生效后你继续使用服务，即表示你接受修订后的政策。
+            </p>
+
+            <h2>10. 联系我们</h2>
+            <p>
+                如果你对本隐私政策或我们的数据处理方式有任何疑问，请联系我们：
+            </p>
+            <p>
+                <strong>FlightPlus 隐私团队</strong><br>
+                邮箱：<a href="mailto:info@flightplus.ai">info@flightplus.ai</a><br>
+            </p>
+        </div>
+    </div>
+
+    <div class="footer">
+        <div class="footer-content">
+            <div class="footer-links">
+                <a href="index.html">首页</a>
+                <a href="index.html#features">功能</a>
+                <a href="index.html#pricing">价格</a>
+                <a href="privacy-policy.html">隐私政策</a>
+                <a href="terms-of-service.html">服务条款</a>
+                <a href="../privacy-policy.html?lang=en" lang="en" hreflang="en" onclick="try{localStorage.setItem('fp.lang','en')}catch(e){}">English</a>
+            </div>
+            <p class="footer-copyright">
+                © 2026 FlightPlus。保留所有权利。
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+

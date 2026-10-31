@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>FlightPlus — VFR Waypoint Task</title>
-    <meta name="description" content="Help pilots find VFR waypoints from the air: a task in the FlightPlus Club.">
+    <title data-i18n="docTitle">FlightPlus — VFR Waypoint Task</title>
+    <meta name="description" content="Help pilots find VFR waypoints from the air: a task in the FlightPlus Club." data-i18n-content="metaDesc">
     <meta name="theme-color" content="#14223b">
     <meta name="apple-itunes-app" content="app-id=6749645650">
     <meta property="og:type" content="website">
@@ -38,13 +38,13 @@
             --stock: #F3EEE4;           /* TicketInk.stock */
             --asphalt: #262933;         /* VFRInk.asphalt */
             --line: rgba(255,255,255,0.08);
-            --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace;
+            --mono: "JetBrains Mono", ui-monospace, "SF Mono", Menlo, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", monospace;
         }
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
         body {
             background: var(--bg); color: var(--text);
-            font-family: "Plus Jakarta Sans", -apple-system, sans-serif;
+            font-family: "Plus Jakarta Sans", -apple-system, "PingFang SC", "Hiragino Sans GB", "Noto Sans SC", sans-serif;
             min-height: 100vh;
         }
         .wrap { max-width: 640px; margin: 0 auto; padding-bottom: 120px; }
@@ -160,27 +160,27 @@
 <div class="wrap">
     <div class="topbar">
         <a class="brand" href="/"><img src="/app-icon.png" alt=""><span>FlightPlus</span></a>
-        <a class="appstore-badge" href="https://apps.apple.com/app/id6749645650" target="_blank" rel="noopener" aria-label="Download on the App Store">
+        <a class="appstore-badge" href="https://apps.apple.com/app/id6749645650" target="_blank" rel="noopener" aria-label="Download on the App Store" data-i18n-aria="badgeAria">
             <svg viewBox="0 0 120 40" xmlns="http://www.w3.org/2000/svg" role="img">
                 <rect width="120" height="40" rx="7" fill="#000" stroke="#a6a6a6" stroke-width="1"/>
                 <path fill="#fff" d="M24.77 20.3a4.95 4.95 0 0 1 2.36-4.15 5.07 5.07 0 0 0-3.99-2.16c-1.68-.18-3.31 1-4.17 1-.87 0-2.19-.98-3.61-.95a5.32 5.32 0 0 0-4.47 2.73c-1.93 3.35-.49 8.27 1.36 10.98.93 1.33 2.01 2.81 3.43 2.76 1.39-.06 1.91-.89 3.58-.89 1.66 0 2.14.89 3.59.85 1.49-.02 2.43-1.34 3.32-2.68a10.96 10.96 0 0 0 1.52-3.09 4.78 4.78 0 0 1-2.92-4.4zM22.04 12.21a4.87 4.87 0 0 0 1.11-3.49 4.96 4.96 0 0 0-3.21 1.66 4.64 4.64 0 0 0-1.14 3.36 4.1 4.1 0 0 0 3.24-1.53z"/>
-                <text x="38" y="17" font-family="-apple-system, Helvetica, Arial" font-size="8" fill="#fff">Download on the</text>
-                <text x="38" y="30" font-family="-apple-system, Helvetica, Arial" font-size="13" font-weight="600" fill="#fff">App Store</text>
+                <text x="38" y="17" font-family="-apple-system, Helvetica, Arial, PingFang SC, Hiragino Sans GB, Noto Sans SC" font-size="8" fill="#fff" data-i18n="badgeTop">Download on the</text>
+                <text x="38" y="30" font-family="-apple-system, Helvetica, Arial, PingFang SC, Hiragino Sans GB, Noto Sans SC" font-size="13" font-weight="600" fill="#fff">App Store</text>
             </svg>
         </a>
     </div>
 
-    <div id="loading" class="state"><div class="spinner"></div><p>Loading the task…</p></div>
+    <div id="loading" class="state"><div class="spinner"></div><p data-i18n="loading">Loading the task…</p></div>
     <div id="error" class="state hidden">
-        <h1 id="error-title">This task isn't open</h1>
-        <p id="error-text">It may have ended. Open FlightPlus to see the tasks running in the Club.</p>
+        <h1 id="error-title" data-i18n="closedT">This task isn't open</h1>
+        <p id="error-text" data-i18n="endedM">It may have ended. Open FlightPlus to see the tasks running in the Club.</p>
     </div>
 
     <div id="task" class="hidden">
         <div class="hero">
             <img id="hero-img" alt="">
             <div class="hero-text">
-                <span class="annunciator">MISSION</span>
+                <span class="annunciator" data-i18n="mission">MISSION</span>
                 <h1 id="title"></h1>
                 <p id="purpose"></p>
             </div>
@@ -189,13 +189,13 @@
             <div class="country"><span class="flag" id="flag"></span><span id="country-name"></span></div>
             <div class="steps" id="steps"></div>
             <div>
-                <div class="section-title">EVERYONE'S PROGRESS</div>
+                <div class="section-title" data-i18n="progress">EVERYONE'S PROGRESS</div>
                 <div class="panel" id="progress"></div>
             </div>
-            <div class="break"><h2>BRIEFING</h2></div>
+            <div class="break"><h2 data-i18n="briefing">BRIEFING</h2></div>
             <div id="file-format" class="hidden">
-                <div class="section-title">WHAT A FILE NEEDS</div>
-                <p class="lead">For many waypoints at once, load a KML, KMZ, GPX or CSV file. One waypoint per row or placemark; a name, a code and a position are required.</p>
+                <div class="section-title" data-i18n="fileT">WHAT A FILE NEEDS</div>
+                <p class="lead" data-i18n="fileM">For many waypoints at once, load a KML, KMZ, GPX or CSV file. One waypoint per row or placemark; a name, a code and a position are required.</p>
             </div>
             <div class="panel" id="briefing"></div>
         </div>
@@ -205,13 +205,87 @@
 <div class="cta">
     <a id="cta-link" href="https://apps.apple.com/app/id6749645650">
         <img src="/app-icon.png" alt="">
-        <span id="cta-text">Open in FlightPlus</span>
+        <span id="cta-text" data-i18n="cta">Open in FlightPlus</span>
     </a>
 </div>
 
 <script>
 (function() {
     "use strict";
+
+    // ── language ──────────────────────────────────────────────────
+    // Chinese when the browser language starts with "zh"; ?lang=zh / ?lang=en forces.
+    // Every fixed string on the page comes from STR; the briefing from KINDS_EN / KINDS_ZH.
+    var LANG = (function() {
+        var p = (new URLSearchParams(location.search).get("lang") || "").toLowerCase();
+        if (p.indexOf("zh") === 0) return "zh";
+        if (p.indexOf("en") === 0) return "en";
+        return /^zh/i.test(navigator.language || "") ? "zh" : "en";
+    })();
+    var STR = {
+        en: {
+            docTitle: "FlightPlus — VFR Waypoint Task",
+            metaDesc: "Help pilots find VFR waypoints from the air: a task in the FlightPlus Club.",
+            badgeAria: "Download on the App Store", badgeTop: "Download on the",
+            loading: "Loading the task…", mission: "MISSION", progress: "EVERYONE'S PROGRESS", briefing: "BRIEFING",
+            fileT: "WHAT A FILE NEEDS",
+            fileM: "For many waypoints at once, load a KML, KMZ, GPX or CSV file. One waypoint per row or placemark; a name, a code and a position are required.",
+            cta: "Open in FlightPlus",
+            closedT: "This task isn't open",
+            endedM: "It may have ended. Open FlightPlus to see the tasks running in the Club.",
+            closedM: "It may have ended, or not started yet. Open FlightPlus to see the tasks running in the Club.",
+            incompleteT: "This link is incomplete", incompleteM: "It is missing the task or the country. Open FlightPlus to see the tasks in the Club.",
+            failT: "Couldn't load the task", failM: "Check your connection and try again.",
+            step: "STEP {n}", covered: "COVERED", coverageAria: "Coverage {p} percent",
+            photographed: "of {goal} photographed", missing: "still need a photo",
+            photo1: "WAYPOINT PHOTO", photoN: "WAYPOINT PHOTOS", contrib1: "CONTRIBUTOR", contribN: "CONTRIBUTORS",
+            pilotWp1: "PILOT WAYPOINT", pilotWpN: "PILOT WAYPOINTS", open1: "COUNTRY OPEN", openN: "COUNTRIES OPEN",
+            noneYet: "No waypoints yet. Be the first.", onMap1: "1 waypoint", onMapN: "{n} waypoints", byPilots: " · {n} added by pilots"
+        },
+        zh: {
+            docTitle: "FlightPlus — VFR 报告点任务",
+            metaDesc: "帮飞行员从空中找到 VFR 报告点：FlightPlus 俱乐部里的一个任务。",
+            badgeAria: "在 App Store 下载", badgeTop: "下载",
+            loading: "正在加载任务…", mission: "任务", progress: "大家的进度", briefing: "任务简介",
+            fileT: "文件需要什么",
+            fileM: "要一次添加很多报告点，可以导入 KML、KMZ、GPX 或 CSV 文件。每行或每个地标一个报告点；名称、代码和位置必填。",
+            cta: "在 FlightPlus 中打开",
+            closedT: "这个任务未开放",
+            endedM: "它可能已经结束。打开 FlightPlus，看看俱乐部里正在进行的任务。",
+            closedM: "它可能已经结束，或者还没开始。打开 FlightPlus，看看俱乐部里正在进行的任务。",
+            incompleteT: "这个链接不完整", incompleteM: "缺少任务或国家。打开 FlightPlus，看看俱乐部里的任务。",
+            failT: "无法加载任务", failM: "请检查网络后重试。",
+            step: "第 {n} 步", covered: "已覆盖", coverageAria: "覆盖率 {p}%",
+            photographed: "已拍摄 · 共 {goal} 个", missing: "还缺照片",
+            photo1: "报告点照片", photoN: "报告点照片", contrib1: "贡献者", contribN: "贡献者",
+            pilotWp1: "飞行员报告点", pilotWpN: "飞行员报告点", open1: "开放国家", openN: "开放国家",
+            noneYet: "还没有报告点。来做第一个吧。", onMap1: "1 个报告点", onMapN: "{n} 个报告点", byPilots: " · {n} 个由飞行员添加"
+        }
+    };
+    function tr(k, vars) {
+        var v = STR[LANG][k] != null ? STR[LANG][k] : STR.en[k];
+        if (vars) for (var n in vars) v = v.split("{" + n + "}").join(vars[n]);
+        return v;
+    }
+    // English keeps plain String(n); Chinese gets grouped digits.
+    function num(n) { return LANG === "zh" && typeof n === "number" ? n.toLocaleString("zh-Hans") : String(n); }
+    function countryName(t0) {
+        if (LANG === "zh") {
+            try { var n = new Intl.DisplayNames(["zh-Hans"], {type: "region"}).of(cc); if (n && n !== cc) return n; } catch (e) {}
+        }
+        return t0.countryName || cc;
+    }
+    if (LANG === "zh") {
+        document.documentElement.lang = "zh-Hans";
+        document.title = tr("docTitle");
+        Array.prototype.forEach.call(document.querySelectorAll("[data-i18n]"), function(e) { e.textContent = tr(e.getAttribute("data-i18n")); });
+        Array.prototype.forEach.call(document.querySelectorAll("[data-i18n-aria]"), function(e) { e.setAttribute("aria-label", tr(e.getAttribute("data-i18n-aria"))); });
+        Array.prototype.forEach.call(document.querySelectorAll("[data-i18n-content]"), function(e) { e.setAttribute("content", tr(e.getAttribute("data-i18n-content"))); });
+        // Apple's zh-CN badge: "App Store" on top, a small "下载" under it.
+        Array.prototype.forEach.call(document.querySelectorAll(".appstore-badge text"), function(e) {
+            e.setAttribute("y", e.getAttribute("data-i18n") ? "32" : "22");
+        });
+    }
 
     var API_DIRECT = "https://asia-southeast1-flightps.cloudfunctions.net/vfrSharedTask";
     var API_GATEWAY = "https://cn-gw.flightplus.ai/fn/vfrSharedTask";
@@ -226,7 +300,7 @@
     };
 
     // The pages' own words — VFRTaskPage / VFRWaypointTaskPage (keep in step).
-    var KINDS = {
+    var KINDS_EN = {
         photos: {
             purpose: "Show pilots what each waypoint looks like from the air.",
             steps: [["map", "Find", "a waypoint on the map"], ["camera", "Add", "your photo of it"], ["seal", "Live", "after a quick review"]],
@@ -257,6 +331,40 @@
         }
     };
 
+
+    // Simplified Chinese of KINDS_EN, same order (keep in step).
+    var KINDS_ZH = {
+        photos: {
+            purpose: "让飞行员看到每个报告点从空中看是什么样。",
+            steps: [["map", "查找", "在地图上找一个报告点"], ["camera", "添加", "传上你拍的照片"], ["seal", "上线", "快速审核后上线"]],
+            questions: [
+                ["什么是 VFR 报告点？", "报告点是地面上的一个地方，目视飞行的飞行员用它报告自己在哪里，比如一个城镇、一座桥、一座水坝或一座清真寺。空中交通管制可能会让飞行员报告某个报告点，飞行员得用眼睛把它找出来。"],
+                ["为什么要添加照片？", "航图上只有一个三角形和一个名字。照片能展示这个地方从驾驶舱看出去的真实样子，让初到这片区域的飞行员第一次就能认出来。"],
+                ["什么样的照片合格？", "只接受从空中拍摄、地标清晰可见的照片。高度和方向不限：同一个报告点有多个角度更有帮助。请不要放个人和非航拍的内容，比如人脸、姓名和证件。"],
+                ["怎么添加？", "在报告点查找里打开一个报告点，点“添加照片”。从你的航班相册或手机相册里选。然后选“分享”或“仅自己”。"],
+                ["审核什么？", "分享的照片会先由 FlightPlus 审核，再让其他飞行员看到：是不是这个报告点、是不是从空中拍的、有没有私人信息。你会先看到“审核中”，然后是“已上线”。如果有问题，你会看到“需要修改”和原因。"],
+                ["哪些不审核？", "你设为“仅自己”的照片。只有你能看到，会马上显示，不获得积分。你可以以后再分享。"],
+                ["可以添加缺失的报告点吗？", "可以。在“俱乐部 › 任务”里打开报告点任务：在地图上放置、输入坐标，或导入文件。你也可以在报告点查找里长按地图。分享的报告点也会同样审核。"]
+            ]
+        },
+        waypoints: {
+            purpose: "把飞行员报告经过的地点，放到每位飞行员的地图上。",
+            steps: [["globe", "选择", "选你飞的国家"], ["pin", "添加", "在地图上、按坐标或用文件"], ["seal", "上线", "快速审核后上线"]],
+            questions: [
+                ["什么是 VFR 报告点？", "地面上的一个地方，目视飞行的飞行员经过时会报告，或靠它辨认方向：一个城镇、一座桥、一座水坝、一个河口。有些公布在国家的 AIP 里。很多只是当地飞行员和管制员常用的地点。"],
+                ["什么最有用？", "印在你的 VFR 航图上、但 GPS 里没有的检查点：城镇、水坝、桥梁、河口。一个国家的官方 VFR 报告点通常已经由 FlightPlus 导入，所以这类文件导入后会显示“已存在”。"],
+                ["为什么要添加？", "报告点查找好不好用，取决于它的列表。你添加的每个报告点都会出现在每位飞行员的地图上，也会成为飞行员可以从空中拍摄的地点。"],
+                ["可以完善已有的报告点吗？", "可以。在报告点查找里打开它，点“建议修改”：添加目视参考（从空中看要找什么）或别名（当地飞行员或塔台用的名字）。每条都会审核；被采纳的可获得积分，你愿意的话还会显示你的名字。"],
+                ["数据可以来自哪里？", "公开来源，比如国家的 AIP 或可以免费再利用的航图，或者你对自己飞行区域的了解。两种都欢迎。导入文件时，请在“数据来源”里说明是哪一种。请不要从付费航图或 App 里复制。"],
+                ["怎么添加？", "点“添加报告点”，选一个国家。然后在地图上放置、输入坐标，或导入文件。给它起飞行员常用的名字，并说明从空中看要找什么。"],
+                ["审核什么？", "每个分享的报告点都会先由 FlightPlus 审核，再让其他飞行员看到：是不是飞行员真正在用的地点、位置对不对、地图上是不是已经有了。你会先看到“审核中”，然后是“已上线”。如果有问题，你会看到“需要修改”和原因。已经有的报告点会合并到现有的报告点里。"],
+                ["哪些不审核？", "你设为“仅自己”的报告点。它们会马上显示在你的地图上，你可以给它们添加照片，但不获得积分。你可以以后再分享。"],
+                ["上线后会怎样？", "它会出现在每个人的报告点查找里，标为由飞行员添加，并作为需要照片的报告点加入拍照任务。"]
+            ]
+        }
+    };
+    var KINDS = LANG === "zh" ? KINDS_ZH : KINDS_EN;
+
     var qs = new URLSearchParams(location.search);
     var path = location.pathname.match(/\/task\/(photos|waypoints)\/([A-Za-z]{2})/);
     var kind = qs.get("kind") || (path ? path[1] : "");
@@ -284,7 +392,7 @@
     function plural(n, one, many) { return n === 1 ? one : many; }
 
     if (!KINDS[kind] || !/^[A-Z]{2}$/.test(cc)) {
-        fail("This link is incomplete", "It is missing the task or the country. Open FlightPlus to see the tasks in the Club.");
+        fail(tr("incompleteT"), tr("incompleteM"));
     }
 
     // Open: the app's own scheme (a universal link back to this same domain
@@ -344,7 +452,7 @@
             var ic = el("div", "step-ic");
             ic.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true">' + ICONS[s[0]] + "</svg>";
             step.appendChild(ic);
-            step.appendChild(el("div", "step-n", "STEP " + (i + 1)));
+            step.appendChild(el("div", "step-n", tr("step", {n: i + 1})));
             step.appendChild(el("div", "step-t", s[1]));
             step.appendChild(el("div", "step-l", s[2]));
             box.appendChild(step);
@@ -355,7 +463,7 @@
         var row = el("div", "totals");
         cells.forEach(function(c) {
             var cell = el("div", "total");
-            cell.appendChild(el("div", "num", String(c[0])));
+            cell.appendChild(el("div", "num", num(c[0])));
             cell.appendChild(el("div", "label", c[1]));
             row.appendChild(cell);
         });
@@ -381,18 +489,18 @@
             arc(0.75, "#262933") + arc(0.75 * Math.max(p, 0.004), "#4db3d9") + "</svg>";
         var label = el("div", "gauge-label");
         label.appendChild(el("div", "value", Math.round(p * 100) + "%"));
-        var cap = el("div", "label", "COVERED");
+        var cap = el("div", "label", tr("covered"));
         cap.style.color = "rgba(255,255,255,0.55)";
         label.appendChild(cap);
         box.appendChild(label);
         box.setAttribute("role", "img");
-        box.setAttribute("aria-label", "Coverage " + Math.round(p * 100) + " percent");
+        box.setAttribute("aria-label", tr("coverageAria", {p: Math.round(p * 100)}));
         return box;
     }
 
     function figure(value, label, color) {
         var f = el("div");
-        var v = el("div", "value", String(value));
+        var v = el("div", "value", num(value));
         v.style.color = color;
         f.appendChild(v);
         var l = el("div", "label", label);
@@ -408,24 +516,25 @@
             var top = el("div", "gauge-row");
             top.appendChild(gauge(p.goal ? p.done / p.goal : 0));
             var figs = el("div", "figures");
-            figs.appendChild(figure(p.done, "of " + p.goal + " photographed", "var(--sky)"));
-            figs.appendChild(figure(p.missing, "still need a photo", "var(--amber)"));
+            figs.appendChild(figure(p.done, tr("photographed", {goal: num(p.goal)}), "var(--sky)"));
+            figs.appendChild(figure(p.missing, tr("missing"), "var(--amber)"));
             top.appendChild(figs);
             box.appendChild(top);
             box.appendChild(el("div", "rule-h"));
-            box.appendChild(totals([[p.photos, plural(p.photos, "WAYPOINT PHOTO", "WAYPOINT PHOTOS")],
-                                    [p.contributors, plural(p.contributors, "CONTRIBUTOR", "CONTRIBUTORS")]]));
+            box.appendChild(totals([[p.photos, plural(p.photos, tr("photo1"), tr("photoN"))],
+                                    [p.contributors, plural(p.contributors, tr("contrib1"), tr("contribN"))]]));
         } else {
-            box.appendChild(totals([[p.waypoints, plural(p.waypoints, "PILOT WAYPOINT", "PILOT WAYPOINTS")],
-                                    [p.contributors, plural(p.contributors, "CONTRIBUTOR", "CONTRIBUTORS")],
-                                    [p.countriesOpen, plural(p.countriesOpen, "COUNTRY OPEN", "COUNTRIES OPEN")]]));
+            box.appendChild(totals([[p.waypoints, plural(p.waypoints, tr("pilotWp1"), tr("pilotWpN"))],
+                                    [p.contributors, plural(p.contributors, tr("contrib1"), tr("contribN"))],
+                                    [p.countriesOpen, plural(p.countriesOpen, tr("open1"), tr("openN"))]]));
             box.appendChild(el("div", "rule-h"));
             var row = el("div", "country-row");
             row.appendChild(el("span", "flag", flag(cc)));
             var words = el("div");
-            words.appendChild(el("b", null, t.countryName));
-            var line = p.onMap === 0 ? "No waypoints yet. Be the first." :
-                plural(p.onMap, "1 waypoint", p.onMap + " waypoints") + (p.byPilots > 0 ? " · " + p.byPilots + " added by pilots" : "");
+            words.appendChild(el("b", null, countryName(t)));
+            var line = p.onMap === 0 ? STR[LANG].noneYet :
+                plural(p.onMap, STR[LANG].onMap1, STR[LANG].onMapN.replace("{n}", num(p.onMap))) +
+                (p.byPilots > 0 ? STR[LANG].byPilots.replace("{n}", num(p.byPilots)) : "");
             words.appendChild(el("span", null, line));
             row.appendChild(words);
             box.appendChild(row);
@@ -434,7 +543,9 @@
 
     function renderBriefing(t) {
         var qs = KINDS[kind].questions.slice();
-        if (t.briefingSource && t.briefingSource.q && t.briefingSource.a) qs.push([t.briefingSource.q, t.briefingSource.a]);
+        // Chinese uses briefingSourceZh when the backend has one, else the English source.
+        var src = LANG === "zh" && t.briefingSourceZh && t.briefingSourceZh.q && t.briefingSourceZh.a ? t.briefingSourceZh : t.briefingSource;
+        if (src && src.q && src.a) qs.push([src.q, src.a]);
         var box = document.getElementById("briefing");
         qs.forEach(function(item, i) {
             var b = el("button", "q" + (i === 0 ? " open" : ""));
@@ -460,21 +571,22 @@
     if (KINDS[kind] && /^[A-Z]{2}$/.test(cc)) {
         load().then(function(t) {
             renderHero(t);
-            document.getElementById("title").textContent = t.title;
+            var title = (LANG === "zh" && t.titleZh) ? t.titleZh : t.title;
+            document.getElementById("title").textContent = title;
             document.getElementById("purpose").textContent = KINDS[kind].purpose;
             document.getElementById("flag").textContent = flag(cc);
-            document.getElementById("country-name").textContent = String(t.countryName || cc).toUpperCase();
+            document.getElementById("country-name").textContent = String(countryName(t)).toUpperCase();
             renderSteps(KINDS[kind].steps);
             renderProgress(t);
             if (kind === "waypoints") document.getElementById("file-format").classList.remove("hidden");
             renderBriefing(t);
-            document.title = "FlightPlus — " + t.title + " · " + t.countryName;
+            document.title = "FlightPlus — " + title + " · " + (LANG === "zh" ? countryName(t) : t.countryName);
             show("task");
         }).catch(function(err) {
             if (err && err.kind === "closed") {
-                fail("This task isn't open", "It may have ended, or not started yet. Open FlightPlus to see the tasks running in the Club.");
+                fail(tr("closedT"), tr("closedM"));
             } else {
-                fail("Couldn't load the task", "Check your connection and try again.");
+                fail(tr("failT"), tr("failM"));
             }
         });
     }
