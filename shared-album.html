@@ -784,10 +784,22 @@
     }
     // app v135.flightDuration · landing − takeoff, only when the owner's app
     // knows both exactly (it writes landingEpoch only then); else hidden.
+    // Else the owner's track estimate (durationEstimateSec, no provider
+    // landing; Victor 2026-11-09), shown with "~" / "About".
     function flightDuration(a) {
-        if (typeof a.departureEpoch !== "number" || typeof a.landingEpoch !== "number") return null;
-        var secs = a.landingEpoch - a.departureEpoch;
-        if (secs < 60 || secs > 20 * 3600) return null;
+        var exact = (typeof a.departureEpoch === "number" && typeof a.landingEpoch === "number")
+            ? a.landingEpoch - a.departureEpoch : null;
+        if (exact !== null && exact >= 60 && exact <= 20 * 3600) return durationText(exact, false);
+        var est = a.durationEstimateSec;
+        if (typeof est === "number" && est >= 60 && est <= 20 * 3600) return durationText(est, true);
+        return null;
+    }
+    function durationText(secs, estimated) {
+        var d = durationParts(secs);
+        if (!estimated) return d;
+        return {text: "~" + d.text, spoken: (LANG === "zh" ? "约" : "About ") + d.spoken};
+    }
+    function durationParts(secs) {
         var mins = Math.round(secs / 60), h = Math.floor(mins / 60), m = mins % 60;
         var mm = h > 0 ? String(m).padStart(2, "0") : String(m);
         if (LANG === "zh") {
