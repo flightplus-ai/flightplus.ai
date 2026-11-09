@@ -151,6 +151,11 @@
         .plane-arc svg.arc { position: absolute; left: 0; right: 0; bottom: 6px; width: 100%; height: 18px; }
         .plane-arc svg.plane { position: absolute; left: 50%; top: 4px; width: 16px; height: 16px;
                                transform: translateX(-50%); fill: var(--ink); }
+        /* app v135.flightDuration · exact landing − takeoff, 1px under the arc's ends */
+        .plane-arc.has-dur { flex-basis: 84px !important; min-width: 84px; }
+        .plane-arc .dur { position: absolute; left: 50%; top: 25px; transform: translateX(-50%);
+                          font-family: var(--mono); font-size: 12px; font-weight: 700; line-height: 1.2;
+                          color: var(--ink); white-space: nowrap; }
         .t-meta { display: flex; justify-content: space-between; gap: 10px; margin-top: 12px; }  /* fields at content width, equal gaps (app v61.ticketRow) */
         .t-meta > div { flex: 0 0 auto; min-width: 0; }
         .t-meta .k { font-size: 9px; font-weight: 700; letter-spacing: 1.6px; color: var(--ink2); }
@@ -408,6 +413,7 @@
                                   stroke-width="1" stroke-linecap="round" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/>
                         </svg>
                         <svg class="plane" viewBox="0 0 24 24" aria-hidden="true"><path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" transform="rotate(90 12 12)"/></svg>
+                        <span class="dur" id="f-dur" aria-hidden="true" hidden></span>
                     </button>
                     <div class="dest">
                         <div class="iata" id="d-iata">—</div>
@@ -776,6 +782,22 @@
         }
         return a.departureLocal || null;
     }
+    // app v135.flightDuration · landing − takeoff, only when the owner's app
+    // knows both exactly (it writes landingEpoch only then); else hidden.
+    function flightDuration(a) {
+        if (typeof a.departureEpoch !== "number" || typeof a.landingEpoch !== "number") return null;
+        var secs = a.landingEpoch - a.departureEpoch;
+        if (secs < 60 || secs > 20 * 3600) return null;
+        var mins = Math.round(secs / 60), h = Math.floor(mins / 60), m = mins % 60;
+        var mm = h > 0 ? String(m).padStart(2, "0") : String(m);
+        if (LANG === "zh") {
+            return {text: (h > 0 ? h + "小时" : "") + mm + "分",
+                    spoken: (h > 0 ? h + "小时" : "") + m + "分钟"};
+        }
+        return {text: (h > 0 ? h + "h " : "") + mm + "m",
+                spoken: [h > 0 ? h + (h === 1 ? " hour" : " hours") : "",
+                         m > 0 || h === 0 ? m + (m === 1 ? " minute" : " minutes") : ""].filter(Boolean).join(" ")};
+    }
     function seatValue(a) {
         var role = a.crewRole === "captain" ? tr("capt") : a.crewRole === "firstOfficer" ? tr("fo") : "";
         var seat = (a.seat || "").trim();
@@ -799,6 +821,11 @@
         document.getElementById("f-flight").textContent = (a.flightNumber || "—").toUpperCase();
         document.getElementById("f-date").textContent = ticketDay(a.dateKey);
         document.getElementById("f-dep").textContent = departure(a) || "—";
+        var dur = flightDuration(a), arcBtn = document.getElementById("plane-arc"), durEl = document.getElementById("f-dur");
+        durEl.hidden = !dur;
+        durEl.textContent = dur ? dur.text : "";
+        arcBtn.classList.toggle("has-dur", !!dur);
+        arcBtn.setAttribute("aria-label", dur ? dur.spoken + (LANG === "zh" ? "。" : ". ") + tr("toggleProfile") : tr("toggleProfile"));
         var ac = shortAircraft(a.aircraftModel);
         document.getElementById("f-aircraft").textContent = ac ? ac.toUpperCase() : "—";
         var seat = seatValue(a);
