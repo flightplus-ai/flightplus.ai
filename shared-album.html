@@ -407,7 +407,7 @@
                         <div class="iata" id="o-iata">—</div>
                         <div class="ap-name" id="o-name"></div>
                     </div>
-                    <button class="plane-arc" id="plane-arc" aria-label="Toggle flight profile" data-i18n-aria="toggleProfile">
+                    <button class="plane-arc" id="plane-arc" aria-label="Show altitude profile" data-i18n-aria="toggleProfile">
                         <svg class="arc" viewBox="0 0 100 18" preserveAspectRatio="none" aria-hidden="true">
                             <path d="M 0 18 Q 50 -4 100 18" fill="none" stroke="rgba(89,97,110,0.7)"
                                   stroke-width="1" stroke-linecap="round" stroke-dasharray="2 3" vector-effect="non-scaling-stroke"/>
@@ -524,7 +524,7 @@
             loading: "Loading shared album…",
             unavailT: "Album not available", unavailM: "This shared album may have been removed or the link has expired.",
             noAltitude: "Altitude data unavailable for this flight",
-            boardingPass: "BOARDING PASS", toggleProfile: "Toggle flight profile",
+            boardingPass: "BOARDING PASS", toggleProfile: "Show altitude profile",
             date: "DATE", dep: "DEP", aircraft: "A/C", seat: "SEAT", flight: "FLIGHT",
             tearStub: "Tear off stub", showCode: "Show scannable code for this album",
             photosK: "PHOTOS", mediaK: "MEDIA", capt: "CAPT", fo: "F/O",
@@ -552,7 +552,7 @@
             loading: "正在加载分享的相册…",
             unavailT: "相册不可用", unavailM: "这个分享的相册可能已被删除，或链接已过期。",
             noAltitude: "这个航班没有高度数据",
-            boardingPass: "登机牌", toggleProfile: "切换高度剖面",
+            boardingPass: "登机牌", toggleProfile: "显示高度剖面",
             date: "日期", dep: "出发", aircraft: "机型", seat: "座位", flight: "航班",
             tearStub: "撕下存根", showCode: "显示这个相册的二维码",
             photosK: "照片", mediaK: "照片和视频", capt: "机长", fo: "副驾驶",
@@ -750,7 +750,7 @@
     // and show the logo alone only when the name fits nowhere.
     function fitTicketHeader() {
         var head = document.querySelector(".t-head"); var name = document.getElementById("t-airline-name");
-        if (!head || !name) return;
+        if (!head || !name || head.offsetWidth === 0) return;   // hidden: no size to measure yet
         head.classList.remove("no-title", "logo-only");
         var fits = function () { return name.scrollWidth <= name.clientWidth + 1; };
         if (!name.textContent || fits()) return;
@@ -763,12 +763,12 @@
         var p = dateKey.split("-");
         if (p.length !== 3) return dateKey;
         if (LANG === "zh") {
-            // 25/10/12 in the DATE cell, 2025年10月12日 on the stub and scan view.
+            // As the app (D61): 26年6月23日 in the DATE cell (yy年M月dd日),
+            // 2025年10月12日 on the stub and scan view.
             var day = new Date(Date.UTC(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10)));
             if (isNaN(day.getTime())) return dateKey;
-            return day.toLocaleDateString("zh-Hans", withYear
-                ? {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"}
-                : {year: "2-digit", month: "2-digit", day: "2-digit", timeZone: "UTC"});
+            if (!withYear) return p[0].slice(2) + "年" + parseInt(p[1], 10) + "月" + p[2] + "日";
+            return day.toLocaleDateString("zh-Hans", {year: "numeric", month: "long", day: "numeric", timeZone: "UTC"});
         }
         var m = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"][parseInt(p[1], 10) - 1];
         // Full year on the stub, two-digit year in the DATE cell (fits the column).
@@ -880,6 +880,7 @@
         var body = document.getElementById("t-body");
         var pass = document.getElementById("pass");
         if (!body || !pass || body.offsetHeight === 0) return;
+        fitTicketHeader();   // D61 · first real size / fonts loaded / logo in
         pass.style.marginTop = (-passOverlap()) + "px";
         if (typeof previewMap !== "undefined" && previewMap && !profileShown) fitPreview(previewMap);
     }
